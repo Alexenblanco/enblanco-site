@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Agencia de Branding y Diseño",
+  title:
+    "Agencia creativa enblanco: branding, diseño y dirección con criterio",
   description:
-    "Enblanco: branding, diseño web y estrategia digital desde Murcia y Madrid.",
+    "enblanco es una agencia creativa de branding, diseño y dirección que trabaja con criterio: sistemas claros, ejecutados sin ruido.",
   alternates: {
     canonical: "/es",
     languages: {
@@ -14,72 +15,158 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Agencia de Branding y Diseño",
+    title:
+      "Agencia creativa enblanco: branding, diseño y dirección con criterio",
     description:
-      "Enblanco: branding, diseño web y estrategia digital desde Murcia y Madrid.",
+      "enblanco es una agencia creativa de branding, diseño y dirección que trabaja con criterio: sistemas claros, ejecutados sin ruido.",
   },
 };
 
+const navItems = [
+  { href: "#proyectos", label: "proyectos" },
+  { href: "#areas", label: "áreas" },
+  { href: "#enblanco", label: "enblanco" },
+  { href: "#notas", label: "notas" },
+  { href: "#contacto", label: "contacto" },
+] as const;
+
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-zinc-50 text-zinc-900">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:text-zinc-900 shadow">
+        Saltar al contenido principal
+      </a>
+
+      <header className="border-b border-zinc-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <Link href="/es" className="text-sm font-semibold tracking-tight">
+            enblanco
+          </Link>
+          <nav aria-label="Navegación principal">
+            <ul className="flex gap-4 text-sm">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <a href={item.href} className="text-zinc-700 hover:text-zinc-900">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main id="main" className="mx-auto flex max-w-5xl flex-col gap-16 px-6 py-10">
+        <section aria-labelledby="home-heading">
+          <h1
+            id="home-heading"
+            className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl"
+          >
+            Agencia creativa enblanco: branding, diseño y dirección con criterio
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        </section>
+
+        <section id="que-hacemos" aria-labelledby="que-hacemos-heading">
+          <h2 id="que-hacemos-heading" className="text-base font-semibold tracking-tight">
+            Qué hacemos
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Trabajamos marca, diseño y sistemas de comunicación para que decisiones complejas se tomen rápido y con claridad.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
+
+        <section id="servicios" aria-labelledby="servicios-heading">
+          <h2 id="servicios-heading" className="text-base font-semibold tracking-tight">
+            Servicios
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Branding, naming, consultoría de marca, dirección de arte, estrategia creativa y campañas, packaging y diseño web.
+          </p>
+        </section>
+
+        <section id="areas" aria-labelledby="areas-heading">
+          <h2 id="areas-heading" className="text-base font-semibold tracking-tight">
+            Áreas
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Retail, salud, alimentación, industria, startups y tecnología, cultura. Cambian las prioridades, no el estándar.
+          </p>
+        </section>
+
+        <section id="proyectos" aria-labelledby="proyectos-heading">
+          <h2 id="proyectos-heading" className="text-base font-semibold tracking-tight">
+            Proyectos seleccionados
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Una selección de trabajos donde se ve claro cómo aplicamos criterio, sistema y ejecución en cada contexto.
+          </p>
+        </section>
+
+        <section id="enblanco" aria-labelledby="como-trabajamos-heading">
+          <h2 id="como-trabajamos-heading" className="text-base font-semibold tracking-tight">
+            Cómo trabajamos
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Partimos de una fase de descubrimiento, ordenamos posicionamiento y mensaje, diseñamos sistemas aplicables y acompañamos el despliegue.
+          </p>
+        </section>
+
+        <section aria-labelledby="faq-heading">
+          <h2 id="faq-heading" className="text-base font-semibold tracking-tight">
+            Preguntas frecuentes
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Presupuestos, plazos, entregables y formas de colaboración; lo dejamos por escrito para que todo sea claro desde el inicio.
+          </p>
+        </section>
+
+        <section id="notas" aria-labelledby="notas-heading">
+          <h2 id="notas-heading" className="text-base font-semibold tracking-tight">
+            Notas
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Notas breves sobre creatividad, diseño y procesos de marca que salen del trabajo diario en enblanco.
+          </p>
+        </section>
+
+        <section id="contacto" aria-labelledby="contacto-heading">
+          <h2 id="contacto-heading" className="text-base font-semibold tracking-tight">
+            Hablemos
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-700">
+            Para contarnos un proyecto, proponer una colaboración o simplemente saludar, escríbenos a{" "}
+            <a href="mailto:hola@agenciaenblanco.com" className="underline">
+              hola@agenciaenblanco.com
+            </a>
+            .
+          </p>
+        </section>
       </main>
+
+      <footer className="mt-12 border-t border-zinc-200 bg-white">
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-6 text-xs text-zinc-600 md:flex-row md:items-center md:justify-between">
+          <p>© {new Date().getFullYear()} enblanco.</p>
+          <nav aria-label="Enlaces legales">
+            <ul className="flex flex-wrap gap-3">
+              <li>
+                <Link href="/es/aviso-legal" className="hover:text-zinc-900">
+                  aviso legal
+                </Link>
+              </li>
+              <li>
+                <Link href="/es/privacidad" className="hover:text-zinc-900">
+                  privacidad
+                </Link>
+              </li>
+              <li>
+                <Link href="/es/cookies" className="hover:text-zinc-900">
+                  cookies
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }
