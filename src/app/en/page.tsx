@@ -12,6 +12,11 @@ export const metadata: Metadata = {
       "x-default": "/es",
     },
   },
+  openGraph: {
+    title: "Branding & Design Agency",
+    description:
+      "Enblanco: branding, web design and digital strategy studio based in Spain.",
+  },
 };
 
 export default function Home() {

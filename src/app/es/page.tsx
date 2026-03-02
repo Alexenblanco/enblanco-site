@@ -13,6 +13,11 @@ export const metadata: Metadata = {
       "x-default": "/es",
     },
   },
+  openGraph: {
+    title: "Agencia de Branding y Diseño",
+    description:
+      "Enblanco: branding, diseño web y estrategia digital desde Murcia y Madrid.",
+  },
 };
 
 export default function Home() {

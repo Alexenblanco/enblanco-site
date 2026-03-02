@@ -1,0 +1,12 @@
+{
+  "name": "Enblanco",
+  "short_name": "Enblanco",
+  "start_url": "/es",
+  "display": "standalone",
+  "background_color": "#F2F1F1",
+  "theme_color": "#F2F1F1",
+  "icons": [
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+
