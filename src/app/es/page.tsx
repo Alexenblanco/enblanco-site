@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "Agencia de Branding y Diseño",
+  description:
+    "Enblanco: branding, diseño web y estrategia digital desde Murcia y Madrid.",
+  alternates: {
+    canonical: "/es",
+    languages: {
+      es: "/es",
+      en: "/en",
+    },
+  },
+};
 
 export default function Home() {
   return (
