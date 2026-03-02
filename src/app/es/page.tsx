@@ -23,11 +23,11 @@ export const metadata: Metadata = {
 };
 
 const navItems = [
-  { href: "#proyectos", label: "proyectos" },
-  { href: "#areas", label: "áreas" },
-  { href: "#enblanco", label: "enblanco" },
-  { href: "#notas", label: "notas" },
-  { href: "#contacto", label: "contacto" },
+  { href: "/es/proyectos", label: "proyectos" },
+  { href: "/es/areas", label: "áreas" },
+  { href: "/es/enblanco", label: "enblanco" },
+  { href: "/es/notas", label: "notas" },
+  { href: "/es/contacto", label: "contacto" },
 ] as const;
 
 export default function Home() {
@@ -46,9 +46,9 @@ export default function Home() {
             <ul className="flex gap-4 text-sm">
               {navItems.map((item) => (
                 <li key={item.href}>
-                  <a href={item.href} className="text-zinc-700 hover:text-zinc-900">
+                  <Link href={item.href} className="text-zinc-700 hover:text-zinc-900">
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
