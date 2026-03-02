@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const siteUrl = "https://enblanco-site.vercel.app";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://enblanco-site.vercel.app";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
