@@ -8,9 +8,10 @@ const siteUrl =
 const ogImage = `${siteUrl}/og-default.jpg`;
 const logoUrl = `${siteUrl}/logo.png`;
 
+/* Object Sans: under src/app/fonts so next/font/local bundles it in production */
 const objectSans = localFont({
-  src: "../../public/fonts/ObjectSans-Regular.otf",
-  variable: "--font-object-sans",
+  src: "./fonts/ObjectSans-Regular.otf",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -71,10 +72,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body
-        className={`${objectSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="es" className={objectSans.variable}>
+      <body className={`${geistMono.variable} antialiased`}>
         <div className="page">
         <script
           type="application/ld+json"

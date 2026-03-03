@@ -22,8 +22,7 @@
   --overlay-bg: rgba(237, 236, 235, 0.85);
   --overlay-blur: 8px;
 
-  /* Typography */
-  --font-sans: var(--font-object-sans), "Object Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Typography (--font-sans is set on <html> by next/font/local) */
   --font-weight-regular: 400;
   --letter-spacing-base: -0.05em;
   --line-height-base: 1.5;
@@ -65,7 +64,7 @@
 html {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), "Object Sans", ui-sans-serif, system-ui, sans-serif;
   font-weight: var(--font-weight-regular);
   letter-spacing: var(--letter-spacing-base);
   line-height: var(--line-height-base);
@@ -75,7 +74,7 @@ html {
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), "Object Sans", ui-sans-serif, system-ui, sans-serif;
   font-weight: var(--font-weight-regular);
   letter-spacing: var(--letter-spacing-base);
   line-height: var(--line-height-base);
