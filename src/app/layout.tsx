@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const siteUrl =
@@ -7,9 +8,10 @@ const siteUrl =
 const ogImage = `${siteUrl}/og-default.jpg`;
 const logoUrl = `${siteUrl}/logo.png`;
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const objectSans = localFont({
+  src: "../../public/fonts/ObjectSans-Regular.otf",
+  variable: "--font-object-sans",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -71,8 +73,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${objectSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div className="page">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -125,6 +128,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        </div>
       </body>
     </html>
   );

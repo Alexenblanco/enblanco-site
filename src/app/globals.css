@@ -1,30 +1,156 @@
 @import "tailwindcss";
 
+/* ========== DESIGN TOKENS (enblanco) ========== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --color-bg: #EDECEB;
+  --color-surface: #FFFFFF;
+  --color-border: #FFFFFF;
+  --color-text: #8A8A8A;
+  --color-link: #1A1C1F;
+  --color-link-hover: #5D5D5D;
+  --color-link-active: #5D5D5D;
+
+  /* Buttons */
+  --btn-bg: #FFFFFF;
+  --btn-bg-hover: #DDDDDD;
+  --btn-bg-active: #EDECEB;
+  --btn-text: #1A1C1F;
+  --btn-text-hover: #5D5D5D;
+
+  /* Overlay (modals) – rgba derived from #EDECEB */
+  --overlay-bg: rgba(237, 236, 235, 0.85);
+  --overlay-blur: 8px;
+
+  /* Typography */
+  --font-sans: var(--font-object-sans), "Object Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-weight-regular: 400;
+  --letter-spacing-base: -0.05em;
+  --line-height-base: 1.5;
+  --line-height-tight: 1.25;
+  --text-base: 18px;
+  --h1: 24px;
+  --h2: 24px;
+
+  /* Radius */
+  --radius: 7px;
+
+  /* Global layout */
+  --page-padding: 32px;
+
+  /* Spacing scale (px) */
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-64: 64px;
+  --space-100: 100px;
+
+  /* Legacy / Tailwind compatibility (optional) */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ========== BASE STYLES ========== */
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--letter-spacing-base);
+  line-height: var(--line-height-base);
+  font-size: var(--text-base);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--letter-spacing-base);
+  line-height: var(--line-height-base);
+  font-size: var(--text-base);
 }
 
+h1, h2 {
+  font-size: var(--h1);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-base);
+}
+h1 { font-size: var(--h1); }
+h2 { font-size: var(--h2); }
+
+a {
+  color: var(--color-link);
+}
+a:hover {
+  color: var(--color-link-hover);
+}
+a:active {
+  color: var(--color-link-active);
+}
+
+/* Clickable text hover/active (links; buttons use .btn) */
+a:hover { color: var(--color-link-hover); }
+a:active { color: var(--color-link-active); }
+
+/* Images, videos, cards, buttons – default radius (safe; override where needed) */
+img, video {
+  border-radius: var(--radius);
+}
+
+/* ========== UTILITY CLASSES ========== */
+/* Global page wrapper: 32px padding (top, sides, bottom) */
+.page {
+  padding: var(--page-padding);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Card / container surface */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+/* Button base (minimal) */
+.btn {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  letter-spacing: var(--letter-spacing-base);
+}
+.btn:hover {
+  background: var(--btn-bg-hover);
+  color: var(--btn-text-hover);
+}
+.btn:active {
+  background: var(--btn-bg-active);
+  color: var(--btn-text-hover);
+}
+
+/* Modal overlay */
+.modalOverlay {
+  background: var(--overlay-bg);
+  backdrop-filter: blur(var(--overlay-blur));
+  -webkit-backdrop-filter: blur(var(--overlay-blur));
+}
+
+/* ========== RESPONSIVE BREAKPOINTS (reference; use Tailwind sm/md/lg/xl/2xl) ========== */
+/* sm 640px, md 768px, lg 1024px, xl 1280px, 2xl 1536px – mobile-first */
+
+/* ========== LEGACY / ACCESSIBILITY ========== */
 .sr-only {
   position: absolute;
   width: 1px;
