@@ -180,27 +180,49 @@ img, video {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 10px;
+  gap: 0;
+  box-shadow: none;
 }
 .dock-pill {
-  background: #FFFFFF;
+  position: relative;
+  background: transparent;
   border-radius: 9999px;
   color: var(--color-text);
   font-family: var(--font-sans), sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: -0.05em;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.06);
-  transition: background-color 0.2s, color 0.2s;
+  padding: 6px 14px;
+  transition: color 0.2s;
+  box-shadow: none;
+}
+.dock-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #FFFFFF;
+  border-radius: 9999px;
+  filter: blur(3px);
+  z-index: -1;
+  transition: background-color 0.2s;
+  box-shadow: none;
+}
+.dock-pill:hover::before {
+  background: #DDDDDD;
+}
+.dock-pill:active::before {
+  background: #EDECEB;
+}
+.dock-pill--central {
+  padding-left: 32px;
+  padding-right: 32px;
 }
 .dock-pill:hover {
-  background: #DDDDDD;
   color: #5D5D5D;
 }
 .dock-pill:active {
-  background: #EDECEB;
   color: #5D5D5D;
 }
 .dock-pill:focus-visible {

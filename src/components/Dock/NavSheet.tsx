@@ -48,7 +48,7 @@ export default function NavSheet({ open, onClose }: NavSheetProps) {
             aria-hidden
           />
           <motion.aside
-            className="fixed left-0 top-0 bottom-0 z-50 w-[min(280px,85vw)] bg-[#FFFFFF] shadow-xl"
+            className="fixed left-0 top-0 bottom-0 z-50 w-[min(280px,85vw)] bg-[#FFFFFF]"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}

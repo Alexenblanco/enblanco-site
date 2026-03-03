@@ -87,7 +87,7 @@ export default function FloatingDock() {
         aria-label="Navegación principal"
       >
         {/* Desktop: 5 pills */}
-        <div className="hidden md:flex md:items-center md:gap-[10px]">
+        <div className="hidden md:flex md:items-stretch md:gap-0">
           {desktopItems.map((item, index) => (
             <DockItem
               key={item.id}
@@ -106,7 +106,7 @@ export default function FloatingDock() {
         </div>
 
         {/* Mobile: 3 pills */}
-        <div className="flex items-center gap-[10px] md:hidden">
+        <div className="flex items-stretch gap-0 md:hidden">
           <DockItem
             id="menu"
             ariaLabel="Abrir menú"
