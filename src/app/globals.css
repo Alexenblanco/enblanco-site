@@ -85,12 +85,29 @@ h1, h2 {
   font-size: var(--h1);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-base);
+  font-weight: var(--font-weight-regular);
 }
 h1 { font-size: var(--h1); }
 h2 { font-size: var(--h2); }
 
 a {
   color: var(--color-link);
+}
+
+/* Solo peso 400 y color texto #8a8a8a en toda la web; enlaces mantienen su color */
+.page,
+.page * {
+  font-weight: var(--font-weight-regular) !important;
+  color: var(--color-text) !important;
+}
+.page a {
+  color: var(--color-link) !important;
+}
+.page a:hover {
+  color: var(--color-link-hover) !important;
+}
+.page a:active {
+  color: var(--color-link-active) !important;
 }
 a:hover {
   color: var(--color-link-hover);
