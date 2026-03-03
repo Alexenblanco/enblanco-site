@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
+import FloatingDock from "@/components/Dock/FloatingDock";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
@@ -127,6 +128,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <FloatingDock />
         </div>
       </body>
     </html>

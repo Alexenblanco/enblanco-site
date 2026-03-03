@@ -129,8 +129,14 @@ img, video {
 /* Global page wrapper: 32px padding (top, sides, bottom) */
 .page {
   padding: var(--page-padding);
+  padding-bottom: 132px; /* espacio para FloatingDock */
   min-height: 100vh;
   box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .page {
+    padding-bottom: 152px;
+  }
 }
 
 /* Card / container surface */
@@ -165,6 +171,54 @@ img, video {
 
 /* ========== RESPONSIVE BREAKPOINTS (reference; use Tailwind sm/md/lg/xl/2xl) ========== */
 /* sm 640px, md 768px, lg 1024px, xl 1280px, 2xl 1536px – mobile-first */
+
+/* ========== FLOATING DOCK ========== */
+.dock {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.dock-pill {
+  background: #FFFFFF;
+  border-radius: 9999px;
+  color: var(--color-text);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.2s, color 0.2s;
+}
+.dock-pill:hover {
+  background: #DDDDDD;
+  color: #5D5D5D;
+}
+.dock-pill:active {
+  background: #EDECEB;
+  color: #5D5D5D;
+}
+.dock-pill:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}
+.dock .dock-pill,
+.dock .dock-pill a {
+  color: var(--color-text) !important;
+}
+.dock .dock-pill:hover,
+.dock .dock-pill a:hover {
+  color: #5D5D5D !important;
+}
+.dock .dock-pill:active,
+.dock .dock-pill a:active {
+  color: #5D5D5D !important;
+}
 
 /* ========== LEGACY / ACCESSIBILITY ========== */
 .sr-only {
