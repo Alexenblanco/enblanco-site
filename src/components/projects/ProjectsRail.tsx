@@ -99,7 +99,7 @@ function CardWithPosition({
   const logicalIndex = index % n;
   const isCentered = activeIndex === logicalIndex;
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
-  const detailHref = `${projectDetailBasePath}/${project.slug}`;
+  const detailHref = `${projectDetailBasePath}/${project.detailSlug ?? project.slug}`;
 
   return (
     <motion.div

@@ -13,6 +13,8 @@ export type Project = {
   services: string[];
   coverImage: string;
   coverAlt: string;
+  /** Slug estable para la página de detalle (ej. branding-acilica-studio). Si existe, los enlaces usan este en lugar de slug. */
+  detailSlug?: string;
   /** Para futuro: descripción larga */
   description?: string;
   /** Para futuro: galería de imágenes */
@@ -50,12 +52,13 @@ export const projects: Project[] = [
     id: "2",
     slug: "acilica-studio",
     title: "Acilica Studio",
-    year: "2026",
+    year: "2025",
     industry: "Arts & Culture",
     categories: ["Branding", "Design"],
     services: ["branding"],
     coverImage: "/projects/covers/acilica.png",
     coverAlt: "Acilica Studio",
+    detailSlug: "branding-acilica-studio",
   },
   {
     id: "3",

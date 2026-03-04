@@ -106,7 +106,7 @@ export default function ProjectMeta({ project, reducedMotion }: ProjectMetaProps
             transition={transition}
           >
             <Link
-              href={`/es/proyectos/${project.slug}`}
+              href={`/es/proyectos/${project.detailSlug ?? project.slug}`}
               className="pointer-events-auto no-underline"
               style={{ fontSize: "16px" }}
             >
