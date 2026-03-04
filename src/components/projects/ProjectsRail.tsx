@@ -6,20 +6,32 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import type { Project } from "@/data/projects";
 
 const GAP = 8;
-const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5, imagen más alta que ancha)
+const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5)
 const CENTER_SCALE = 1.12;
-const NEAR_SCALE = 0.92;
-const FAR_SCALE = 0.86;
 const SPRING = { type: "spring" as const, stiffness: 180, damping: 22 };
 const WHEEL_COOLDOWN_MS = 1000;
 
+/** Solo la card del centro escala (1.12); el resto igual (1) */
 function scaleFromDistance(d: number): number {
-  if (d <= -2) return FAR_SCALE;
-  if (d < -1) return FAR_SCALE + (NEAR_SCALE - FAR_SCALE) * (d + 2);
-  if (d < 0) return NEAR_SCALE + (CENTER_SCALE - NEAR_SCALE) * (d + 1);
-  if (d < 1) return CENTER_SCALE + (NEAR_SCALE - CENTER_SCALE) * d;
-  if (d < 2) return NEAR_SCALE + (FAR_SCALE - NEAR_SCALE) * (d - 1);
-  return FAR_SCALE;
+  return Math.abs(d) < 0.5 ? CENTER_SCALE : 1;
+}
+
+/** Overflow de la card central hacia el gap (mitad por arriba/abajo) */
+function centerOverflow(baseHeight: number): number {
+  return ((CENTER_SCALE - 1) * baseHeight) / 2;
+}
+
+/** Posición Y (top) de la card i cuando el centro está en índice n. Gap normal 8px; junto al centro 8+overflow para que el hueco visual sea 8px. */
+function cardTop(i: number, n: number, baseHeight: number): number {
+  const delta = centerOverflow(baseHeight);
+  const largeGap = GAP + delta;
+  if (i <= 0) return 0;
+  let top = 0;
+  for (let j = 0; j < i; j++) {
+    const isGapBeforeCenter = j === n - 1 || j === n;
+    top += baseHeight + (isGapBeforeCenter ? largeGap : GAP);
+  }
+  return top;
 }
 
 type ProjectsRailProps = {
@@ -28,24 +40,42 @@ type ProjectsRailProps = {
   onActiveChange: (index: number) => void;
 };
 
-function CardWithScale({
+function cardTopInterp(
+  i: number,
+  offset: number,
+  baseHeight: number
+): number {
+  const n0 = Math.floor(offset);
+  const n1 = Math.ceil(offset);
+  const f = offset - n0;
+  if (n0 === n1) return cardTop(i, n0, baseHeight);
+  return (1 - f) * cardTop(i, n0, baseHeight) + f * cardTop(i, n1, baseHeight);
+}
+
+function CardWithPosition({
   index,
   project,
   offset,
+  baseHeightRef,
   baseHeight,
 }: {
   index: number;
   project: Project;
   offset: ReturnType<typeof useMotionValue<number>>;
+  baseHeightRef: React.RefObject<number>;
   baseHeight: number;
 }) {
+  const top = useTransform(offset, (v) =>
+    cardTopInterp(index, v, baseHeightRef.current)
+  );
   const scale = useTransform(offset, (v) => scaleFromDistance(index - v));
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
 
   return (
     <motion.div
-      className="slot relative flex shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF]"
+      className="slot absolute left-1/2 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF]"
       style={{
+        top,
         width: baseWidth,
         height: baseHeight,
         scale,
@@ -72,11 +102,10 @@ export default function ProjectsRail({
   const n = projects.length;
   const containerRef = useRef<HTMLDivElement>(null);
   const lastStepAt = useRef(0);
-  const [stepHeight, setStepHeight] = useState(0);
+  const [baseHeight, setBaseHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
-  const baseHeight = stepHeight - GAP;
-  const stepHeightRef = useRef(stepHeight);
-  stepHeightRef.current = stepHeight;
+  const baseHeightRef = useRef(0);
+  baseHeightRef.current = baseHeight;
 
   const initialOffset = n;
   const offset = useMotionValue(initialOffset);
@@ -88,8 +117,9 @@ export default function ProjectsRail({
     const update = () => {
       const h = el.getBoundingClientRect().height;
       setContainerHeight(h);
-      const baseH = (h - 4 * GAP) / 5;
-      setStepHeight(baseH + GAP);
+      const overflowRatio = (CENTER_SCALE - 1) / 2;
+      const baseH = (h - 32) / (5 + 2 * overflowRatio);
+      setBaseHeight(baseH);
     };
     update();
     const ro = new ResizeObserver(update);
@@ -107,7 +137,7 @@ export default function ProjectsRail({
 
   const go = useCallback(
     (delta: number) => {
-      if (n === 0 || stepHeight <= 0) return;
+      if (n === 0 || baseHeight <= 0) return;
       const current = offsetRef.current;
       const target = current + delta;
 
@@ -129,7 +159,7 @@ export default function ProjectsRail({
         animate(offset, target, SPRING);
       }
     },
-    [n, offset, stepHeight]
+    [n, offset, baseHeight]
   );
 
   useEffect(() => {
@@ -160,11 +190,23 @@ export default function ProjectsRail({
     return () => window.removeEventListener("keydown", handleKey);
   }, [go]);
 
-  const y = useTransform(offset, (v) => -v * stepHeight);
+  const listTranslateY = useTransform(offset, (v) => {
+    const b = baseHeightRef.current;
+    const n0 = Math.floor(v);
+    const n1 = Math.ceil(v);
+    const f = v - n0;
+    const c0 = cardTop(n0, n0, b);
+    const c1 = n0 !== n1 ? cardTop(n1, n1, b) : c0;
+    return -(c0 * (1 - f) + c1 * f);
+  });
 
   if (n === 0) return null;
 
   const listTop = containerHeight / 2 - baseHeight / 2;
+  const listHeight =
+    baseHeight > 0
+      ? cardTop(3 * n - 1, n, baseHeight) + baseHeight
+      : 0;
 
   return (
     <div
@@ -172,27 +214,22 @@ export default function ProjectsRail({
       className="projects-rail-container relative h-[100vh] w-full overflow-visible"
       style={{ touchAction: "pan-y", zIndex: 10 }}
     >
-      {baseHeight > 0 && (
+      {baseHeight > 0 && listHeight > 0 && (
         <div
-          className="absolute left-1/2 flex flex-col items-center"
-          style={{
-            top: listTop,
-            transform: "translateX(-50%)",
-          }}
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ top: listTop }}
         >
           <motion.div
-            className="flex flex-col items-center"
-            style={{
-              y,
-              gap: GAP,
-            }}
+            className="relative"
+            style={{ y: listTranslateY, width: baseHeight * CARD_ASPECT_RATIO, height: listHeight }}
           >
             {Array.from({ length: 3 * n }, (_, i) => (
-              <CardWithScale
+              <CardWithPosition
                 key={`${i}-${projects[i % n].id}`}
                 index={i}
                 project={projects[i % n]}
                 offset={offset}
+                baseHeightRef={baseHeightRef}
                 baseHeight={baseHeight}
               />
             ))}

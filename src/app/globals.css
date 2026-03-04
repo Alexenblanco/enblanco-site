@@ -116,12 +116,6 @@ a:active {
   color: var(--color-link-active);
 }
 
-/* Proyectos meta: textos blancos durante animación de salida */
-.proyectos-meta [data-exiting="true"],
-.proyectos-meta [data-exiting="true"] * {
-  color: #FFFFFF !important;
-}
-
 /* Clickable text hover/active (links; buttons use .btn) */
 a:hover { color: var(--color-link-hover); }
 a:active { color: var(--color-link-active); }

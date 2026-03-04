@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, AnimatePresence, useIsPresent } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Project } from "@/data/projects";
 
 type ProjectMetaProps = {
@@ -20,13 +20,11 @@ function MetaBlockLeft({
   reducedMotion: boolean;
   transition: { duration: number };
 }) {
-  const isPresent = useIsPresent();
   return (
     <motion.div
-      data-exiting={!isPresent ? "true" : undefined}
       initial={reducedMotion ? false : { opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0, color: "var(--color-text)" }}
-      exit={reducedMotion ? undefined : { opacity: 0, x: 8, color: "#FFFFFF" }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={reducedMotion ? undefined : { opacity: 0, x: 8 }}
       transition={t}
       className="flex items-baseline gap-3"
     >
@@ -52,13 +50,11 @@ function MetaBlockRight({
   reducedMotion: boolean;
   transition: { duration: number };
 }) {
-  const isPresent = useIsPresent();
   return (
     <motion.div
-      data-exiting={!isPresent ? "true" : undefined}
       initial={reducedMotion ? false : { opacity: 0, x: 8 }}
-      animate={{ opacity: 1, x: 0, color: "var(--color-text)" }}
-      exit={reducedMotion ? undefined : { opacity: 0, x: -8, color: "#FFFFFF" }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={reducedMotion ? undefined : { opacity: 0, x: -8 }}
       transition={t}
       className="flex items-center gap-6"
       style={{ fontSize: "16px" }}
