@@ -24,7 +24,7 @@
 
   /* Typography (--font-sans is set on <html> by next/font/local) */
   --font-weight-regular: 400;
-  --letter-spacing-base: -0.05em;
+  --letter-spacing-base: -0.04em;
   --line-height-base: 1.5;
   --line-height-tight: 1.25;
   --text-base: 18px;
@@ -228,7 +228,7 @@ img, video {
   font-family: var(--font-sans), sans-serif;
   font-size: 16px;
   font-weight: 400;
-  letter-spacing: -0.05em;
+  letter-spacing: var(--letter-spacing-base);
   padding: 6px 14px;
   transition: color 0.2s;
   box-shadow: none;
@@ -239,7 +239,7 @@ img, video {
   inset: 0;
   background: #FFFFFF;
   border-radius: 9999px;
-  filter: blur(3px);
+  filter: blur(2px);
   z-index: -1;
   transition: background-color 0.2s;
   box-shadow: none;

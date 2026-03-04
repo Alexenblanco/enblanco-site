@@ -33,7 +33,7 @@ function MetaCell({
       exit={reducedMotion ? undefined : { opacity: 0, x: exitX }}
       transition={t}
       className="text-left"
-      style={{ letterSpacing: "-0.05em" }}
+      style={{ letterSpacing: "-0.04em" }}
     >
       {children}
     </motion.div>

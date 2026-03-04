@@ -133,7 +133,7 @@ export default function Filters({
           className="flex cursor-pointer items-center gap-1 text-[16px] transition-opacity duration-150 hover:opacity-80 active:opacity-70"
           style={{
             color: "var(--color-text)",
-            letterSpacing: "-0.05em",
+            letterSpacing: "-0.04em",
           }}
           aria-expanded={servicesOpen}
           aria-haspopup="listbox"
@@ -167,7 +167,7 @@ export default function Filters({
                   className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                   style={{
                     color: service === null ? "var(--color-link)" : "var(--color-text)",
-                    letterSpacing: "-0.05em",
+                    letterSpacing: "-0.04em",
                   }}
                   aria-pressed={service === null}
                 >
@@ -185,7 +185,7 @@ export default function Filters({
                     className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                     style={{
                       color: service === value ? "var(--color-link)" : "var(--color-text)",
-                      letterSpacing: "-0.05em",
+                      letterSpacing: "-0.04em",
                     }}
                     aria-pressed={service === value}
                   >
@@ -206,7 +206,7 @@ export default function Filters({
           className="flex cursor-pointer items-center gap-1 text-[16px] transition-opacity duration-150 hover:opacity-80 active:opacity-70"
           style={{
             color: "var(--color-text)",
-            letterSpacing: "-0.05em",
+            letterSpacing: "-0.04em",
           }}
           aria-expanded={industriesOpen}
           aria-haspopup="listbox"
@@ -240,7 +240,7 @@ export default function Filters({
                   className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                   style={{
                     color: industry === null ? "var(--color-link)" : "var(--color-text)",
-                    letterSpacing: "-0.05em",
+                    letterSpacing: "-0.04em",
                   }}
                   aria-pressed={industry === null}
                 >
@@ -258,7 +258,7 @@ export default function Filters({
                     className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                     style={{
                       color: industry === value ? "var(--color-link)" : "var(--color-text)",
-                      letterSpacing: "-0.05em",
+                      letterSpacing: "-0.04em",
                     }}
                     aria-pressed={industry === value}
                   >
