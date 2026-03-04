@@ -1,19 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import type { Project } from "@/data/projects";
 
-const CARD_WIDTH = 280;
-const CARD_HEIGHT = 380;
-const SLOT_GAP = 24;
-const SLOT_HEIGHT = CARD_HEIGHT + SLOT_GAP;
+const GAP = 8;
+const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5, imagen más alta que ancha)
 const CENTER_SCALE = 1.12;
 const NEAR_SCALE = 0.92;
 const FAR_SCALE = 0.86;
 const SPRING = { type: "spring" as const, stiffness: 180, damping: 22 };
-const WHEEL_THROTTLE_MS = 600;
+const WHEEL_COOLDOWN_MS = 1000;
+
+function scaleFromDistance(d: number): number {
+  if (d <= -2) return FAR_SCALE;
+  if (d < -1) return FAR_SCALE + (NEAR_SCALE - FAR_SCALE) * (d + 2);
+  if (d < 0) return NEAR_SCALE + (CENTER_SCALE - NEAR_SCALE) * (d + 1);
+  if (d < 1) return CENTER_SCALE + (NEAR_SCALE - CENTER_SCALE) * d;
+  if (d < 2) return NEAR_SCALE + (FAR_SCALE - NEAR_SCALE) * (d - 1);
+  return FAR_SCALE;
+}
 
 type ProjectsRailProps = {
   projects: Project[];
@@ -21,10 +28,40 @@ type ProjectsRailProps = {
   onActiveChange: (index: number) => void;
 };
 
-function getScale(distance: number): number {
-  if (distance === 0) return CENTER_SCALE;
-  if (Math.abs(distance) === 1) return NEAR_SCALE;
-  return FAR_SCALE;
+function CardWithScale({
+  index,
+  project,
+  offset,
+  baseHeight,
+}: {
+  index: number;
+  project: Project;
+  offset: ReturnType<typeof useMotionValue<number>>;
+  baseHeight: number;
+}) {
+  const scale = useTransform(offset, (v) => scaleFromDistance(index - v));
+  const baseWidth = baseHeight * CARD_ASPECT_RATIO;
+
+  return (
+    <motion.div
+      className="slot relative flex shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF]"
+      style={{
+        width: baseWidth,
+        height: baseHeight,
+        scale,
+        borderRadius: "var(--radius)",
+        transformOrigin: "center center",
+      }}
+    >
+      <Image
+        src={project.coverImage}
+        alt={project.coverAlt}
+        fill
+        sizes={`${Math.round(baseWidth * CENTER_SCALE)}px`}
+        className="object-cover"
+      />
+    </motion.div>
+  );
 }
 
 export default function ProjectsRail({
@@ -32,30 +69,79 @@ export default function ProjectsRail({
   activeIndex,
   onActiveChange,
 }: ProjectsRailProps) {
-  const reducedMotion = useReducedMotion();
-  const lastWheelRef = useRef(0);
+  const n = projects.length;
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastStepAt = useRef(0);
+  const [stepHeight, setStepHeight] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const baseHeight = stepHeight - GAP;
+  const stepHeightRef = useRef(stepHeight);
+  stepHeightRef.current = stepHeight;
+
+  const initialOffset = n;
+  const offset = useMotionValue(initialOffset);
+  const offsetRef = useRef(initialOffset);
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      setContainerHeight(h);
+      const baseH = (h - 4 * GAP) / 5;
+      setStepHeight(baseH + GAP);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const unsub = offset.on("change", (v) => {
+      offsetRef.current = v;
+      onActiveChange(Math.round(v) % n);
+    });
+    return unsub;
+  }, [n, onActiveChange]);
 
   const go = useCallback(
     (delta: number) => {
-      const next = Math.max(0, Math.min(projects.length - 1, activeIndex + delta));
-      if (next !== activeIndex) onActiveChange(next);
+      if (n === 0 || stepHeight <= 0) return;
+      const current = offsetRef.current;
+      const target = current + delta;
+
+      if (target >= 2 * n) {
+        animate(offset, 2 * n, {
+          ...SPRING,
+          onComplete: () => {
+            offset.set(n);
+          },
+        });
+      } else if (target < n) {
+        animate(offset, n - 1, {
+          ...SPRING,
+          onComplete: () => {
+            offset.set(2 * n - 1);
+          },
+        });
+      } else {
+        animate(offset, target, SPRING);
+      }
     },
-    [activeIndex, projects.length, onActiveChange]
+    [n, offset, stepHeight]
   );
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       const now = Date.now();
-      if (now - lastWheelRef.current < WHEEL_THROTTLE_MS) return;
-      lastWheelRef.current = now;
+      if (now - lastStepAt.current < WHEEL_COOLDOWN_MS) return;
+      lastStepAt.current = now;
       go(e.deltaY > 0 ? 1 : -1);
     };
-
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
   }, [go]);
@@ -74,59 +160,45 @@ export default function ProjectsRail({
     return () => window.removeEventListener("keydown", handleKey);
   }, [go]);
 
-  if (projects.length === 0) return null;
+  const y = useTransform(offset, (v) => -v * stepHeight);
 
-  const transition = reducedMotion
-    ? { duration: 0.15 }
-    : SPRING;
+  if (n === 0) return null;
 
-  const offsetY = activeIndex * SLOT_HEIGHT;
+  const listTop = containerHeight / 2 - baseHeight / 2;
 
   return (
     <div
       ref={containerRef}
-      className="relative flex h-[70vh] max-h-[720px] min-h-[420px] items-center justify-center overflow-hidden"
-      style={{ touchAction: "pan-y" }}
+      className="projects-rail-container relative h-[100vh] w-full overflow-visible"
+      style={{ touchAction: "pan-y", zIndex: 10 }}
     >
-      <motion.div
-        className="flex flex-col items-center"
-        style={{ gap: SLOT_GAP }}
-        animate={{
-          translateY: `calc(50% - ${CARD_HEIGHT / 2}px - ${offsetY}px)`,
-        }}
-        transition={transition}
-      >
-        {projects.map((project, i) => {
-          const distance = i - activeIndex;
-          const scale = getScale(distance);
-
-          return (
-            <motion.div
-              key={project.id}
-              className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF]"
-              style={{
-                width: CARD_WIDTH,
-                height: CARD_HEIGHT,
-                borderRadius: "var(--radius)",
-              }}
-              initial={false}
-              animate={{
-                scale,
-                opacity: reducedMotion ? 1 : (Math.abs(distance) <= 2 ? 1 : 0.4),
-              }}
-              transition={transition}
-            >
-              <Image
-                src={project.coverImage}
-                alt={project.coverAlt}
-                fill
-                sizes={`${CARD_WIDTH}px`}
-                className="object-cover"
+      {baseHeight > 0 && (
+        <div
+          className="absolute left-1/2 flex flex-col items-center"
+          style={{
+            top: listTop,
+            transform: "translateX(-50%)",
+          }}
+        >
+          <motion.div
+            className="flex flex-col items-center"
+            style={{
+              y,
+              gap: GAP,
+            }}
+          >
+            {Array.from({ length: 3 * n }, (_, i) => (
+              <CardWithScale
+                key={`${i}-${projects[i % n].id}`}
+                index={i}
+                project={projects[i % n]}
+                offset={offset}
+                baseHeight={baseHeight}
               />
-            </motion.div>
-          );
-        })}
-      </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

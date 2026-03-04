@@ -116,6 +116,12 @@ a:active {
   color: var(--color-link-active);
 }
 
+/* Proyectos meta: textos blancos durante animación de salida */
+.proyectos-meta [data-exiting="true"],
+.proyectos-meta [data-exiting="true"] * {
+  color: #FFFFFF !important;
+}
+
 /* Clickable text hover/active (links; buttons use .btn) */
 a:hover { color: var(--color-link-hover); }
 a:active { color: var(--color-link-active); }
@@ -178,6 +184,31 @@ img, video {
       transparent 0
     );
   background-size: 24px 24px;
+}
+
+.projects-rail-container {
+  display: block;
+  overflow: visible;
+}
+
+/* Alineación proyectos: misma cuadrícula para meta y filtros */
+.proyectos-meta {
+  padding-left: max(7%, 64px);
+  padding-right: max(7%, 64px);
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.proyectos-filters-wrap {
+  padding-left: max(7%, 64px);
+  padding-right: max(7%, 64px);
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* ========== RESPONSIVE BREAKPOINTS (reference; use Tailwind sm/md/lg/xl/2xl) ========== */

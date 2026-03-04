@@ -46,10 +46,10 @@ export default function ProjectsView() {
       }}
     >
       <section
-        className="relative flex min-h-[85vh] flex-col"
+        className="relative flex min-h-[85vh] flex-col overflow-visible"
         aria-label="Proyectos"
       >
-        <div className="relative flex-1">
+        <div className="relative flex-1 overflow-visible">
           <ProjectsRail
             projects={filtered}
             activeIndex={activeIndex}

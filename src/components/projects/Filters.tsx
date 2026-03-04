@@ -42,7 +42,7 @@ export default function Filters({
   const industryLabel = industry && industry !== "All industries" ? industry : "All industries";
 
   return (
-    <div className="flex items-center justify-center gap-8 pb-2">
+    <div className="proyectos-filters-wrap w-full gap-8 pb-2">
       <div ref={catRef} className="relative">
         <button
           type="button"
