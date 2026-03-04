@@ -30,7 +30,7 @@ const breadcrumbJsonLd = {
 
 export default function ProyectosPage() {
   return (
-    <main className="mx-auto w-full max-w-[100vw] overflow-x-hidden">
+    <main className="proyectos-page mx-auto w-full max-w-[100vw] overflow-x-hidden">
       <JsonLd data={breadcrumbJsonLd} />
       <ProjectsView />
     </main>

@@ -35,7 +35,7 @@ export default function ProjectsView() {
 
   return (
     <div
-      className="proyectos-bg relative min-h-[100vh] overflow-x-hidden"
+      className="proyectos-bg relative min-h-[100vh] overflow-x-hidden overflow-y-visible"
       style={{
         width: "100vw",
         position: "relative",
@@ -43,6 +43,7 @@ export default function ProjectsView() {
         right: "50%",
         marginLeft: "-50vw",
         marginRight: "-50vw",
+        marginTop: "calc(-1 * var(--page-padding, 32px))",
       }}
     >
       <section

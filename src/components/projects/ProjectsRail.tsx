@@ -8,12 +8,15 @@ import type { Project } from "@/data/projects";
 const GAP = 8;
 const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5)
 const CENTER_SCALE = 1.12;
-const SPRING = { type: "spring" as const, stiffness: 180, damping: 22 };
+const SPRING = { type: "spring" as const, stiffness: 120, damping: 24 };
 const WHEEL_COOLDOWN_MS = 1000;
 
-/** Solo la card del centro escala (1.12); el resto igual (1) */
+/** Solo la card del centro escala (1.12); el resto 1. Interpolación suave para que la transición no sea brusca. */
 function scaleFromDistance(d: number): number {
-  return Math.abs(d) < 0.5 ? CENTER_SCALE : 1;
+  const abs = Math.abs(d);
+  if (abs >= 0.5) return 1;
+  const t = abs / 0.5;
+  return CENTER_SCALE - (CENTER_SCALE - 1) * t;
 }
 
 /** Overflow de la card central hacia el gap (mitad por arriba/abajo) */

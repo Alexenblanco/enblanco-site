@@ -180,6 +180,11 @@ img, video {
   background-size: 24px 24px;
 }
 
+/* Página proyectos: permitir overflow vertical para rail y meta hasta los bordes */
+.proyectos-page {
+  overflow-y: visible;
+}
+
 .projects-rail-container {
   display: block;
   overflow: visible;
