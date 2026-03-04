@@ -107,7 +107,7 @@ export default function ProjectMeta({ project, reducedMotion }: ProjectMetaProps
           >
             <Link
               href={`/es/proyectos/${project.slug}`}
-              className="pointer-events-auto underline"
+              className="pointer-events-auto no-underline"
               style={{ fontSize: "16px" }}
             >
               Ver proyecto

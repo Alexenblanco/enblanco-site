@@ -20,6 +20,20 @@ function toLabel(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 }
 
+/** Icono doble flecha arriba/abajo (desplegable) */
+function ArrowUpDown({ className }: { className?: string }) {
+  return (
+    <span className={className} aria-hidden style={{ display: "inline-flex", alignItems: "center", gap: "2px", lineHeight: 0 }}>
+      <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 0L0 5H8L4 0Z" fill="currentColor" />
+      </svg>
+      <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 1L4 6L8 1" fill="currentColor" />
+      </svg>
+    </span>
+  );
+}
+
 export default function Filters({
   service,
   industry,
@@ -67,20 +81,21 @@ export default function Filters({
 
   return (
     <div
-      className="proyectos-filters-wrap w-full max-w-[1600px] mx-auto pb-2"
+      className="w-full pb-2"
       style={{
-        paddingLeft: "max(7%, 64px)",
-        paddingRight: "max(7%, 64px)",
         display: "grid",
         gridTemplateColumns: "1fr 64px 1fr 64px 1fr",
         alignItems: "center",
+        maxWidth: "1600px",
+        marginLeft: "auto",
+        marginRight: "auto",
       }}
     >
       <div ref={servicesRef} className="relative flex justify-end" style={{ gridColumn: 1 }}>
         <button
           type="button"
           onClick={() => openOne("services")}
-          className="flex items-center gap-1 text-[16px]"
+          className="flex cursor-pointer items-center gap-1 text-[16px] transition-opacity duration-150 hover:opacity-80 active:opacity-70"
           style={{
             color: "var(--color-text)",
             letterSpacing: "-0.05em",
@@ -89,10 +104,12 @@ export default function Filters({
           aria-haspopup="listbox"
           aria-label={servicesOpen ? "Cerrar filtro servicios" : "Filtrar por servicio"}
         >
-          {servicesOpen ? "Close ×" : serviceLabel}
-          <span className="ml-1 inline-block text-[10px]" aria-hidden>
-            {servicesOpen ? "×" : "˄"}
-          </span>
+          {servicesOpen ? "Close ×" : (
+            <>
+              {serviceLabel}
+              <ArrowUpDown className="ml-1.5" />
+            </>
+          )}
         </button>
         <AnimatePresence>
           {servicesOpen && (
@@ -112,7 +129,7 @@ export default function Filters({
                     onServiceChange(null);
                     setServicesOpen(false);
                   }}
-                  className="px-1 py-0.5 text-sm"
+                  className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                   style={{
                     color: service === null ? "var(--color-link)" : "var(--color-text)",
                     letterSpacing: "-0.05em",
@@ -130,7 +147,7 @@ export default function Filters({
                       onServiceChange(value);
                       setServicesOpen(false);
                     }}
-                    className="px-1 py-0.5 text-sm"
+                    className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                     style={{
                       color: service === value ? "var(--color-link)" : "var(--color-text)",
                       letterSpacing: "-0.05em",
@@ -151,7 +168,7 @@ export default function Filters({
         <button
           type="button"
           onClick={() => openOne("industries")}
-          className="flex items-center gap-1 text-[16px]"
+          className="flex cursor-pointer items-center gap-1 text-[16px] transition-opacity duration-150 hover:opacity-80 active:opacity-70"
           style={{
             color: "var(--color-text)",
             letterSpacing: "-0.05em",
@@ -160,10 +177,12 @@ export default function Filters({
           aria-haspopup="listbox"
           aria-label={industriesOpen ? "Cerrar filtro industrias" : "Filtrar por industria"}
         >
-          {industriesOpen ? "Close ×" : industryLabel}
-          <span className="ml-1 inline-block text-[10px]" aria-hidden>
-            {industriesOpen ? "×" : "˄"}
-          </span>
+          {industriesOpen ? "Close ×" : (
+            <>
+              {industryLabel}
+              <ArrowUpDown className="ml-1.5" />
+            </>
+          )}
         </button>
         <AnimatePresence>
           {industriesOpen && (
@@ -183,7 +202,7 @@ export default function Filters({
                     onIndustryChange(null);
                     setIndustriesOpen(false);
                   }}
-                  className="px-1 py-0.5 text-sm"
+                  className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                   style={{
                     color: industry === null ? "var(--color-link)" : "var(--color-text)",
                     letterSpacing: "-0.05em",
@@ -201,7 +220,7 @@ export default function Filters({
                       onIndustryChange(value);
                       setIndustriesOpen(false);
                     }}
-                    className="px-1 py-0.5 text-sm"
+                    className="cursor-pointer px-1 py-0.5 text-sm rounded transition-opacity duration-150 hover:opacity-80 active:opacity-70"
                     style={{
                       color: industry === value ? "var(--color-link)" : "var(--color-text)",
                       letterSpacing: "-0.05em",

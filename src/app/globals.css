@@ -126,17 +126,11 @@ img, video {
 }
 
 /* ========== UTILITY CLASSES ========== */
-/* Global page wrapper: sin padding general; solo padding-bottom para FloatingDock */
+/* Global page wrapper: sin padding */
 .page {
   padding: 0;
-  padding-bottom: 132px; /* espacio para FloatingDock */
   min-height: 100vh;
   box-sizing: border-box;
-}
-@media (min-width: 768px) {
-  .page {
-    padding-bottom: 152px;
-  }
 }
 
 /* Card / container surface */

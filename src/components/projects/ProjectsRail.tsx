@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import type { Project } from "@/data/projects";
 
@@ -45,6 +46,8 @@ type ProjectsRailProps = {
   projects: Project[];
   activeIndex: number;
   onActiveChange: (index: number) => void;
+  /** Base path para el enlace al detalle (ej. /es/proyectos). */
+  projectDetailBasePath: string;
 };
 
 function cardTopInterp(
@@ -75,6 +78,7 @@ function CardWithPosition({
   baseHeightRef,
   baseHeight,
   onGoToCard,
+  projectDetailBasePath,
 }: {
   index: number;
   project: Project;
@@ -84,6 +88,7 @@ function CardWithPosition({
   baseHeightRef: React.RefObject<number>;
   baseHeight: number;
   onGoToCard: (logicalIndex: number) => void;
+  projectDetailBasePath: string;
 }) {
   const top = useTransform(offset, (v) =>
     cardTopInterp(index, normalizeOffset(v, n), baseHeightRef.current)
@@ -94,10 +99,11 @@ function CardWithPosition({
   const logicalIndex = index % n;
   const isCentered = activeIndex === logicalIndex;
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
+  const detailHref = `${projectDetailBasePath}/${project.slug}`;
 
   return (
     <motion.div
-      className={`slot absolute left-1/2 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF] ${!isCentered ? "cursor-pointer" : ""}`}
+      className="slot absolute left-1/2 flex -translate-x-1/2 cursor-pointer items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF]"
       style={{
         top,
         width: baseWidth,
@@ -130,6 +136,13 @@ function CardWithPosition({
         sizes={`${Math.round(baseWidth * CENTER_SCALE)}px`}
         className="pointer-events-none object-cover"
       />
+      {isCentered && (
+        <Link
+          href={detailHref}
+          className="absolute inset-0 z-10"
+          aria-label={`Ver proyecto ${project.title}`}
+        />
+      )}
     </motion.div>
   );
 }
@@ -138,6 +151,7 @@ export default function ProjectsRail({
   projects,
   activeIndex,
   onActiveChange,
+  projectDetailBasePath,
 }: ProjectsRailProps) {
   const n = projects.length;
   const initialOffset = n;
@@ -332,6 +346,7 @@ export default function ProjectsRail({
                 baseHeightRef={baseHeightRef}
                 baseHeight={baseHeight}
                 onGoToCard={goToCard}
+                projectDetailBasePath={projectDetailBasePath}
               />
             ))}
           </motion.div>
