@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useId } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   projects,
@@ -20,15 +20,50 @@ function toLabel(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 }
 
-/** Icono doble flecha arriba/abajo (desplegable) */
-function ArrowUpDown({ className }: { className?: string }) {
+/** Icono doble caret (dobe-caret): mismo color que el enlace, escala similar al texto del filtro */
+function FilterCaretIcon({ className }: { className?: string }) {
+  const id = useId().replace(/:/g, "");
+  const clip0 = `filter-caret-clip0-${id}`;
+  const clip1 = `filter-caret-clip1-${id}`;
   return (
-    <span className={className} aria-hidden style={{ display: "inline-flex", alignItems: "center", gap: "2px", lineHeight: 0 }}>
-      <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 0L0 5H8L4 0Z" fill="currentColor" />
-      </svg>
-      <svg width="8" height="6" viewBox="0 0 8 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 1L4 6L8 1" fill="currentColor" />
+    <span
+      className={className}
+      aria-hidden
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        lineHeight: 0,
+        color: "var(--color-link)",
+      }}
+    >
+      <svg
+        width="10"
+        height="14"
+        viewBox="0 0 13 19"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ display: "block" }}
+      >
+        <g clipPath={`url(#${clip0})`}>
+          <path
+            d="M6.3323 19L6.86844 18.5648L12.6667 13.8604L11.5923 12.6667L6.3323 16.9359L1.07436 12.6667L0 13.8604L5.79615 18.5648L6.3323 19Z"
+            fill="currentColor"
+          />
+        </g>
+        <g clipPath={`url(#${clip1})`}>
+          <path
+            d="M6.33567 1.05412e-05L5.79953 0.43517L0.00130142 5.1396L1.07566 6.33334L6.33567 2.06408L11.5936 6.33334L12.668 5.1396L6.87181 0.43517L6.33567 1.05412e-05Z"
+            fill="currentColor"
+          />
+        </g>
+        <defs>
+          <clipPath id={clip0}>
+            <rect width="12.6667" height="6.33333" fill="white" transform="translate(0 12.6667)" />
+          </clipPath>
+          <clipPath id={clip1}>
+            <rect width="12.6667" height="6.33333" fill="white" transform="translate(12.668 6.33334) rotate(180)" />
+          </clipPath>
+        </defs>
       </svg>
     </span>
   );
@@ -84,7 +119,7 @@ export default function Filters({
       className="w-full pb-2"
       style={{
         display: "grid",
-        gridTemplateColumns: "1fr 64px 1fr 64px 1fr",
+        gridTemplateColumns: "1fr 40px 1fr 40px 1fr",
         alignItems: "center",
         maxWidth: "1600px",
         marginLeft: "auto",
@@ -107,7 +142,7 @@ export default function Filters({
           {servicesOpen ? "Close ×" : (
             <>
               {serviceLabel}
-              <ArrowUpDown className="ml-1.5" />
+              <FilterCaretIcon className="ml-1.5" />
             </>
           )}
         </button>
@@ -180,7 +215,7 @@ export default function Filters({
           {industriesOpen ? "Close ×" : (
             <>
               {industryLabel}
-              <ArrowUpDown className="ml-1.5" />
+              <FilterCaretIcon className="ml-1.5" />
             </>
           )}
         </button>

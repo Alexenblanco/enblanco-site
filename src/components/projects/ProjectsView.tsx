@@ -108,7 +108,7 @@ export default function ProjectsView() {
       {/* Filtros con position:fixed; sin padding en la page; la barra se separa del borde con margin para no solaparse con el dock */}
       <div className="fixed left-0 right-0 bottom-0 w-full pointer-events-none z-20">
         <div
-          className="pointer-events-auto w-full pt-4 mb-[calc(env(safe-area-inset-bottom,0px)+100px)]"
+          className="pointer-events-auto w-full pt-4 mb-[calc(env(safe-area-inset-bottom,0px)+124px)]"
           style={{ paddingLeft: "max(7%, 64px)", paddingRight: "max(7%, 64px)" }}
           aria-label="Filtros de proyectos"
         >
