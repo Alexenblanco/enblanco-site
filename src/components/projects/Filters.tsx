@@ -1,109 +1,144 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PROJECT_CATEGORIES, PROJECT_INDUSTRIES } from "@/data/projects";
+import {
+  projects,
+  getServiceCounts,
+  getIndustryCounts,
+} from "@/data/projects";
 
 type FiltersProps = {
-  category: string | null;
+  service: string | null;
   industry: string | null;
-  onCategoryChange: (value: string | null) => void;
+  onServiceChange: (value: string | null) => void;
   onIndustryChange: (value: string | null) => void;
   reducedMotion?: boolean;
 };
 
+function toLabel(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
 export default function Filters({
-  category,
+  service,
   industry,
-  onCategoryChange,
+  onServiceChange,
   onIndustryChange,
   reducedMotion,
 }: FiltersProps) {
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [industryOpen, setIndustryOpen] = useState(false);
-  const catRef = useRef<HTMLDivElement>(null);
-  const indRef = useRef<HTMLDivElement>(null);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [industriesOpen, setIndustriesOpen] = useState(false);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const industriesRef = useRef<HTMLDivElement>(null);
+
+  const serviceOptions = useMemo(() => getServiceCounts(projects), []);
+  const industryOptions = useMemo(() => getIndustryCounts(projects), []);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
+      const target = e.target as Node;
       if (
-        catRef.current && !catRef.current.contains(e.target as Node) &&
-        indRef.current && !indRef.current.contains(e.target as Node)
+        servicesRef.current &&
+        !servicesRef.current.contains(target) &&
+        industriesRef.current &&
+        !industriesRef.current.contains(target)
       ) {
-        setCategoryOpen(false);
-        setIndustryOpen(false);
+        setServicesOpen(false);
+        setIndustriesOpen(false);
       }
     };
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
 
-  const categoryLabel = category && category !== "All projects" ? category : "All projects";
-  const industryLabel = industry && industry !== "All industries" ? industry : "All industries";
+  const openOne = (which: "services" | "industries") => {
+    if (which === "services") {
+      setServicesOpen((o) => !o);
+      setIndustriesOpen(false);
+    } else {
+      setIndustriesOpen((o) => !o);
+      setServicesOpen(false);
+    }
+  };
+
+  const serviceLabel = service ? toLabel(service) : "Services";
+  const industryLabel = industry ? industry : "Industries";
 
   return (
-    <div className="proyectos-filters-wrap w-full gap-8 pb-2">
-      <div ref={catRef} className="relative">
+    <div
+      className="proyectos-filters-wrap w-full max-w-[1600px] mx-auto pb-2"
+      style={{
+        paddingLeft: "max(7%, 64px)",
+        paddingRight: "max(7%, 64px)",
+        display: "grid",
+        gridTemplateColumns: "1fr 64px 1fr 64px 1fr",
+        alignItems: "center",
+      }}
+    >
+      <div ref={servicesRef} className="relative flex justify-end" style={{ gridColumn: 1 }}>
         <button
           type="button"
-          onClick={() => {
-            setCategoryOpen((o) => !o);
-            setIndustryOpen(false);
-          }}
+          onClick={() => openOne("services")}
           className="flex items-center gap-1 text-[16px]"
           style={{
             color: "var(--color-text)",
             letterSpacing: "-0.05em",
           }}
-          aria-expanded={categoryOpen}
+          aria-expanded={servicesOpen}
           aria-haspopup="listbox"
-          aria-label={categoryOpen ? "Cerrar filtro categoría" : "Filtrar por categoría"}
+          aria-label={servicesOpen ? "Cerrar filtro servicios" : "Filtrar por servicio"}
         >
-          {categoryOpen ? "Close ×" : categoryLabel}
-          <span className="ml-1 inline-block text-[10px]" aria-hidden>^</span>
+          {servicesOpen ? "Close ×" : serviceLabel}
+          <span className="ml-1 inline-block text-[10px]" aria-hidden>
+            {servicesOpen ? "×" : "˄"}
+          </span>
         </button>
         <AnimatePresence>
-          {categoryOpen && (
+          {servicesOpen && (
             <motion.ul
-              initial={reducedMotion ? false : { opacity: 0, y: -4 }}
+              initial={reducedMotion ? false : { opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
+              exit={reducedMotion ? undefined : { opacity: 0, y: 4 }}
               transition={{ duration: 0.15 }}
               role="listbox"
-              className="absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 flex-wrap justify-center gap-2 rounded-[7px] bg-[#FFFFFF] px-3 py-2 shadow-none"
-              style={{ borderRadius: "var(--radius)" }}
+              className="absolute bottom-full right-0 mb-2 flex flex-wrap gap-x-3 gap-y-1 justify-end px-0 py-1"
+              style={{ minWidth: "10rem" }}
             >
               <li role="option">
                 <button
                   type="button"
                   onClick={() => {
-                    onCategoryChange(null);
-                    setCategoryOpen(false);
+                    onServiceChange(null);
+                    setServicesOpen(false);
                   }}
-                  className="px-2 py-1 text-sm"
+                  className="px-1 py-0.5 text-sm"
                   style={{
-                    color: category === null ? "var(--color-link)" : "var(--color-text)",
+                    color: service === null ? "var(--color-link)" : "var(--color-text)",
                     letterSpacing: "-0.05em",
                   }}
+                  aria-pressed={service === null}
                 >
-                  All projects
+                  Todos
                 </button>
               </li>
-              {PROJECT_CATEGORIES.map((c) => (
-                <li key={c} role="option">
+              {serviceOptions.map(({ value, count }) => (
+                <li key={value} role="option">
                   <button
                     type="button"
                     onClick={() => {
-                      onCategoryChange(c);
-                      setCategoryOpen(false);
+                      onServiceChange(value);
+                      setServicesOpen(false);
                     }}
-                    className="px-2 py-1 text-sm"
+                    className="px-1 py-0.5 text-sm"
                     style={{
-                      color: category === c ? "var(--color-link)" : "var(--color-text)",
+                      color: service === value ? "var(--color-link)" : "var(--color-text)",
                       letterSpacing: "-0.05em",
                     }}
+                    aria-pressed={service === value}
                   >
-                    {c}
+                    {toLabel(value)}
+                    <sup>{count}</sup>
                   </button>
                 </li>
               ))}
@@ -112,67 +147,69 @@ export default function Filters({
         </AnimatePresence>
       </div>
 
-      <div ref={indRef} className="relative">
+      <div ref={industriesRef} className="relative flex justify-start" style={{ gridColumn: 5 }}>
         <button
           type="button"
-          onClick={() => {
-            setIndustryOpen((o) => !o);
-            setCategoryOpen(false);
-          }}
+          onClick={() => openOne("industries")}
           className="flex items-center gap-1 text-[16px]"
           style={{
             color: "var(--color-text)",
             letterSpacing: "-0.05em",
           }}
-          aria-expanded={industryOpen}
+          aria-expanded={industriesOpen}
           aria-haspopup="listbox"
-          aria-label={industryOpen ? "Cerrar filtro industria" : "Filtrar por industria"}
+          aria-label={industriesOpen ? "Cerrar filtro industrias" : "Filtrar por industria"}
         >
-          {industryOpen ? "Close ×" : industryLabel}
-          <span className="ml-1 inline-block text-[10px]" aria-hidden>^</span>
+          {industriesOpen ? "Close ×" : industryLabel}
+          <span className="ml-1 inline-block text-[10px]" aria-hidden>
+            {industriesOpen ? "×" : "˄"}
+          </span>
         </button>
         <AnimatePresence>
-          {industryOpen && (
+          {industriesOpen && (
             <motion.ul
-              initial={reducedMotion ? false : { opacity: 0, y: -4 }}
+              initial={reducedMotion ? false : { opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
+              exit={reducedMotion ? undefined : { opacity: 0, y: 4 }}
               transition={{ duration: 0.15 }}
               role="listbox"
-              className="absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 flex-wrap justify-center gap-2 rounded-[7px] bg-[#FFFFFF] px-3 py-2 shadow-none"
-              style={{ borderRadius: "var(--radius)" }}
+              className="absolute bottom-full left-0 mb-2 flex flex-wrap gap-x-3 gap-y-1 justify-start px-0 py-1"
+              style={{ minWidth: "10rem" }}
             >
               <li role="option">
                 <button
                   type="button"
                   onClick={() => {
                     onIndustryChange(null);
-                    setIndustryOpen(false);
+                    setIndustriesOpen(false);
                   }}
-                  className="px-2 py-1 text-sm"
+                  className="px-1 py-0.5 text-sm"
                   style={{
                     color: industry === null ? "var(--color-link)" : "var(--color-text)",
                     letterSpacing: "-0.05em",
                   }}
+                  aria-pressed={industry === null}
                 >
-                  All industries
+                  Todas
                 </button>
               </li>
-              {PROJECT_INDUSTRIES.map((i) => (
-                <li key={i} role="option">
+              {industryOptions.map(({ value, count }) => (
+                <li key={value} role="option">
                   <button
                     type="button"
                     onClick={() => {
-                      onIndustryChange(i);
-                      setIndustryOpen(false);
+                      onIndustryChange(value);
+                      setIndustriesOpen(false);
                     }}
-                    className="px-2 py-1 text-sm"
+                    className="px-1 py-0.5 text-sm"
                     style={{
-                      color: industry === i ? "var(--color-link)" : "var(--color-text)",
+                      color: industry === value ? "var(--color-link)" : "var(--color-text)",
                       letterSpacing: "-0.05em",
                     }}
+                    aria-pressed={industry === value}
                   >
-                    {i}
+                    {value}
+                    <sup>{count}</sup>
                   </button>
                 </li>
               ))}

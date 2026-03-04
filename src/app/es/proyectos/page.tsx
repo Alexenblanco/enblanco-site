@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import JsonLd from "@/components/Seo/JsonLd";
 import ProjectsView from "@/components/projects/ProjectsView";
 
@@ -32,7 +33,9 @@ export default function ProyectosPage() {
   return (
     <main className="proyectos-page mx-auto w-full max-w-[100vw] overflow-x-hidden">
       <JsonLd data={breadcrumbJsonLd} />
-      <ProjectsView />
+      <Suspense fallback={null}>
+        <ProjectsView />
+      </Suspense>
     </main>
   );
 }

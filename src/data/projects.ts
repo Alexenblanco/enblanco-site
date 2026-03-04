@@ -92,17 +92,50 @@ export const projects: Project[] = [
   },
 ];
 
-export function filterProjects(
-  list: Project[],
-  filters: { category: string | null; industry: string | null }
-): Project[] {
+export type ProjectFilters = {
+  service: string | null;
+  industry: string | null;
+};
+
+export function filterProjects(list: Project[], filters: ProjectFilters): Project[] {
   return list.filter((p) => {
-    if (filters.category && filters.category !== "All projects") {
-      if (!p.categories.includes(filters.category)) return false;
+    if (filters.service) {
+      const match = p.services.some(
+        (s) => s.toLowerCase() === filters.service!.toLowerCase()
+      );
+      if (!match) return false;
     }
-    if (filters.industry && filters.industry !== "All industries") {
+    if (filters.industry) {
       if (p.industry !== filters.industry) return false;
     }
     return true;
   });
+}
+
+/** Servicios únicos presentes en los proyectos con su conteo (para filtros). */
+export function getServiceCounts(list: Project[]): { value: string; count: number }[] {
+  const map = new Map<string, number>();
+  for (const p of list) {
+    for (const s of p.services) {
+      const key = s.trim();
+      if (!key) continue;
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+  }
+  return Array.from(map.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/** Industrias únicas presentes en los proyectos con su conteo (para filtros). */
+export function getIndustryCounts(list: Project[]): { value: string; count: number }[] {
+  const map = new Map<string, number>();
+  for (const p of list) {
+    const key = p.industry.trim();
+    if (!key) continue;
+    map.set(key, (map.get(key) ?? 0) + 1);
+  }
+  return Array.from(map.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count);
 }

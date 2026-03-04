@@ -9,10 +9,12 @@ const GAP = 8;
 const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5)
 const CENTER_SCALE = 1.96;
 const SPRING = { type: "spring" as const, stiffness: 120, damping: 24 };
-/** Sin eventos de rueda durante este tiempo = gesto (e inercia) terminado; entonces desbloqueamos. */
-const GESTURE_PAUSE_MS = 80;
-/** Set to true to log wheel events and index updates to console (debug double-step). */
-const DEV_INSTRUMENT_WHEEL = false;
+/** Si el movimiento total del gesto es menor que esto, se vuelve al valor inicial (evitar saltos accidentales). */
+const SNAP_BACK_THRESHOLD = 0.08;
+/** Pasada la mitad del step (0.5) se va al siguiente; antes de la mitad se queda en el actual. Así no vuelve al anterior cuando ya te habías acercado al siguiente. */
+const SNAP_HALFWAY = 0.5;
+/** Sin eventos de rueda durante este tiempo = gesto terminado → aplicar snap. */
+const GESTURE_END_MS = 100;
 
 /** Escala según distancia al centro: crece de forma continua mientras se acerca (simultáneo al movimiento). */
 function scaleFromDistance(d: number): number {
@@ -57,28 +59,45 @@ function cardTopInterp(
   return (1 - f) * cardTop(i, n0, baseHeight) + f * cardTop(i, n1, baseHeight);
 }
 
+/** Normaliza offset a [n, 2n) para que la ruleta sea infinita (sin freno al repetir). */
+function normalizeOffset(v: number, n: number): number {
+  if (n <= 0) return v;
+  const d = (v - n) % n;
+  return n + (d < 0 ? d + n : d);
+}
+
 function CardWithPosition({
   index,
   project,
   offset,
+  n,
+  activeIndex,
   baseHeightRef,
   baseHeight,
+  onGoToCard,
 }: {
   index: number;
   project: Project;
   offset: ReturnType<typeof useMotionValue<number>>;
+  n: number;
+  activeIndex: number;
   baseHeightRef: React.RefObject<number>;
   baseHeight: number;
+  onGoToCard: (logicalIndex: number) => void;
 }) {
   const top = useTransform(offset, (v) =>
-    cardTopInterp(index, v, baseHeightRef.current)
+    cardTopInterp(index, normalizeOffset(v, n), baseHeightRef.current)
   );
-  const scale = useTransform(offset, (v) => scaleFromDistance(index - v));
+  const scale = useTransform(offset, (v) =>
+    scaleFromDistance(index - normalizeOffset(v, n))
+  );
+  const logicalIndex = index % n;
+  const isCentered = activeIndex === logicalIndex;
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
 
   return (
     <motion.div
-      className="slot absolute left-1/2 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF]"
+      className={`slot absolute left-1/2 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-[7px] bg-[#FFFFFF] ${!isCentered ? "cursor-pointer" : ""}`}
       style={{
         top,
         width: baseWidth,
@@ -87,13 +106,29 @@ function CardWithPosition({
         borderRadius: "var(--radius)",
         transformOrigin: "center center",
       }}
+      onClick={() => {
+        if (!isCentered) onGoToCard(logicalIndex);
+      }}
+      role={!isCentered ? "button" : undefined}
+      tabIndex={!isCentered ? 0 : undefined}
+      onKeyDown={
+        !isCentered
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onGoToCard(logicalIndex);
+              }
+            }
+          : undefined
+      }
+      aria-label={!isCentered ? `Centrar proyecto ${project.title}` : undefined}
     >
       <Image
         src={project.coverImage}
         alt={project.coverAlt}
         fill
         sizes={`${Math.round(baseWidth * CENTER_SCALE)}px`}
-        className="object-cover"
+        className="pointer-events-none object-cover"
       />
     </motion.div>
   );
@@ -105,18 +140,15 @@ export default function ProjectsRail({
   onActiveChange,
 }: ProjectsRailProps) {
   const n = projects.length;
+  const initialOffset = n;
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastStepAt = useRef(0);
-  const wheelLockedRef = useRef(false);
-  const lastStepDirectionRef = useRef(0);
-  const wheelEventCountRef = useRef(0);
-  const stepCountRef = useRef(0);
+  const gestureStartPositionRef = useRef(initialOffset);
+  const gestureEndTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [baseHeight, setBaseHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const baseHeightRef = useRef(0);
   baseHeightRef.current = baseHeight;
 
-  const initialOffset = n;
   const offset = useMotionValue(initialOffset);
   const offsetRef = useRef(initialOffset);
 
@@ -139,21 +171,44 @@ export default function ProjectsRail({
   useEffect(() => {
     const unsub = offset.on("change", (v) => {
       offsetRef.current = v;
-      const rounded = Math.round(v) % n;
-      if (DEV_INSTRUMENT_WHEEL) {
-        stepCountRef.current += 1;
-        console.log("[ProjectsRail] offset change → index", rounded, "stepCount", stepCountRef.current);
-      }
+      const rounded = (Math.round(v) % n + n) % n;
       onActiveChange(rounded);
     });
     return unsub;
   }, [n, onActiveChange]);
 
+  /** Snap: si casi no te moviste, vuelve al inicio. Si no, según dirección y posición: pasada la mitad del step (0.5) en la dirección del movimiento, se va a ese step; si no, se queda. Así no vuelve al anterior cuando ya estabas casi a la mitad del siguiente. */
+  const snapToNearestStep = useCallback(() => {
+    const current = offsetRef.current;
+    const start = gestureStartPositionRef.current;
+    const movement = Math.abs(current - start);
+    let nearest: number;
+    if (movement < SNAP_BACK_THRESHOLD) {
+      nearest = Math.round(start);
+    } else {
+      const floorCur = Math.floor(current);
+      const frac = current - floorCur;
+      if (current >= start) {
+        nearest = frac >= SNAP_HALFWAY ? Math.ceil(current) : floorCur;
+      } else {
+        nearest = frac <= SNAP_HALFWAY ? floorCur : Math.ceil(current);
+      }
+    }
+    const targetInRange = n + (((nearest - n) % n + n) % n);
+    animate(offset, nearest, {
+      ...SPRING,
+      onComplete: () => {
+        if (nearest < n || nearest >= 2 * n) offset.set(targetInRange);
+      },
+    });
+  }, [n, offset]);
+
   const go = useCallback(
     (delta: number) => {
       if (n === 0 || baseHeight <= 0) return;
       const current = offsetRef.current;
-      const target = current + delta;
+      const logicalIndex = Math.round(current);
+      const target = logicalIndex + delta;
 
       if (target >= 2 * n) {
         animate(offset, 2 * n, {
@@ -172,67 +227,51 @@ export default function ProjectsRail({
     [n, offset, baseHeight]
   );
 
-  /*
-   * Wheel → step: ONE gesture = ONE step.
-   * Root cause of double-step: trackpad/mouse can fire many wheel events per gesture (incl. momentum).
-   * Fix: (1) Lock wheel until the current step animation completes (onComplete unlocks).
-   *       (2) Cooldown (WHEEL_LOCK_MS) as backup so rapid gestures don’t queue.
-   * go() only ever does currentIndex ± 1 (clamped by our target logic and wrap).
-   *
-   * Test checklist (manual):
-   * - Slow scroll: one small swipe → one card change.
-   * - Fast scroll: one fast swipe → one card change (no skip).
-   * - Long scroll / momentum: let trackpad inertia run → still one card change.
-   * - Mouse wheel: one click or one roll → one card change.
-   * - Rapid repeated scrolls: each gesture after animation ends → one step each.
-   */
-  /*
-   * Un gesto = un paso. Si al estar bloqueados llega un scroll en dirección opuesta al último
-   * paso, lo consideramos gesto nuevo y permitimos el step al momento. Misma dirección = inercia,
-   * solo retrasamos desbloqueo (GESTURE_PAUSE_MS sin eventos).
-   */
+  /** Centra en la card del proyecto con índice lógico 0..n-1 (p. ej. al hacer clic en una card no centrada). */
+  const goToCard = useCallback(
+    (logicalIndex: number) => {
+      if (n === 0) return;
+      const target = n + ((logicalIndex % n + n) % n);
+      animate(offset, target, SPRING);
+    },
+    [n, offset]
+  );
+
+  /* Scroll continuo tipo rueda; al terminar gesto, snap al step con dead zone. */
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    let unlockTimeout: ReturnType<typeof setTimeout> | null = null;
-    const scheduleUnlock = () => {
-      if (unlockTimeout) clearTimeout(unlockTimeout);
-      unlockTimeout = setTimeout(() => {
-        unlockTimeout = null;
-        wheelLockedRef.current = false;
-      }, GESTURE_PAUSE_MS);
-    };
+    const stepHeightPx = baseHeight + GAP;
+    if (stepHeightPx <= 0) return;
+
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (DEV_INSTRUMENT_WHEEL) {
-        wheelEventCountRef.current += 1;
-        console.log("[ProjectsRail] wheel #", wheelEventCountRef.current, "deltaY", e.deltaY, "locked", wheelLockedRef.current);
+      const cur = offsetRef.current;
+      if (gestureEndTimeoutRef.current === null) {
+        gestureStartPositionRef.current = cur;
       }
-      const direction = e.deltaY > 0 ? 1 : -1;
-      if (wheelLockedRef.current) {
-        if (direction !== lastStepDirectionRef.current) {
-          wheelLockedRef.current = true;
-          lastStepAt.current = Date.now();
-          lastStepDirectionRef.current = direction;
-          go(direction);
-          scheduleUnlock();
-        } else {
-          scheduleUnlock();
-        }
-        return;
+      if (gestureEndTimeoutRef.current) {
+        clearTimeout(gestureEndTimeoutRef.current);
+        gestureEndTimeoutRef.current = null;
       }
-      wheelLockedRef.current = true;
-      lastStepAt.current = Date.now();
-      lastStepDirectionRef.current = direction;
-      go(direction);
-      scheduleUnlock();
+      const deltaSteps = e.deltaY / stepHeightPx;
+      const next = cur + deltaSteps;
+      offset.set(next);
+      gestureEndTimeoutRef.current = setTimeout(() => {
+        gestureEndTimeoutRef.current = null;
+        snapToNearestStep();
+      }, GESTURE_END_MS);
     };
+
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
       el.removeEventListener("wheel", handleWheel);
-      if (unlockTimeout) clearTimeout(unlockTimeout);
+      if (gestureEndTimeoutRef.current) {
+        clearTimeout(gestureEndTimeoutRef.current);
+        gestureEndTimeoutRef.current = null;
+      }
     };
-  }, [go]);
+  }, [baseHeight, offset, n, snapToNearestStep]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -250,9 +289,10 @@ export default function ProjectsRail({
 
   const listTranslateY = useTransform(offset, (v) => {
     const b = baseHeightRef.current;
-    const n0 = Math.floor(v);
-    const n1 = Math.ceil(v);
-    const f = v - n0;
+    const norm = normalizeOffset(v, n);
+    const n0 = Math.floor(norm);
+    const n1 = Math.ceil(norm);
+    const f = norm - n0;
     const c0 = cardTop(n0, n0, b);
     const c1 = n0 !== n1 ? cardTop(n1, n1, b) : c0;
     return -(c0 * (1 - f) + c1 * f);
@@ -287,8 +327,11 @@ export default function ProjectsRail({
                 index={i}
                 project={projects[i % n]}
                 offset={offset}
+                n={n}
+                activeIndex={activeIndex}
                 baseHeightRef={baseHeightRef}
                 baseHeight={baseHeight}
+                onGoToCard={goToCard}
               />
             ))}
           </motion.div>

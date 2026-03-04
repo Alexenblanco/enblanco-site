@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { projects, filterProjects } from "@/data/projects";
 import ProjectsRail from "./ProjectsRail";
@@ -9,9 +10,49 @@ import Filters from "./Filters";
 
 export default function ProjectsView() {
   const reducedMotion = useReducedMotion();
-  const [category, setCategory] = useState<string | null>(null);
-  const [industry, setIndustry] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const serviceFromUrl = searchParams.get("service");
+  const industryFromUrl = searchParams.get("industry");
+
+  const [service, setServiceState] = useState<string | null>(() => serviceFromUrl);
+  const [industry, setIndustryState] = useState<string | null>(() => industryFromUrl);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    setServiceState(serviceFromUrl);
+    setIndustryState(industryFromUrl);
+  }, [serviceFromUrl, industryFromUrl]);
+
+  const updateUrl = useCallback(
+    (newService: string | null, newIndustry: string | null) => {
+      const params = new URLSearchParams();
+      if (newService) params.set("service", newService);
+      if (newIndustry) params.set("industry", newIndustry);
+      const q = params.toString();
+      const href = q ? `${pathname}?${q}` : pathname;
+      router.push(href, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  const setService = useCallback(
+    (value: string | null) => {
+      setServiceState(value);
+      updateUrl(value, industry);
+    },
+    [industry, updateUrl]
+  );
+
+  const setIndustry = useCallback(
+    (value: string | null) => {
+      setIndustryState(value);
+      updateUrl(service, value);
+    },
+    [service, updateUrl]
+  );
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -21,8 +62,8 @@ export default function ProjectsView() {
   }, []);
 
   const filtered = useMemo(
-    () => filterProjects(projects, { category, industry }),
-    [category, industry]
+    () => filterProjects(projects, { service, industry }),
+    [service, industry]
   );
 
   useEffect(() => {
@@ -60,11 +101,15 @@ export default function ProjectsView() {
         <ProjectMeta project={activeProject} reducedMotion={!!reducedMotion} />
       </section>
 
-      <footer className="flex justify-center pb-8 pt-4">
+      <footer
+        className="w-full pt-4"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)" }}
+        aria-label="Filtros de proyectos"
+      >
         <Filters
-          category={category}
+          service={service}
           industry={industry}
-          onCategoryChange={setCategory}
+          onServiceChange={setService}
           onIndustryChange={setIndustry}
           reducedMotion={!!reducedMotion}
         />
