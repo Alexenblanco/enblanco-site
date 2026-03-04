@@ -34,8 +34,8 @@
   /* Radius */
   --radius: 7px;
 
-  /* Global layout */
-  --page-padding: 32px;
+  /* Global layout (sin padding general para evitar recortes) */
+  --page-padding: 0;
 
   /* Spacing scale (px) */
   --space-6: 6px;
@@ -126,9 +126,9 @@ img, video {
 }
 
 /* ========== UTILITY CLASSES ========== */
-/* Global page wrapper: 32px padding (top, sides, bottom) */
+/* Global page wrapper: sin padding general; solo padding-bottom para FloatingDock */
 .page {
-  padding: var(--page-padding);
+  padding: 0;
   padding-bottom: 132px; /* espacio para FloatingDock */
   min-height: 100vh;
   box-sizing: border-box;

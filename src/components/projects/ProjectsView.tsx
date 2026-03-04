@@ -43,7 +43,6 @@ export default function ProjectsView() {
         right: "50%",
         marginLeft: "-50vw",
         marginRight: "-50vw",
-        marginTop: "calc(-1 * var(--page-padding, 32px))",
       }}
     >
       <section
