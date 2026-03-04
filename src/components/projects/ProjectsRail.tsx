@@ -14,12 +14,11 @@ const GESTURE_PAUSE_MS = 80;
 /** Set to true to log wheel events and index updates to console (debug double-step). */
 const DEV_INSTRUMENT_WHEEL = false;
 
-/** Solo la card del centro escala (1.96, ~96% más que las laterales); el resto 1. Interpolación suave. */
+/** Escala según distancia al centro: crece de forma continua mientras se acerca (simultáneo al movimiento). */
 function scaleFromDistance(d: number): number {
   const abs = Math.abs(d);
-  if (abs >= 0.5) return 1;
-  const t = abs / 0.5;
-  return CENTER_SCALE - (CENTER_SCALE - 1) * t;
+  if (abs >= 1) return 1;
+  return CENTER_SCALE + (1 - CENTER_SCALE) * abs;
 }
 
 /** Overflow de la card central hacia el gap (mitad por arriba/abajo) */
@@ -109,6 +108,7 @@ export default function ProjectsRail({
   const containerRef = useRef<HTMLDivElement>(null);
   const lastStepAt = useRef(0);
   const wheelLockedRef = useRef(false);
+  const lastStepDirectionRef = useRef(0);
   const wheelEventCountRef = useRef(0);
   const stepCountRef = useRef(0);
   const [baseHeight, setBaseHeight] = useState(0);
@@ -187,9 +187,9 @@ export default function ProjectsRail({
    * - Rapid repeated scrolls: each gesture after animation ends → one step each.
    */
   /*
-   * Un gesto = un paso. Al primer evento hacemos un step y nos bloqueamos. Cada evento siguiente
-   * (inercia) solo retrasa el desbloqueo: desbloqueamos cuando llevamos GESTURE_PAUSE_MS sin
-   * ningún evento. Así el siguiente evento es siempre un gesto nuevo del usuario.
+   * Un gesto = un paso. Si al estar bloqueados llega un scroll en dirección opuesta al último
+   * paso, lo consideramos gesto nuevo y permitimos el step al momento. Misma dirección = inercia,
+   * solo retrasamos desbloqueo (GESTURE_PAUSE_MS sin eventos).
    */
   useEffect(() => {
     const el = containerRef.current;
@@ -208,13 +208,23 @@ export default function ProjectsRail({
         wheelEventCountRef.current += 1;
         console.log("[ProjectsRail] wheel #", wheelEventCountRef.current, "deltaY", e.deltaY, "locked", wheelLockedRef.current);
       }
+      const direction = e.deltaY > 0 ? 1 : -1;
       if (wheelLockedRef.current) {
-        scheduleUnlock();
+        if (direction !== lastStepDirectionRef.current) {
+          wheelLockedRef.current = true;
+          lastStepAt.current = Date.now();
+          lastStepDirectionRef.current = direction;
+          go(direction);
+          scheduleUnlock();
+        } else {
+          scheduleUnlock();
+        }
         return;
       }
       wheelLockedRef.current = true;
       lastStepAt.current = Date.now();
-      go(e.deltaY > 0 ? 1 : -1);
+      lastStepDirectionRef.current = direction;
+      go(direction);
       scheduleUnlock();
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
