@@ -7,11 +7,14 @@ import type { Project } from "@/data/projects";
 
 const GAP = 8;
 const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5)
-const CENTER_SCALE = 1.12;
+const CENTER_SCALE = 1.96;
 const SPRING = { type: "spring" as const, stiffness: 120, damping: 24 };
-const WHEEL_COOLDOWN_MS = 1000;
+/** Sin eventos de rueda durante este tiempo = gesto (e inercia) terminado; entonces desbloqueamos. */
+const GESTURE_PAUSE_MS = 80;
+/** Set to true to log wheel events and index updates to console (debug double-step). */
+const DEV_INSTRUMENT_WHEEL = false;
 
-/** Solo la card del centro escala (1.12); el resto 1. Interpolación suave para que la transición no sea brusca. */
+/** Solo la card del centro escala (1.96, ~96% más que las laterales); el resto 1. Interpolación suave. */
 function scaleFromDistance(d: number): number {
   const abs = Math.abs(d);
   if (abs >= 0.5) return 1;
@@ -105,6 +108,9 @@ export default function ProjectsRail({
   const n = projects.length;
   const containerRef = useRef<HTMLDivElement>(null);
   const lastStepAt = useRef(0);
+  const wheelLockedRef = useRef(false);
+  const wheelEventCountRef = useRef(0);
+  const stepCountRef = useRef(0);
   const [baseHeight, setBaseHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const baseHeightRef = useRef(0);
@@ -133,7 +139,12 @@ export default function ProjectsRail({
   useEffect(() => {
     const unsub = offset.on("change", (v) => {
       offsetRef.current = v;
-      onActiveChange(Math.round(v) % n);
+      const rounded = Math.round(v) % n;
+      if (DEV_INSTRUMENT_WHEEL) {
+        stepCountRef.current += 1;
+        console.log("[ProjectsRail] offset change → index", rounded, "stepCount", stepCountRef.current);
+      }
+      onActiveChange(rounded);
     });
     return unsub;
   }, [n, onActiveChange]);
@@ -147,16 +158,12 @@ export default function ProjectsRail({
       if (target >= 2 * n) {
         animate(offset, 2 * n, {
           ...SPRING,
-          onComplete: () => {
-            offset.set(n);
-          },
+          onComplete: () => offset.set(n),
         });
       } else if (target < n) {
         animate(offset, n - 1, {
           ...SPRING,
-          onComplete: () => {
-            offset.set(2 * n - 1);
-          },
+          onComplete: () => offset.set(2 * n - 1),
         });
       } else {
         animate(offset, target, SPRING);
@@ -165,18 +172,56 @@ export default function ProjectsRail({
     [n, offset, baseHeight]
   );
 
+  /*
+   * Wheel → step: ONE gesture = ONE step.
+   * Root cause of double-step: trackpad/mouse can fire many wheel events per gesture (incl. momentum).
+   * Fix: (1) Lock wheel until the current step animation completes (onComplete unlocks).
+   *       (2) Cooldown (WHEEL_LOCK_MS) as backup so rapid gestures don’t queue.
+   * go() only ever does currentIndex ± 1 (clamped by our target logic and wrap).
+   *
+   * Test checklist (manual):
+   * - Slow scroll: one small swipe → one card change.
+   * - Fast scroll: one fast swipe → one card change (no skip).
+   * - Long scroll / momentum: let trackpad inertia run → still one card change.
+   * - Mouse wheel: one click or one roll → one card change.
+   * - Rapid repeated scrolls: each gesture after animation ends → one step each.
+   */
+  /*
+   * Un gesto = un paso. Al primer evento hacemos un step y nos bloqueamos. Cada evento siguiente
+   * (inercia) solo retrasa el desbloqueo: desbloqueamos cuando llevamos GESTURE_PAUSE_MS sin
+   * ningún evento. Así el siguiente evento es siempre un gesto nuevo del usuario.
+   */
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    let unlockTimeout: ReturnType<typeof setTimeout> | null = null;
+    const scheduleUnlock = () => {
+      if (unlockTimeout) clearTimeout(unlockTimeout);
+      unlockTimeout = setTimeout(() => {
+        unlockTimeout = null;
+        wheelLockedRef.current = false;
+      }, GESTURE_PAUSE_MS);
+    };
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const now = Date.now();
-      if (now - lastStepAt.current < WHEEL_COOLDOWN_MS) return;
-      lastStepAt.current = now;
+      if (DEV_INSTRUMENT_WHEEL) {
+        wheelEventCountRef.current += 1;
+        console.log("[ProjectsRail] wheel #", wheelEventCountRef.current, "deltaY", e.deltaY, "locked", wheelLockedRef.current);
+      }
+      if (wheelLockedRef.current) {
+        scheduleUnlock();
+        return;
+      }
+      wheelLockedRef.current = true;
+      lastStepAt.current = Date.now();
       go(e.deltaY > 0 ? 1 : -1);
+      scheduleUnlock();
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
-    return () => el.removeEventListener("wheel", handleWheel);
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+      if (unlockTimeout) clearTimeout(unlockTimeout);
+    };
   }, [go]);
 
   useEffect(() => {
