@@ -89,7 +89,6 @@ export default function ProjectsView() {
       >
         <section
           className="relative flex h-full flex-col overflow-visible"
-          style={{ height: "100%" }}
           aria-label="Proyectos"
         >
           <div className="relative flex-1 min-h-0 overflow-visible">

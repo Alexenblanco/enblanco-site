@@ -165,6 +165,7 @@ export default function ProjectsRail({
 
   const offset = useMotionValue(initialOffset);
   const offsetRef = useRef(initialOffset);
+  const lastReportedIndexRef = useRef<number>(initialOffset % n);
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -183,10 +184,16 @@ export default function ProjectsRail({
   }, []);
 
   useEffect(() => {
+    if (n > 0) {
+      lastReportedIndexRef.current = (Math.round(offsetRef.current) % n + n) % n;
+    }
     const unsub = offset.on("change", (v) => {
       offsetRef.current = v;
       const rounded = (Math.round(v) % n + n) % n;
-      onActiveChange(rounded);
+      if (rounded !== lastReportedIndexRef.current) {
+        lastReportedIndexRef.current = rounded;
+        onActiveChange(rounded);
+      }
     });
     return unsub;
   }, [n, onActiveChange]);

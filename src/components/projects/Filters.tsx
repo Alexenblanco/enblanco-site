@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo, useId } from "react";
+import { useState, useRef, useEffect, useMemo, useId, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   projects,
@@ -101,7 +101,7 @@ export default function Filters({
     return () => document.removeEventListener("click", close);
   }, []);
 
-  const openOne = (which: "services" | "industries") => {
+  const openOne = useCallback((which: "services" | "industries") => {
     if (which === "services") {
       setServicesOpen((o) => !o);
       setIndustriesOpen(false);
@@ -109,7 +109,7 @@ export default function Filters({
       setIndustriesOpen((o) => !o);
       setServicesOpen(false);
     }
-  };
+  }, []);
 
   const serviceLabel = service ? toLabel(service) : "Services";
   const industryLabel = industry ? industry : "Industries";
