@@ -1,4 +1,5 @@
 import JsonLd from "@/components/Seo/JsonLd";
+import { ProjectTransitionProvider } from "@/contexts/ProjectTransitionContext";
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
@@ -13,9 +14,9 @@ export default function EsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <ProjectTransitionProvider>
       <JsonLd data={organizationJsonLd} />
       {children}
-    </>
+    </ProjectTransitionProvider>
   );
 }

@@ -48,6 +48,8 @@ type ProjectsRailProps = {
   onActiveChange: (index: number) => void;
   /** Base path para el enlace al detalle (ej. /es/proyectos). */
   projectDetailBasePath: string;
+  /** Si se proporciona, al hacer clic en la card centrada se usa transición expandiendo en lugar de navegar directamente. */
+  onDetailClick?: (project: Project, href: string, originRect: DOMRect) => void;
 };
 
 function cardTopInterp(
@@ -79,6 +81,7 @@ function CardWithPosition({
   baseHeight,
   onGoToCard,
   projectDetailBasePath,
+  onDetailClick,
 }: {
   index: number;
   project: Project;
@@ -89,6 +92,7 @@ function CardWithPosition({
   baseHeight: number;
   onGoToCard: (logicalIndex: number) => void;
   projectDetailBasePath: string;
+  onDetailClick?: (project: Project, href: string, originRect: DOMRect) => void;
 }) {
   const top = useTransform(offset, (v) =>
     cardTopInterp(index, normalizeOffset(v, n), baseHeightRef.current)
@@ -100,6 +104,13 @@ function CardWithPosition({
   const isCentered = activeIndex === logicalIndex;
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
   const detailHref = `${projectDetailBasePath}/${project.detailSlug ?? project.slug}`;
+
+  const handleCenterClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (onDetailClick) {
+      e.preventDefault();
+      onDetailClick(project, detailHref, e.currentTarget.getBoundingClientRect());
+    }
+  };
 
   return (
     <motion.div
@@ -136,13 +147,21 @@ function CardWithPosition({
         sizes={`${Math.round(baseWidth * CENTER_SCALE)}px`}
         className="pointer-events-none object-cover"
       />
-      {isCentered && (
-        <Link
-          href={detailHref}
-          className="absolute inset-0 z-10"
-          aria-label={`Ver proyecto ${project.title}`}
-        />
-      )}
+      {isCentered &&
+        (onDetailClick ? (
+          <a
+            href={detailHref}
+            className="absolute inset-0 z-10"
+            aria-label={`Ver proyecto ${project.title}`}
+            onClick={handleCenterClick}
+          />
+        ) : (
+          <Link
+            href={detailHref}
+            className="absolute inset-0 z-10"
+            aria-label={`Ver proyecto ${project.title}`}
+          />
+        ))}
     </motion.div>
   );
 }
@@ -152,6 +171,7 @@ export default function ProjectsRail({
   activeIndex,
   onActiveChange,
   projectDetailBasePath,
+  onDetailClick,
 }: ProjectsRailProps) {
   const n = projects.length;
   const initialOffset = n;
@@ -354,6 +374,7 @@ export default function ProjectsRail({
                 baseHeight={baseHeight}
                 onGoToCard={goToCard}
                 projectDetailBasePath={projectDetailBasePath}
+                onDetailClick={onDetailClick}
               />
             ))}
           </motion.div>

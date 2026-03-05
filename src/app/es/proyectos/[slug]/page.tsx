@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import ProjectDetailMedia from "@/components/projects/ProjectDetailMedia";
 import ProjectDetailFaq from "@/components/projects/ProjectDetailFaq";
+import ProjectDetailReady from "@/components/projects/ProjectDetailReady";
+import ProjectDetailBlurWrapper from "@/components/projects/ProjectDetailBlurWrapper";
 import { ES_SERVICE_SLUGS } from "@/lib/proyectos-collections";
 import {
   getProjectDetailBySlug,
@@ -146,7 +148,9 @@ export default async function ProyectoSlugPage({ params }: Props) {
   const faqJsonLd = buildFaqJsonLd(detail);
 
   return (
-    <main className="page mx-auto min-h-screen max-w-[1600px] pb-20">
+    <ProjectDetailBlurWrapper>
+      <main className="page mx-auto min-h-screen max-w-[1600px] pb-20">
+        <ProjectDetailReady />
       <JsonLd data={breadcrumbJsonLd} />
       <JsonLd data={caseStudyJsonLd} />
       <JsonLd data={faqJsonLd} />
@@ -295,6 +299,7 @@ export default async function ProyectoSlugPage({ params }: Props) {
           </p>
         )}
       </section>
-    </main>
+      </main>
+    </ProjectDetailBlurWrapper>
   );
 }

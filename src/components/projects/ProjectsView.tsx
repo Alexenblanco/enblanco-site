@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { projects, filterProjects } from "@/data/projects";
+import { useProjectTransition } from "@/contexts/ProjectTransitionContext";
 import ProjectsRail from "./ProjectsRail";
 import ProjectMeta from "./ProjectMeta";
 import Filters from "./Filters";
@@ -73,6 +74,21 @@ export default function ProjectsView() {
   }, [filtered.length, activeIndex]);
 
   const activeProject = filtered[activeIndex] ?? filtered[0] ?? null;
+  const { setTransitionTarget } = useProjectTransition();
+
+  const detailHref = activeProject
+    ? `${pathname}/${activeProject.detailSlug ?? activeProject.slug}`
+    : null;
+  useEffect(() => {
+    if (detailHref) router.prefetch(detailHref);
+  }, [detailHref, router]);
+
+  const handleDetailClick = useCallback(
+    (project: (typeof filtered)[number], href: string, originRect: DOMRect) => {
+      setTransitionTarget({ project, href, originRect });
+    },
+    [setTransitionTarget]
+  );
 
   return (
     <>
@@ -97,6 +113,7 @@ export default function ProjectsView() {
               activeIndex={activeIndex}
               onActiveChange={setActiveIndex}
               projectDetailBasePath={pathname}
+              onDetailClick={handleDetailClick}
             />
           </div>
 
