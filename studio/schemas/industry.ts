@@ -18,5 +18,6 @@ export const industry = defineType({
       title: "Language",
       options: { list: [{ title: "Español", value: "es" }, { title: "English", value: "en" }] },
     }),
+    defineField({ name: "order", type: "number", title: "Order (optional)" }),
   ],
 });

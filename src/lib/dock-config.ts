@@ -1,6 +1,8 @@
+import { withLang } from "@/lib/i18n/path";
+
 /**
  * Configuración del FloatingDock por locale.
- * Rutas: base es "es" | "en" según pathname.
+ * Rutas: base es "es" | "en" según pathname. Usa withLang para URLs canónicas /{lang}/...
  */
 export type Locale = "es" | "en";
 
@@ -14,18 +16,18 @@ export const DESKTOP_ITEMS: Record<
   Array<{ id: string; label: string; href: string; isLogo?: boolean }>
 > = {
   es: [
-    { id: "proyectos", label: "proyectos", href: "/es/proyectos" },
-    { id: "about", label: "about", href: "/es/enblanco" },
-    { id: "logo", label: "enbl nco.", href: "/es", isLogo: true },
-    { id: "notas", label: "notas", href: "/es/notas" },
-    { id: "contacto", label: "contacto", href: "/es/contacto" },
+    { id: "proyectos", label: "proyectos", href: withLang("es", "proyectos") },
+    { id: "about", label: "about", href: withLang("es", "enblanco") },
+    { id: "logo", label: "enbl nco.", href: withLang("es", ""), isLogo: true },
+    { id: "notas", label: "notas", href: withLang("es", "notas") },
+    { id: "contacto", label: "contacto", href: withLang("es", "contacto") },
   ],
   en: [
-    { id: "proyectos", label: "projects", href: "/en/projects" },
-    { id: "about", label: "about", href: "/en/enblanco" },
-    { id: "logo", label: "enbl nco.", href: "/en", isLogo: true },
-    { id: "notas", label: "notes", href: "/en/notes" },
-    { id: "contacto", label: "contact", href: "/en/contact" },
+    { id: "proyectos", label: "projects", href: withLang("en", "projects") },
+    { id: "about", label: "about", href: withLang("en", "enblanco") },
+    { id: "logo", label: "enbl nco.", href: withLang("en", ""), isLogo: true },
+    { id: "notas", label: "notes", href: withLang("en", "notes") },
+    { id: "contacto", label: "contact", href: withLang("en", "contact") },
   ],
 };
 
@@ -35,18 +37,18 @@ export const MOBILE_MENU_ITEMS: Record<
   Array<{ label: string; href: string }>
 > = {
   es: [
-    { label: "proyectos", href: "/es/proyectos" },
-    { label: "áreas", href: "/es/areas" },
-    { label: "enblanco", href: "/es/enblanco" },
-    { label: "notas", href: "/es/notas" },
-    { label: "contacto", href: "/es/contacto" },
+    { label: "proyectos", href: withLang("es", "proyectos") },
+    { label: "áreas", href: withLang("es", "areas") },
+    { label: "enblanco", href: withLang("es", "enblanco") },
+    { label: "notas", href: withLang("es", "notas") },
+    { label: "contacto", href: withLang("es", "contacto") },
   ],
   en: [
-    { label: "projects", href: "/en/projects" },
-    { label: "areas", href: "/en/areas" },
-    { label: "enblanco", href: "/en/enblanco" },
-    { label: "notes", href: "/en/notes" },
-    { label: "contact", href: "/en/contact" },
+    { label: "projects", href: withLang("en", "projects") },
+    { label: "areas", href: withLang("en", "areas") },
+    { label: "enblanco", href: withLang("en", "enblanco") },
+    { label: "notes", href: withLang("en", "notes") },
+    { label: "contact", href: withLang("en", "contact") },
   ],
 };
 
@@ -56,9 +58,9 @@ export type ContextAction = { label: string; href?: string; type: "link" | "filt
 const WHATSAPP_URL = "https://wa.me/34619526784";
 
 export function getMobileContextAction(pathname: string, locale: Locale): ContextAction {
-  const base = locale === "en" ? "/en" : "/es";
+  const base = withLang(locale, "");
   if (pathname === base || pathname === `${base}/`) return { label: "whatsapp", href: WHATSAPP_URL, type: "link" };
-  if (pathname.startsWith(`${base}/proyectos`) || pathname.startsWith(`${base}/projects`))
+  if (pathname.startsWith(withLang(locale, "proyectos")) || pathname.startsWith(withLang(locale, "projects")))
     return { label: "filtros", type: "filtros" };
   return { label: "—", type: "none" };
 }

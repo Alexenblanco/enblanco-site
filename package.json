@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "studio": "cd studio && npm run dev",
+    "studio": "node scripts/copy-env-for-studio.js && cd studio && npm run dev",
     "sanity:typegen": "cd studio && npx sanity schema extract --path schema.json && npx sanity typegen generate",
     "check:project-assets": "node scripts/check-project-asset-sizes.js",
     "check:assets": "node scripts/check-project-assets.mjs",
@@ -21,17 +21,18 @@
     "next": "16.1.6",
     "next-sanity": "^9.9.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "styled-components": "^6.1.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "sanity": "^3.69.0",
-    "sharp": "^0.33.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "sanity": "^3.69.0",
+    "sharp": "^0.33.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
