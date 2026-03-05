@@ -85,7 +85,7 @@ export default function ProjectsView() {
 
   const handleDetailClick = useCallback(
     (project: (typeof filtered)[number], href: string, originRect: DOMRect) => {
-      setTransitionTarget({ project, href, originRect });
+      setTransitionTarget({ phase: "phase1", project, href, originRect });
     },
     [setTransitionTarget]
   );

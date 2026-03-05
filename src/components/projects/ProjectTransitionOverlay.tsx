@@ -10,11 +10,13 @@ const HERO_PADDING = 32;
 const HERO_RADIUS = 8;
 const HERO_ASPECT = 9 / 16;
 
-const BLUR_IN_MS = 320;
 const CARD_DURATION = 0.7;
 const EASE = [0.33, 1, 0.68, 1] as const;
-const EXIT_FADE_MS = 280;
+const EXIT_FADE_MS = 480;
 const BLUR_PX = 12;
+/** El apretón se hace en la card real del rail (phase1); aquí solo expandimos y el blur va en sync con la escala */
+/** Mismo radius que el hero del detalle para que no haya cambio visual */
+const CARD_RADIUS = 8;
 
 export const EVENT_READY = "project-detail-ready";
 
@@ -64,7 +66,7 @@ export default function ProjectTransitionOverlay({
     return () => window.removeEventListener(EVENT_READY, handler);
   }, [handleReady]);
 
-  const totalTransitionMs = BLUR_IN_MS + CARD_DURATION * 1000;
+  const totalTransitionMs = CARD_DURATION * 1000;
   useLayoutEffect(() => {
     if (!targetRect || hasNavigated.current) return;
     const timer = setTimeout(() => {
@@ -74,6 +76,9 @@ export default function ProjectTransitionOverlay({
     }, totalTransitionMs);
     return () => clearTimeout(timer);
   }, [targetRect, target.href, router, totalTransitionMs]);
+
+  /* El fade solo empieza cuando el detalle ha montado (EVENT_READY): así no se ve
+   * el parpadeo de la pantalla anterior al desmontarse antes de que pinte el detalle. */
 
   const { project, originRect } = target;
 
@@ -94,7 +99,7 @@ export default function ProjectTransitionOverlay({
       transition={{ duration: EXIT_FADE_MS / 1000, ease: "easeOut" }}
       onAnimationComplete={isExiting ? handleExitComplete : undefined}
     >
-      {/* 1. Fondo se difumina primero; la card sigue nítida */}
+      {/* Blur: se va desenfocando en sync con la expansión de la card */}
       <motion.div
         className="absolute inset-0 z-0"
         style={{
@@ -105,12 +110,14 @@ export default function ProjectTransitionOverlay({
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: BLUR_IN_MS / 1000, ease: "easeOut" }}
+        transition={{ duration: CARD_DURATION, ease: EASE }}
       />
-      {/* 2. Tras el blur del fondo: el contenedor crece (sin deformar) y la imagen hace fill; luego se difumina */}
+      {/* Card: solo expansión y difuminado (el apretón ya se hizo en la card real del rail) */}
       <motion.div
-        className="absolute left-0 top-0 z-10 overflow-hidden rounded-[var(--radius)] bg-[var(--color-bg)]"
+        className="absolute left-0 top-0 z-10 overflow-hidden bg-[var(--color-bg)]"
         style={{
+          borderRadius: CARD_RADIUS,
+          transformOrigin: "50% 50%",
           willChange: willChangeActive ? "transform, filter" : "auto",
         }}
         initial={{
@@ -118,7 +125,7 @@ export default function ProjectTransitionOverlay({
           y: originRect.top,
           width: originRect.width,
           height: originRect.height,
-          borderRadius: 7,
+          scale: 1,
           filter: "blur(0px)",
         }}
         animate={{
@@ -126,13 +133,15 @@ export default function ProjectTransitionOverlay({
           y: targetRect.top,
           width: targetRect.width,
           height: targetRect.height,
-          borderRadius: HERO_RADIUS,
+          scale: 1,
           filter: `blur(${BLUR_PX}px)`,
         }}
         transition={{
-          duration: CARD_DURATION,
-          delay: BLUR_IN_MS / 1000,
-          ease: EASE,
+          x: { duration: CARD_DURATION, ease: EASE },
+          y: { duration: CARD_DURATION, ease: EASE },
+          width: { duration: CARD_DURATION, ease: EASE },
+          height: { duration: CARD_DURATION, ease: EASE },
+          filter: { duration: CARD_DURATION, ease: EASE },
         }}
         onAnimationComplete={() => setWillChangeActive(false)}
       >

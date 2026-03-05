@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 const BLUR_DURATION = 0.9;
-const BLUR_EASE = [0.25, 0.1, 0.25, 1] as const;
+/** Ease-out puro: final suave y continuo, sin micro-contracción al terminar */
+const BLUR_EASE = [0.33, 1, 0.68, 1] as const;
 const BLUR_PX = 12;
 
 type ProjectDetailBlurWrapperProps = {

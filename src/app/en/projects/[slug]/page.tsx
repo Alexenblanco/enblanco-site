@@ -64,7 +64,7 @@ export default async function ProjectSlugPage({ params }: Props) {
   };
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="project-detail-page mx-auto max-w-4xl px-6 py-10">
       <JsonLd data={breadcrumbJsonLd} />
 
       <header className="mb-10">

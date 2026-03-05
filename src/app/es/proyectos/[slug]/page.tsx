@@ -149,7 +149,7 @@ export default async function ProyectoSlugPage({ params }: Props) {
 
   return (
     <ProjectDetailBlurWrapper>
-      <main className="page mx-auto min-h-screen max-w-[1600px] pb-20">
+      <main className="page project-detail-page mx-auto min-h-screen max-w-[1600px] pb-20">
         <ProjectDetailReady />
       <JsonLd data={breadcrumbJsonLd} />
       <JsonLd data={caseStudyJsonLd} />

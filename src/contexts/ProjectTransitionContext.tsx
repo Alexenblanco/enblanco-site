@@ -11,6 +11,7 @@ import type { Project } from "@/data/projects";
 import ProjectTransitionOverlay from "@/components/projects/ProjectTransitionOverlay";
 
 export type TransitionTarget = {
+  phase: "phase1" | "phase2";
   project: Project;
   href: string;
   originRect: DOMRect;
@@ -44,7 +45,7 @@ export function ProjectTransitionProvider({ children }: { children: ReactNode })
       value={{ transitionTarget, setTransitionTarget }}
     >
       {children}
-      {transitionTarget && (
+      {transitionTarget && transitionTarget.phase === "phase2" && (
         <ProjectTransitionOverlay
           target={transitionTarget}
           onClose={onClose}

@@ -163,6 +163,21 @@ img, video {
   -webkit-backdrop-filter: blur(var(--overlay-blur));
 }
 
+/* ========== PROJECT DETAIL PAGE: 16px / 19.2 line-height ========== */
+.project-detail-page {
+  font-size: 16px;
+  line-height: 19.2px;
+}
+/* text-base usa 1rem (root 18px); forzamos 16px y 19.2 dentro del detalle */
+.project-detail-page .text-base {
+  font-size: 1em !important;
+  line-height: 19.2px !important;
+}
+.project-detail-page .text-sm {
+  font-size: 0.875em !important;
+  line-height: 19.2px !important;
+}
+
 /* ========== PROYECTOS PAGE: pixelitos background ========== */
 .proyectos-bg {
   background-color: var(--color-bg);

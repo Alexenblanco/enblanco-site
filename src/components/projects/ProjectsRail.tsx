@@ -5,6 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import type { Project } from "@/data/projects";
+import {
+  useProjectTransition,
+  type TransitionTarget,
+} from "@/contexts/ProjectTransitionContext";
+
+/** Duración del microapretón en la card real (phase1). Debe coincidir con el overlay. */
+const ANTICIPATION_DURATION = 0.48;
+const ANTICIPATION_SCALE_MIN = 0.94;
 
 const GAP = 8;
 const CARD_ASPECT_RATIO = 4 / 5; // width / height (4:5)
@@ -82,6 +90,8 @@ function CardWithPosition({
   onGoToCard,
   projectDetailBasePath,
   onDetailClick,
+  phase1Transition,
+  onPhase1Complete,
 }: {
   index: number;
   project: Project;
@@ -93,17 +103,48 @@ function CardWithPosition({
   onGoToCard: (logicalIndex: number) => void;
   projectDetailBasePath: string;
   onDetailClick?: (project: Project, href: string, originRect: DOMRect) => void;
+  phase1Transition: TransitionTarget | null;
+  onPhase1Complete: () => void;
 }) {
   const top = useTransform(offset, (v) =>
     cardTopInterp(index, normalizeOffset(v, n), baseHeightRef.current)
   );
-  const scale = useTransform(offset, (v) =>
+  const baseScale = useTransform(offset, (v) =>
     scaleFromDistance(index - normalizeOffset(v, n))
+  );
+  const anticipationScale = useMotionValue(1);
+  const scale = useTransform(
+    [baseScale, anticipationScale],
+    ([base, ant]) => base * ant
   );
   const logicalIndex = index % n;
   const isCentered = activeIndex === logicalIndex;
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
   const detailHref = `${projectDetailBasePath}/${project.detailSlug ?? project.slug}`;
+  const phase1StartedRef = useRef(false);
+
+  const runPhase1 =
+    phase1Transition &&
+    phase1Transition.project.id === project.id &&
+    isCentered;
+
+  useEffect(() => {
+    if (!runPhase1 || phase1StartedRef.current) return;
+    phase1StartedRef.current = true;
+    animate(anticipationScale, [1, ANTICIPATION_SCALE_MIN, 1], {
+      duration: ANTICIPATION_DURATION,
+      times: [0, 0.5, 1],
+      ease: [0.25, 0.1, 0.25, 1],
+      onComplete: () => {
+        onPhase1Complete();
+        phase1StartedRef.current = false;
+      },
+    });
+  }, [runPhase1, anticipationScale, onPhase1Complete]);
+
+  useEffect(() => {
+    if (!phase1Transition) phase1StartedRef.current = false;
+  }, [phase1Transition]);
 
   const handleCenterClick = (e: React.MouseEvent<HTMLElement>) => {
     if (onDetailClick) {
@@ -173,6 +214,7 @@ export default function ProjectsRail({
   projectDetailBasePath,
   onDetailClick,
 }: ProjectsRailProps) {
+  const { transitionTarget, setTransitionTarget } = useProjectTransition();
   const n = projects.length;
   const initialOffset = n;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -375,6 +417,13 @@ export default function ProjectsRail({
                 onGoToCard={goToCard}
                 projectDetailBasePath={projectDetailBasePath}
                 onDetailClick={onDetailClick}
+                phase1Transition={
+                  transitionTarget?.phase === "phase1" ? transitionTarget : null
+                }
+                onPhase1Complete={() =>
+                  transitionTarget &&
+                  setTransitionTarget({ ...transitionTarget, phase: "phase2" })
+                }
               />
             ))}
           </motion.div>
