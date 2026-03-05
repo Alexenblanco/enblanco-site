@@ -115,7 +115,7 @@ function CardWithPosition({
   const anticipationScale = useMotionValue(1);
   const scale = useTransform(
     [baseScale, anticipationScale],
-    ([base, ant]) => base * ant
+    (values: number[]) => values[0] * values[1]
   );
   const logicalIndex = index % n;
   const isCentered = activeIndex === logicalIndex;
