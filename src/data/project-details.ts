@@ -44,6 +44,8 @@ export type ProjectDetail = {
   services: string[];
   coverImage: string;
   coverAlt: string;
+  /** Portada móvil opcional; si no hay, se usa coverImage */
+  coverImageMobile?: string;
   /** Introducción (columna derecha "Overview") */
   overview: string;
   /** Bloques de contenido (H2, H3, body, media opcional) */
@@ -71,13 +73,13 @@ const ACILICA_SECTIONS: ContentSection[] = [
     heading: "El naming",
     eyebrow: "Lógica estructural",
     body: "ACILICA es un palíndromo: se lee igual en ambos sentidos.\nEsta condición formal conecta directamente con la lógica de la estampación litográfica, donde la imagen final es el reflejo invertido de la piedra original.\n\nEl naming replica así, de forma conceptual, el propio gesto técnico de la litografía.\n\nLa simetría no es un recurso estético. Es una traducción estructural del proceso.",
-    media: { type: "image", src: "/projects/acilica/02-logos.webp", alt: "ACILICA STUDIO — construcción tipográfica y logos" },
+    media: { type: "image", src: "/projects/acilica/desktop/acilica-2.jpg", alt: "ACILICA STUDIO — construcción tipográfica y logos" },
   },
   {
     heading: "Estrategia de marca",
     eyebrow: "Materia como núcleo simbólico",
     body: "La identidad parte de la litografía entendida como sistema químico y material. Agua y grasa se atraen y se repelen; la piedra actúa como soporte; el ácido desencadena la transformación.\n\nEste equilibrio entre fuerzas opuestas se interpreta como un ecosistema autónomo de partículas en tensión constante.",
-    media: { type: "image", src: "/projects/acilica/stamping.webp", alt: "Proceso de estampación litográfica" },
+    media: { type: "image", src: "/projects/acilica/desktop/acilica-4.jpg", alt: "Proceso de estampación litográfica" },
   },
   {
     heading: "Estrategia de marca",
@@ -92,12 +94,12 @@ const ACILICA_SECTIONS: ContentSection[] = [
   {
     heading: "Sistema visual",
     body: "El sistema gráfico se construyó desde tres ejes:\n\n1. Simetría estructural (derivada del palíndromo).\n2. Dualidad cromática.\n3. Modulación y repetición.\n\nLa tipografía y la composición mantienen un equilibrio entre precisión técnica y sensibilidad artística, reforzando el carácter de estudio-laboratorio.",
-    media: { type: "image", src: "/projects/acilica/identidad.webp", alt: "ACILICA STUDIO — identidad y sello" },
+    media: { type: "image", src: "/projects/acilica/desktop/acilica-7.jpg", alt: "ACILICA STUDIO — identidad y sello" },
   },
   {
     heading: "Aplicaciones",
     body: "A partir del sistema se desarrollaron:\n\n- Dossier editorial\n- Tarjetas\n- Piezas gráficas impresas\n- Soportes de comunicación\n\nCada aplicación respeta la lógica conceptual de inversión, equilibrio y materia, garantizando coherencia sin rigidez formal.",
-    media: { type: "image", src: "/projects/acilica/folleto.webp", alt: "Folleto y aplicaciones editoriales ACILICA" },
+    media: { type: "image", src: "/projects/acilica/desktop/acilica-10.jpg", alt: "Folleto y aplicaciones editoriales ACILICA" },
   },
   {
     heading: "Impacto",
@@ -139,13 +141,14 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
       "Sistema gráfico",
       "Aplicaciones editoriales",
     ],
-    coverImage: "/projects/covers/acilica.png",
+    coverImage: "/projects/acilica/desktop/cover-desktop.jpg",
     coverAlt: "Acilica — estudio de litografía",
+    coverImageMobile: "/projects/acilica/mobile/cover-mobile.png",
     overview:
       "Acilica nace como el estudio-laboratorio de litografía de la artista Teresa de Artiñano. El encargo partía de una necesidad precisa: construir un naming contemporáneo capaz de expresar el carácter experimental y orgánico de la técnica, sin perder la dimensión purista y artesanal heredada del aprendizaje con maestros litógrafos. Desde enblanco abordamos el proyecto desde la materia misma.",
     sections: ACILICA_SECTIONS,
     faqs: ACILICA_FAQS,
-    ogImage: "/projects/acilica/og.jpg",
+    ogImage: "/projects/acilica/desktop/cover-desktop.jpg",
   },
 ];
 

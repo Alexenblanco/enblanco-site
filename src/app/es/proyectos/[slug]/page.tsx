@@ -61,6 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     detail.overview.slice(0, 155) + (detail.overview.length > 155 ? "…" : "");
   const ogImage = detail.ogImage ?? detail.coverImage;
+  const ogImageUrl = ogImage ? (ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}`) : null;
   const canonical = `${siteUrl}/es/proyectos/${slug}`;
   return {
     title: `${detail.title} – ${detail.servicePrimary} | enblanco`,
@@ -77,8 +78,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${detail.title} – ${detail.servicePrimary} | enblanco`,
       description,
       url: canonical,
-      images: ogImage ? [{ url: ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}` }] : [],
+      siteName: "enblanco",
+      images: ogImageUrl
+        ? [{ url: ogImageUrl, width: 1200, height: 630, alt: `${detail.title} — enblanco` }]
+        : [],
     },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -161,14 +166,35 @@ export default async function ProyectoSlugPage({ params }: Props) {
         style={{ paddingLeft: PADDING, paddingRight: PADDING, paddingTop: PADDING }}
       >
         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[8px] bg-[var(--color-bg)] md:aspect-[16/9]">
-          <Image
-            src={detail.coverImage}
-            alt={detail.coverAlt}
-            fill
-            sizes="(max-width: 1024px) 100vw, 1600px"
-            className="object-cover"
-            priority
-          />
+          {detail.coverImageMobile ? (
+            <>
+              <Image
+                src={detail.coverImageMobile}
+                alt={detail.coverAlt}
+                fill
+                sizes="100vw"
+                className="object-cover md:hidden"
+                priority
+              />
+              <Image
+                src={detail.coverImage}
+                alt={detail.coverAlt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 1600px"
+                className="object-cover hidden md:block"
+                priority
+              />
+            </>
+          ) : (
+            <Image
+              src={detail.coverImage}
+              alt={detail.coverAlt}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1600px"
+              className="object-cover"
+              priority
+            />
+          )}
           <div className="absolute inset-0 flex flex-col justify-between p-6 text-white md:p-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <h1 className="text-3xl font-normal tracking-tight md:text-4xl lg:text-5xl">

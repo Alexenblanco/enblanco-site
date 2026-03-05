@@ -56,7 +56,7 @@ export const projects: Project[] = [
     industry: "Arts & Culture",
     categories: ["Branding", "Design"],
     services: ["branding"],
-    coverImage: "/projects/covers/acilica.png",
+    coverImage: "/projects/acilica/desktop/cover-desktop.jpg",
     coverAlt: "Acilica Studio",
     detailSlug: "branding-acilica-studio",
   },
