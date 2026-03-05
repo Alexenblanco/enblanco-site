@@ -7,20 +7,104 @@ import type { ContentMedia } from "@/data/project-details";
 type ProjectDetailMediaProps = {
   media: ContentMedia;
   className?: string;
+  /** Si true, el media ocupa todo el ancho del contenedor (márgenes 32px los da el padre) */
+  fullWidth?: boolean;
 };
 
-const PADDING = 32;
+const innerClass =
+  "relative overflow-hidden rounded-[8px] w-full aspect-[3/2] bg-[var(--color-bg)] md:aspect-video";
 
-export default function ProjectDetailMedia({ media, className = "" }: ProjectDetailMediaProps) {
-  const [imageError, setImageError] = useState(false);
+function MediaImage({
+  src,
+  alt,
+  className,
+  onError,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  onError?: () => void;
+}) {
+  const [err, setErr] = useState(false);
+  const handleError = () => {
+    setErr(true);
+    onError?.();
+  };
+  if (err) return null;
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1600px"
+      className={`object-cover ${className ?? ""}`}
+      onError={handleError}
+    />
+  );
+}
+
+function MediaVideo({
+  src,
+  poster,
+  alt,
+  className,
+  load,
+}: {
+  src: string;
+  poster?: string;
+  alt: string;
+  className?: string;
+  load: boolean;
+}) {
+  if (!load) {
+    return poster ? (
+      <Image
+        src={poster}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, 1600px"
+        className="object-cover"
+      />
+    ) : (
+      <div className="h-full w-full bg-[var(--color-bg)]" aria-hidden />
+    );
+  }
+  return (
+    <video
+      src={src}
+      poster={poster}
+      controls
+      muted
+      playsInline
+      className="h-full w-full object-cover"
+      preload="metadata"
+    >
+      Tu navegador no soporta la reproducción de vídeo.
+    </video>
+  );
+}
+
+export default function ProjectDetailMedia({
+  media,
+  className = "",
+  fullWidth = true,
+}: ProjectDetailMediaProps) {
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
-  const figureClass = `${className} mx-auto max-w-full`;
-  const innerClass = "relative overflow-hidden rounded-[8px] w-full aspect-video bg-[var(--color-bg)]";
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const typeDesktop = media.type;
+  const typeMobile = media.typeMobile ?? media.type;
+  const srcDesktop = media.src;
+  const srcMobile = media.srcMobile ?? media.src;
+  const posterDesktop = media.poster;
+  const posterMobile = media.posterMobile ?? media.poster;
+  const alt = media.alt ?? "Acilica Studio";
+
+  const hasVideo = typeDesktop === "video" || typeMobile === "video";
 
   useEffect(() => {
-    if (media.type !== "video" || !videoContainerRef.current) return;
-    const el = videoContainerRef.current;
+    if (!hasVideo || !containerRef.current) return;
+    const el = containerRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) setShouldLoadVideo(true);
@@ -29,61 +113,43 @@ export default function ProjectDetailMedia({ media, className = "" }: ProjectDet
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [media.type]);
+  }, [hasVideo]);
 
-  if (media.type === "video") {
-    return (
-      <figure className={figureClass} style={{ paddingLeft: PADDING, paddingRight: PADDING }}>
-        <div ref={videoContainerRef} className={innerClass}>
-          {shouldLoadVideo ? (
-            <video
-              src={media.src}
-              poster={media.poster}
-              controls
-              muted
-              playsInline
-              className="h-full w-full object-cover"
-              preload="metadata"
-            >
-              Tu navegador no soporta la reproducción de vídeo.
-            </video>
-          ) : (
-            media.poster ? (
-              <Image
-                src={media.poster}
-                alt={media.alt ?? ""}
-                fill
-                sizes="(max-width: 1024px) 100vw, 1200px"
-                className="object-cover"
-              />
-            ) : (
-              <div className="h-full w-full bg-[var(--color-bg)]" aria-hidden />
-            )
-          )}
-        </div>
-        {media.alt && (
-          <figcaption className="mt-2 text-sm opacity-90">{media.alt}</figcaption>
-        )}
-      </figure>
-    );
-  }
-
-  if (imageError) return null;
+  const figureClass = `${className} mx-auto w-full max-w-full`;
+  const paddingStyle = fullWidth ? undefined : { paddingLeft: 32, paddingRight: 32 };
 
   return (
-    <figure className={figureClass} style={{ paddingLeft: PADDING, paddingRight: PADDING }}>
-      <div className={innerClass}>
-        <Image
-          src={media.src}
-          alt={media.alt ?? ""}
-          fill
-          sizes="(max-width: 1024px) 100vw, 1200px"
-          className="object-cover"
-          onError={() => setImageError(true)}
-        />
+    <figure className={figureClass} style={paddingStyle}>
+      <div ref={containerRef} className={innerClass}>
+        {/* Desktop: visible md and up */}
+        <div className="hidden md:block absolute inset-0">
+          {typeDesktop === "image" ? (
+            <MediaImage src={srcDesktop} alt={alt} />
+          ) : (
+            <MediaVideo
+              src={srcDesktop}
+              poster={posterDesktop}
+              alt={alt}
+              load={shouldLoadVideo}
+            />
+          )}
+        </div>
+        {/* Mobile: visible below md */}
+        <div className="absolute inset-0 md:hidden">
+          {typeMobile === "image" ? (
+            <MediaImage src={srcMobile} alt={alt} />
+          ) : (
+            <MediaVideo
+              src={srcMobile}
+              poster={posterMobile}
+              alt={alt}
+              load={shouldLoadVideo}
+            />
+          )}
+        </div>
       </div>
-      {media.alt && (
-        <figcaption className="mt-2 text-sm opacity-90">{media.alt}</figcaption>
+      {alt && (
+        <figcaption className="mt-2 text-sm opacity-90">{alt}</figcaption>
       )}
     </figure>
   );

@@ -235,26 +235,32 @@ export default async function ProyectoSlugPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Bloques de contenido: H2, H3 (eyebrow), body, media opcional */}
+      {/* Bloques de contenido: H2, H3 (eyebrow), body, media opcional; secciones solo media sin H2 */}
       {grouped.map((group, groupIndex) => {
-        const sectionId = group.heading
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "");
+        const sectionId =
+          group.heading.trim() === ""
+            ? `media-${groupIndex}`
+            : group.heading
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+                .replace(/[^a-z0-9-]/g, "");
+        const isMediaOnly = group.heading.trim() === "";
         return (
           <article
             key={groupIndex}
             id={sectionId}
-            aria-labelledby={`${sectionId}-heading`}
+            aria-labelledby={isMediaOnly ? undefined : `${sectionId}-heading`}
             className="mx-auto w-full py-8"
             style={{ paddingLeft: PADDING, paddingRight: PADDING }}
           >
-            <h2
-              id={`${sectionId}-heading`}
-              className="mb-6 text-xl font-normal tracking-tight"
-            >
-              {group.heading}
-            </h2>
+            {!isMediaOnly && (
+              <h2
+                id={`${sectionId}-heading`}
+                className="mb-6 text-xl font-normal tracking-tight"
+              >
+                {group.heading}
+              </h2>
+            )}
             <div className="space-y-10">
               {group.blocks.map((block, blockIndex) => (
                 <div key={blockIndex} className="space-y-4">
@@ -263,12 +269,14 @@ export default async function ProyectoSlugPage({ params }: Props) {
                       {block.eyebrow}
                     </h3>
                   )}
-                  <div className="whitespace-pre-line text-base leading-relaxed opacity-90">
-                    {block.body}
-                  </div>
+                  {block.body.trim() !== "" && (
+                    <div className="whitespace-pre-line text-base leading-relaxed opacity-90">
+                      {block.body}
+                    </div>
+                  )}
                   {block.media && (
-                    <div className="mt-6">
-                      <ProjectDetailMedia media={block.media} />
+                    <div className={block.body.trim() !== "" ? "mt-6" : ""}>
+                      <ProjectDetailMedia media={block.media} fullWidth />
                     </div>
                   )}
                 </div>
