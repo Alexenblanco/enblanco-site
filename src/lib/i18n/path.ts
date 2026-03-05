@@ -1,5 +1,8 @@
 export type Locale = "es" | "en";
 
+/** Alias for use in params and routing. */
+export type Lang = Locale;
+
 const LOCALES: Locale[] = ["es", "en"];
 
 /**

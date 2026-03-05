@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 
@@ -30,7 +30,8 @@ const areas = [
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
-  if (lang !== "en") return {};
+  if (!isValidLang(lang)) return {};
+  if (lang === "es") return {}; // Spanish uses /es/proyectos
   return {
     title: "projects",
     description:
@@ -53,7 +54,8 @@ const breadcrumbJsonLd = {
 
 export default async function ProjectsPage({ params }: Props) {
   const { lang } = await params;
-  if (!isValidLang(lang) || lang !== "en") notFound();
+  if (!isValidLang(lang)) notFound();
+  if (lang === "es") redirect(withLang("es", "proyectos"));
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">

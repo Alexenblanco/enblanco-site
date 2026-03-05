@@ -45,3 +45,25 @@ export const EN_COLLECTION_TITLES: Record<EnProjectsCollectionSlug, string> = {
   packaging: "packaging projects",
   "web-design": "web design projects",
 };
+
+/** EN projects collection slug -> ES proyectos collection slug (for alternates). */
+export const EN_TO_ES_COLLECTION_SLUG: Record<EnProjectsCollectionSlug, EsProyectosCollectionSlug> = {
+  branding: "branding",
+  naming: "naming",
+  "art-direction": "direccion-de-arte",
+  "brand-consulting": "consultoria-de-marca",
+  "creative-strategy": "estrategia-creativa",
+  packaging: "packaging",
+  "web-design": "diseno-web",
+};
+
+/** ES proyectos collection slug -> EN projects collection slug (for alternates). */
+export const ES_TO_EN_COLLECTION_SLUG: Record<EsProyectosCollectionSlug, EnProjectsCollectionSlug> = {
+  branding: "branding",
+  naming: "naming",
+  "direccion-de-arte": "art-direction",
+  "consultoria-de-marca": "brand-consulting",
+  "estrategia-creativa": "creative-strategy",
+  packaging: "packaging",
+  "diseno-web": "web-design",
+};

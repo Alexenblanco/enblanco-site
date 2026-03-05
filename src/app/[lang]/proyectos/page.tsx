@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import JsonLd from "@/components/Seo/JsonLd";
 import ProjectsView from "@/components/projects/ProjectsView";
 import { getListingProjects } from "@/content/projects";
-import { isValidLang } from "@/lib/i18n/path";
+import { withLang, isValidLang } from "@/lib/i18n/path";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
@@ -13,7 +13,7 @@ type Props = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
-  if (lang !== "es") return {};
+  if (!isValidLang(lang) || lang === "en") return {}; // English uses /en/projects
   return {
     title: "proyectos",
     description:
@@ -36,7 +36,8 @@ const breadcrumbJsonLd = {
 
 export default async function ProyectosPage({ params }: Props) {
   const { lang } = await params;
-  if (!isValidLang(lang) || lang !== "es") notFound();
+  if (!isValidLang(lang)) notFound();
+  if (lang === "en") redirect(withLang("en", "projects"));
 
   const listingProjects = getListingProjects();
   return (

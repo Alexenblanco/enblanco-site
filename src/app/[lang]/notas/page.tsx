@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 
@@ -15,7 +15,7 @@ const NOTAS_ES = [
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
-  if (lang !== "es") return {};
+  if (!isValidLang(lang) || lang === "en") return {};
   return {
     title: "notas",
     description:
@@ -38,7 +38,8 @@ const breadcrumbJsonLd = {
 
 export default async function NotasPage({ params }: Props) {
   const { lang } = await params;
-  if (!isValidLang(lang) || lang !== "es") notFound();
+  if (!isValidLang(lang)) notFound();
+  if (lang === "en") redirect(withLang("en", "notes"));
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">

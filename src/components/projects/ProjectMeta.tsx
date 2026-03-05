@@ -7,6 +7,8 @@ import type { Project } from "@/data/projects";
 type ProjectMetaProps = {
   project: Project | null;
   reducedMotion?: boolean;
+  /** Base path for project detail link (e.g. from usePathname on list page). If omitted, falls back to /es/proyectos. */
+  detailBasePath?: string;
 };
 
 const transition = { duration: 0.2 };
@@ -40,8 +42,12 @@ function MetaCell({
   );
 }
 
-export default function ProjectMeta({ project, reducedMotion }: ProjectMetaProps) {
+export default function ProjectMeta({ project, reducedMotion, detailBasePath }: ProjectMetaProps) {
   if (!project) return null;
+
+  const detailHref = detailBasePath
+    ? `${detailBasePath.replace(/\/$/, "")}/${project.detailSlug ?? project.slug}`
+    : `/es/proyectos/${project.detailSlug ?? project.slug}`;
 
   return (
     <div
@@ -106,7 +112,7 @@ export default function ProjectMeta({ project, reducedMotion }: ProjectMetaProps
             transition={transition}
           >
             <Link
-              href={`/es/proyectos/${project.detailSlug ?? project.slug}`}
+              href={detailHref}
               className="pointer-events-auto no-underline"
               style={{ fontSize: "16px" }}
             >

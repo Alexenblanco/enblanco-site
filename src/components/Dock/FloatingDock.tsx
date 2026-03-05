@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import DockItem from "./DockItem";
 import EnblancoLogo from "./EnblancoLogo";
 import NavSheet from "./NavSheet";
+import { withLang } from "@/lib/i18n/path";
 import {
   getLocaleFromPathname,
   getMobileContextAction,
@@ -116,14 +117,14 @@ export default function FloatingDock() {
           </DockItem>
           <DockItem
             id="logo"
-            href={locale === "es" ? "/es" : "/en"}
+            href={withLang(locale, "")}
             isCentral
             animateOut={isAnimating && clickedId !== "logo"}
             staggerIndex={getStaggerIndex(1, clickedId === "logo" ? 1 : clickedId === "context" ? 2 : 0, 3)}
             reducedMotion={reducedMotion}
             ariaLabel="enblanco, ir a inicio"
             onClick={(e) => {
-              const homeHref = locale === "es" ? "/es" : "/en";
+              const homeHref = withLang(locale, "");
               const isHome = pathname === homeHref || pathname === homeHref + "/";
               if (isHome) return;
               handleItemClick(e, { id: "logo", href: homeHref }, 1, 3);

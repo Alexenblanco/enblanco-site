@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 
 type Props = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
-  if (lang !== "en") return {};
+  if (!isValidLang(lang) || lang === "es") return {};
   return {
     title: "Legal notice — enblanco",
     description: "Legal notice and terms of use for the enblanco website.",
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function LegalNoticePage({ params }: Props) {
   const { lang } = await params;
-  if (!isValidLang(lang) || lang !== "en") notFound();
+  if (!isValidLang(lang)) notFound();
+  if (lang === "es") redirect(withLang("es", "aviso-legal"));
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">

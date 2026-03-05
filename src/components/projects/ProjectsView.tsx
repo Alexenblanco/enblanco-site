@@ -124,7 +124,11 @@ export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}
             />
           </div>
 
-          <ProjectMeta project={activeProject} reducedMotion={!!reducedMotion} />
+          <ProjectMeta
+            project={activeProject}
+            reducedMotion={!!reducedMotion}
+            detailBasePath={pathname}
+          />
         </section>
       </div>
 
