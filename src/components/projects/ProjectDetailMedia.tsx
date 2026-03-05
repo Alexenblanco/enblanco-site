@@ -73,7 +73,8 @@ function MediaVideo({
     <video
       src={src}
       poster={poster}
-      controls
+      autoPlay
+      loop
       muted
       playsInline
       className="h-full w-full object-cover"
