@@ -4,9 +4,9 @@ import { NOTAS_ES, NOTES_EN } from "@/data/notes-index";
 import { ES_SERVICE_SLUGS, EN_SERVICE_SLUGS } from "@/lib/proyectos-collections";
 import { ES_SERVICE_PAGE_SLUGS, EN_SERVICE_PAGE_SLUGS } from "@/lib/services-slugs";
 import { PROJECT_SLUGS } from "@/content/projects";
+import { getSiteUrl } from "@/lib/seo";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 /** EN project detail slugs: keys of PROJECTS_EN (in projects/[slug]/page) + PROJECT_SLUGS, minus collection slugs. */
 const EN_PROJECTS_EN_KEYS = ["ejemplo"] as const;

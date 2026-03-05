@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 .env.local
 .env*.local
+# Studio env must never be committed (may contain SANITY_API_READ_TOKEN, etc.)
+studio/.env.local
+studio/.env*.local
 
 # vercel
 .vercel

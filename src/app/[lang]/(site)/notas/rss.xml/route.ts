@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { NOTES_INDEX_ES } from "@/data/notes-index";
+import { getSiteUrl } from "@/lib/seo";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 function escapeXml(s: string): string {
   return s

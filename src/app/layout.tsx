@@ -4,9 +4,9 @@ import "./globals.css";
 import FloatingDock from "@/components/Dock/FloatingDock";
 import SetLocaleLang from "@/components/SetLocaleLang";
 import { objectSans } from "./fonts";
+import { getSiteUrl } from "@/lib/seo";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 const ogImage = `${siteUrl}/og-default.jpg`;
 const logoUrl = `${siteUrl}/logo.png`;
 

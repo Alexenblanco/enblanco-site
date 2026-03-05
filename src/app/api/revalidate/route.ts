@@ -48,8 +48,13 @@ export async function POST(request: NextRequest) {
   const type = body._type;
   const lang = body.language;
 
-  if (!type) {
-    return NextResponse.json({ revalidated: false, message: "Missing _type" });
+  if (!type || typeof type !== "string") {
+    return NextResponse.json({ revalidated: false, message: "Missing _type" }, { status: 400 });
+  }
+
+  const allowedTypes = ["project", "note", "service", "industry"];
+  if (!allowedTypes.includes(type)) {
+    return NextResponse.json({ revalidated: false, message: "Invalid _type" }, { status: 400 });
   }
 
   const tags = tagsForDocument(type, lang);

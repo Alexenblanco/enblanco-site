@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/seo";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 /**
  * Environment-aware robots.
