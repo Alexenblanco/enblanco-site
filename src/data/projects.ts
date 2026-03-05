@@ -21,21 +21,6 @@ export type Project = {
   gallery?: string[];
 };
 
-export const PROJECT_CATEGORIES = [
-  "Branding",
-  "Advertising",
-  "Design",
-  "Web",
-] as const;
-
-export const PROJECT_INDUSTRIES = [
-  "Fashion",
-  "Sports",
-  "Health",
-  "Arts & Culture",
-  "Industrial",
-] as const;
-
 export const projects: Project[] = [
   {
     id: "1",

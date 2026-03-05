@@ -1,11 +1,14 @@
 import JsonLd from "@/components/Seo/JsonLd";
 import { ProjectTransitionProvider } from "@/contexts/ProjectTransitionContext";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Enblanco",
-  url: "https://enblanco-site.vercel.app/es",
+  name: "enblanco",
+  url: `${siteUrl}/es`,
 };
 
 export default function EsLayout({

@@ -28,6 +28,8 @@ export type ContentSection = {
   body: string;
   /** Media opcional (imagen o vídeo) asociada al bloque */
   media?: ContentMedia;
+  /** Índice en manifest.gallery cuando el proyecto usa media manifest; tiene prioridad sobre media */
+  mediaRef?: number;
 };
 
 export type FaqItem = {
@@ -60,71 +62,24 @@ export type ProjectDetail = {
   ogImage?: string;
 };
 
-const D = "/projects/acilica/desktop";
-const M = "/projects/acilica/mobile";
-
+/** Sections for Acilica; media paths come from content/projects manifest (mediaRef). */
 const ACILICA_SECTIONS: ContentSection[] = [
-  {
-    heading: "Resumen del proyecto",
-    body: "Acilica nace como el estudio-laboratorio de litografía de la artista Teresa de Artiñano. El encargo partía de una necesidad precisa: construir un naming contemporáneo capaz de expresar el carácter experimental y orgánico de la técnica, sin perder la dimensión purista y artesanal heredada del aprendizaje con maestros litógrafos.\n\nDesde enblanco abordamos el proyecto desde la materia misma. El objetivo no era simplemente nombrar un estudio, sino traducir la lógica interna de la litografía en un sistema conceptual coherente: nombre, identidad y lenguaje visual debían responder al propio proceso técnico que define la disciplina.",
-    media: { type: "video", src: `${D}/acilica-1.mp4`, srcMobile: `${M}/acilica-1.mp4`, alt: "Acilica Studio — proceso litográfico" },
-  },
-  {
-    heading: "El contexto",
-    body: "La litografía es una técnica histórica basada en la interacción entre agua, grasa, piedra caliza y ácido. Su funcionamiento responde a principios químicos precisos, pero su resultado final es profundamente artístico.\n\nEl reto consistía en encontrar un nombre que no cayera en lo nostálgico ni en lo excesivamente técnico. Debía ser contemporáneo, abierto y conceptual, pero conectado a la materia y al proceso real de estampación.\n\nNo se trataba de construir una marca decorativa, sino de articular una identidad que dialogara con la técnica desde dentro.",
-    media: { type: "image", src: `${D}/acilica-2.jpg`, srcMobile: `${M}/acilica-2.mp4`, typeMobile: "video", alt: "ACILICA STUDIO — construcción tipográfica y logos" },
-  },
-  {
-    heading: "El naming",
-    eyebrow: "Origen conceptual",
-    body: "La propuesta fue ACILICA, una palabra inventada cuya sonoridad remite directamente a la piedra caliza —base tradicional de la litografía— y al ácido que activa las reacciones químicas necesarias para el grabado.\n\nEl nombre no describe la técnica. La contiene.",
-    media: { type: "video", src: `${D}/acilica-3.mp4`, srcMobile: `${M}/acilica-3.jpg`, typeMobile: "image", alt: "Acilica — naming y concepto" },
-  },
-  {
-    heading: "El naming",
-    eyebrow: "Lógica estructural",
-    body: "ACILICA es un palíndromo: se lee igual en ambos sentidos.\nEsta condición formal conecta directamente con la lógica de la estampación litográfica, donde la imagen final es el reflejo invertido de la piedra original.\n\nEl naming replica así, de forma conceptual, el propio gesto técnico de la litografía.\n\nLa simetría no es un recurso estético. Es una traducción estructural del proceso.",
-    media: { type: "image", src: `${D}/acilica-4.jpg`, srcMobile: `${M}/acilica-4.mp4`, typeMobile: "video", alt: "ACILICA STUDIO — construcción tipográfica y logos" },
-  },
-  {
-    heading: "Estrategia de marca",
-    eyebrow: "Materia como núcleo simbólico",
-    body: "La identidad parte de la litografía entendida como sistema químico y material. Agua y grasa se atraen y se repelen; la piedra actúa como soporte; el ácido desencadena la transformación.\n\nEste equilibrio entre fuerzas opuestas se interpreta como un ecosistema autónomo de partículas en tensión constante.",
-    media: { type: "video", src: `${D}/acilica-5.mp4`, srcMobile: `${M}/acilica-5.jpg`, typeMobile: "image", alt: "Proceso de estampación litográfica" },
-  },
-  {
-    heading: "Estrategia de marca",
-    eyebrow: "Inversión como principio visual",
-    body: "La litografía trabaja mediante inversión: lo que se dibuja se imprime invertido.\n\nA partir de esta lógica se construyó un sistema cromático basado en la dualidad.\nLos verdes encuentran su correspondencia en los púrpuras y viceversa, generando un código visual fundamentado en la inversión y la reciprocidad.",
-    media: { type: "video", src: `${D}/acilica-6.mp4`, srcMobile: `${M}/acilica-6.jpg`, typeMobile: "image", alt: "Sistema cromático Acilica" },
-  },
-  {
-    heading: "Estrategia de marca",
-    eyebrow: "Replicación como identidad",
-    body: "La técnica permite la producción seriada de obra.\nLa identidad incorpora este principio mediante sistemas modulares, repetición controlada y estructuras gráficas adaptables.\n\nLa marca se aleja así de la percepción tradicional de la litografía como técnica rígida, proyectando una visión dinámica y contemporánea.",
-    media: { type: "image", src: `${D}/acilica-7.jpg`, srcMobile: `${M}/acilica-7.mp4`, typeMobile: "video", alt: "Sistemas modulares y repetición" },
-  },
-  {
-    heading: "Sistema visual",
-    body: "El sistema gráfico se construyó desde tres ejes:\n\n1. Simetría estructural (derivada del palíndromo).\n2. Dualidad cromática.\n3. Modulación y repetición.\n\nLa tipografía y la composición mantienen un equilibrio entre precisión técnica y sensibilidad artística, reforzando el carácter de estudio-laboratorio.",
-    media: { type: "image", src: `${D}/acilica-8.jpg`, srcMobile: `${M}/acilica-8.jpg`, alt: "ACILICA STUDIO — identidad y sello" },
-  },
-  {
-    heading: "Aplicaciones",
-    body: "A partir del sistema se desarrollaron:\n\n- Dossier editorial\n- Tarjetas\n- Piezas gráficas impresas\n- Soportes de comunicación\n\nCada aplicación respeta la lógica conceptual de inversión, equilibrio y materia, garantizando coherencia sin rigidez formal.",
-    media: { type: "image", src: `${D}/acilica-9.jpg`, srcMobile: `${M}/acilica-9.mp4`, typeMobile: "video", alt: "Aplicaciones editoriales ACILICA" },
-  },
-  {
-    heading: "Impacto",
-    body: "Acilica se posiciona como un espacio de experimentación contemporánea que honra la tradición técnica de la litografía sin quedar anclado en ella.\n\nEl naming y la identidad no actúan como envoltorio, sino como extensión directa del proceso artístico.\n\nLa marca no representa la técnica. La encarna.",
-    media: { type: "image", src: `${D}/acilica-10.jpg`, srcMobile: `${M}/acilica-10.jpg`, alt: "Folleto y aplicaciones editoriales ACILICA" },
-  },
-  { heading: "", body: "", media: { type: "image", src: `${D}/acilica-11.jpg`, srcMobile: `${M}/acilica-11.mp4`, typeMobile: "video", alt: "Acilica Studio" } },
-  { heading: "", body: "", media: { type: "image", src: `${D}/acilica-12.jpg`, srcMobile: `${M}/acilica-12.jpg`, alt: "Acilica Studio" } },
-  { heading: "", body: "", media: { type: "video", src: `${D}/acilica-13.mp4`, srcMobile: `${M}/acilica-13.jpg`, typeMobile: "image", alt: "Acilica Studio" } },
-  { heading: "", body: "", media: { type: "video", src: `${D}/acilica-14.mp4`, srcMobile: `${M}/acilica-14.mp4`, alt: "Acilica Studio" } },
-  { heading: "", body: "", media: { type: "video", src: `${D}/acilica-15.mp4`, srcMobile: `${M}/acilica-15.mp4`, alt: "Acilica Studio" } },
-  { heading: "", body: "", media: { type: "video", src: `${D}/acilica-16.mp4`, srcMobile: `${M}/acilica-16.jpg`, typeMobile: "image", alt: "Acilica Studio" } },
+  { heading: "Resumen del proyecto", body: "Acilica nace como el estudio-laboratorio de litografía de la artista Teresa de Artiñano. El encargo partía de una necesidad precisa: construir un naming contemporáneo capaz de expresar el carácter experimental y orgánico de la técnica, sin perder la dimensión purista y artesanal heredada del aprendizaje con maestros litógrafos.\n\nDesde enblanco abordamos el proyecto desde la materia misma. El objetivo no era simplemente nombrar un estudio, sino traducir la lógica interna de la litografía en un sistema conceptual coherente: nombre, identidad y lenguaje visual debían responder al propio proceso técnico que define la disciplina.", mediaRef: 0 },
+  { heading: "El contexto", body: "La litografía es una técnica histórica basada en la interacción entre agua, grasa, piedra caliza y ácido. Su funcionamiento responde a principios químicos precisos, pero su resultado final es profundamente artístico.\n\nEl reto consistía en encontrar un nombre que no cayera en lo nostálgico ni en lo excesivamente técnico. Debía ser contemporáneo, abierto y conceptual, pero conectado a la materia y al proceso real de estampación.\n\nNo se trataba de construir una marca decorativa, sino de articular una identidad que dialogara con la técnica desde dentro.", mediaRef: 1 },
+  { heading: "El naming", eyebrow: "Origen conceptual", body: "La propuesta fue ACILICA, una palabra inventada cuya sonoridad remite directamente a la piedra caliza —base tradicional de la litografía— y al ácido que activa las reacciones químicas necesarias para el grabado.\n\nEl nombre no describe la técnica. La contiene.", mediaRef: 2 },
+  { heading: "El naming", eyebrow: "Lógica estructural", body: "ACILICA es un palíndromo: se lee igual en ambos sentidos.\nEsta condición formal conecta directamente con la lógica de la estampación litográfica, donde la imagen final es el reflejo invertido de la piedra original.\n\nEl naming replica así, de forma conceptual, el propio gesto técnico de la litografía.\n\nLa simetría no es un recurso estético. Es una traducción estructural del proceso.", mediaRef: 3 },
+  { heading: "Estrategia de marca", eyebrow: "Materia como núcleo simbólico", body: "La identidad parte de la litografía entendida como sistema químico y material. Agua y grasa se atraen y se repelen; la piedra actúa como soporte; el ácido desencadena la transformación.\n\nEste equilibrio entre fuerzas opuestas se interpreta como un ecosistema autónomo de partículas en tensión constante.", mediaRef: 4 },
+  { heading: "Estrategia de marca", eyebrow: "Inversión como principio visual", body: "La litografía trabaja mediante inversión: lo que se dibuja se imprime invertido.\n\nA partir de esta lógica se construyó un sistema cromático basado en la dualidad.\nLos verdes encuentran su correspondencia en los púrpuras y viceversa, generando un código visual fundamentado en la inversión y la reciprocidad.", mediaRef: 5 },
+  { heading: "Estrategia de marca", eyebrow: "Replicación como identidad", body: "La técnica permite la producción seriada de obra.\nLa identidad incorpora este principio mediante sistemas modulares, repetición controlada y estructuras gráficas adaptables.\n\nLa marca se aleja así de la percepción tradicional de la litografía como técnica rígida, proyectando una visión dinámica y contemporánea.", mediaRef: 6 },
+  { heading: "Sistema visual", body: "El sistema gráfico se construyó desde tres ejes:\n\n1. Simetría estructural (derivada del palíndromo).\n2. Dualidad cromática.\n3. Modulación y repetición.\n\nLa tipografía y la composición mantienen un equilibrio entre precisión técnica y sensibilidad artística, reforzando el carácter de estudio-laboratorio.", mediaRef: 7 },
+  { heading: "Aplicaciones", body: "A partir del sistema se desarrollaron:\n\n- Dossier editorial\n- Tarjetas\n- Piezas gráficas impresas\n- Soportes de comunicación\n\nCada aplicación respeta la lógica conceptual de inversión, equilibrio y materia, garantizando coherencia sin rigidez formal.", mediaRef: 8 },
+  { heading: "Impacto", body: "Acilica se posiciona como un espacio de experimentación contemporánea que honra la tradición técnica de la litografía sin quedar anclado en ella.\n\nEl naming y la identidad no actúan como envoltorio, sino como extensión directa del proceso artístico.\n\nLa marca no representa la técnica. La encarna.", mediaRef: 9 },
+  { heading: "", body: "", mediaRef: 10 },
+  { heading: "", body: "", mediaRef: 11 },
+  { heading: "", body: "", mediaRef: 12 },
+  { heading: "", body: "", mediaRef: 13 },
+  { heading: "", body: "", mediaRef: 14 },
+  { heading: "", body: "", mediaRef: 15 },
 ];
 
 const ACILICA_FAQS: FaqItem[] = [
@@ -175,12 +130,6 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
 /** Obtiene el detalle de un proyecto por slug (solo slugs de detalle, no de colección). */
 export function getProjectDetailBySlug(slug: string): ProjectDetail | null {
   return PROJECT_DETAILS.find((p) => p.slug === slug) ?? null;
-}
-
-/** Slug estable para un proyecto del listado (si tiene página de detalle). */
-export function getDetailSlugForProject(project: Project): string | null {
-  const detail = PROJECT_DETAILS.find((d) => d.projectId === project.id);
-  return detail?.slug ?? null;
 }
 
 /** Proyectos relacionados por industria y/o servicio principal (3–6). Excluye el actual. */

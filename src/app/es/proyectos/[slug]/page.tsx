@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
+import ProjectHero from "@/components/projects/ProjectHero";
 import ProjectDetailMedia from "@/components/projects/ProjectDetailMedia";
+import ProjectGalleryItem from "@/components/projects/ProjectGalleryItem";
 import ProjectDetailFaq from "@/components/projects/ProjectDetailFaq";
 import ProjectDetailReady from "@/components/projects/ProjectDetailReady";
 import ProjectDetailBlurWrapper from "@/components/projects/ProjectDetailBlurWrapper";
@@ -15,6 +16,7 @@ import {
   type ProjectDetail,
   type ContentSection,
 } from "@/data/project-details";
+import { getProjectBySlug } from "@/content/projects";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
@@ -26,6 +28,7 @@ type GroupedBlock = {
   eyebrow?: string;
   body: string;
   media?: ContentSection["media"];
+  mediaRef?: number;
 };
 
 function groupSections(sections: ContentSection[]): { heading: string; blocks: GroupedBlock[] }[] {
@@ -40,6 +43,7 @@ function groupSections(sections: ContentSection[]): { heading: string; blocks: G
       eyebrow: s.eyebrow,
       body: s.body,
       media: s.media,
+      mediaRef: s.mediaRef,
     });
   }
   return groups;
@@ -138,6 +142,7 @@ export default async function ProyectoSlugPage({ params }: Props) {
   const detail = getProjectDetailBySlug(slug);
   if (!detail) notFound();
 
+  const project = getProjectBySlug(slug);
   const related = getRelatedProjectDetails(detail);
   const grouped = groupSections(detail.sections);
   const breadcrumbJsonLd = {
@@ -160,54 +165,26 @@ export default async function ProyectoSlugPage({ params }: Props) {
       <JsonLd data={caseStudyJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      {/* Hero: imagen de portada con padding 32px y border-radius 8px */}
-      <header
-        className="relative mx-auto mt-0 w-full"
-        style={{ paddingLeft: PADDING, paddingRight: PADDING, paddingTop: PADDING }}
-      >
-        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[8px] bg-[var(--color-bg)] md:aspect-[16/9]">
-          {detail.coverImageMobile ? (
-            <>
-              <Image
-                src={detail.coverImageMobile}
-                alt={detail.coverAlt}
-                fill
-                sizes="100vw"
-                className="object-cover md:hidden"
-                priority
-              />
-              <Image
-                src={detail.coverImage}
-                alt={detail.coverAlt}
-                fill
-                sizes="(max-width: 1024px) 100vw, 1600px"
-                className="object-cover hidden md:block"
-                priority
-              />
-            </>
-          ) : (
-            <Image
-              src={detail.coverImage}
-              alt={detail.coverAlt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 1600px"
-              className="object-cover"
-              priority
-            />
-          )}
-          <div className="absolute inset-0 flex flex-col justify-between p-6 text-white md:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <h1 className="text-3xl font-normal tracking-tight md:text-4xl lg:text-5xl">
-                {detail.title}
-              </h1>
-              <span className="text-base opacity-90 md:text-lg">{detail.year}</span>
-            </div>
-            <div className="flex justify-center md:justify-end">
-              <span className="text-base opacity-90 md:text-lg">{detail.industry}</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Hero: from manifest when available */}
+      {project ? (
+        <ProjectHero
+          hero={project.hero}
+          alt={detail.coverAlt}
+          title={detail.title}
+          year={detail.year}
+          industry={detail.industry}
+          padding={PADDING}
+        />
+      ) : (
+        <ProjectHero
+          hero={{ desktop: detail.coverImage, mobile: detail.coverImageMobile }}
+          alt={detail.coverAlt}
+          title={detail.title}
+          year={detail.year}
+          industry={detail.industry}
+          padding={PADDING}
+        />
+      )}
 
       {/* Dos columnas: servicios (izq) + Overview (derecha) */}
       <section
@@ -274,7 +251,17 @@ export default async function ProyectoSlugPage({ params }: Props) {
                       {block.body}
                     </div>
                   )}
-                  {block.media && (
+                  {project &&
+                    block.mediaRef != null &&
+                    project.gallery[block.mediaRef] != null && (
+                      <div className={block.body.trim() !== "" ? "mt-6" : ""}>
+                        <ProjectGalleryItem
+                          item={project.gallery[block.mediaRef]!}
+                          fullWidth
+                        />
+                      </div>
+                    )}
+                  {!project && block.media && (
                     <div className={block.body.trim() !== "" ? "mt-6" : ""}>
                       <ProjectDetailMedia media={block.media} fullWidth />
                     </div>

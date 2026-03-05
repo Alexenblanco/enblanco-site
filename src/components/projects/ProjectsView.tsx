@@ -3,13 +3,19 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
-import { projects, filterProjects } from "@/data/projects";
+import { projects as dataProjects, filterProjects } from "@/data/projects";
+import type { Project } from "@/data/projects";
 import { useProjectTransition } from "@/contexts/ProjectTransitionContext";
 import ProjectsRail from "./ProjectsRail";
 import ProjectMeta from "./ProjectMeta";
 import Filters from "./Filters";
 
-export default function ProjectsView() {
+type ProjectsViewProps = {
+  /** When provided, used as the project list (e.g. from getListingProjects()); otherwise falls back to data/projects. */
+  listingProjects?: Project[];
+};
+
+export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}) {
   const reducedMotion = useReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
@@ -62,9 +68,10 @@ export default function ProjectsView() {
     };
   }, []);
 
+  const sourceProjects = listingProjects ?? dataProjects;
   const filtered = useMemo(
-    () => filterProjects(projects, { service, industry }),
-    [service, industry]
+    () => filterProjects(sourceProjects, { service, industry }),
+    [sourceProjects, service, industry]
   );
 
   useEffect(() => {

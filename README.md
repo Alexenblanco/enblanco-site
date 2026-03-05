@@ -29,6 +29,18 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Sanity CMS
+
+- **Install:** With Next.js 16 you may need `npm install --legacy-peer-deps` (next-sanity peer dependency targets Next 14/15).
+- **Studio (decoupled):** Run `npm run studio` to start Sanity Studio (or `cd studio && npm run dev`). Configure `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` in `.env.local` (see `.env.local.example`).
+- **Typed queries:** Run `npm run sanity:typegen` to generate TypeScript types from the studio schema into `src/lib/sanity/types.ts`. Run after changing schemas in `studio/schemas/`.
+- **Preview (draft) mode:** Call `GET /api/draft/enable?secret=<SANITY_PREVIEW_SECRET>&redirect=/es` to enable draft mode, and `GET /api/draft/disable` to turn it off.
+- **Revalidate cache (webhook):** To invalidate Next.js cache when content changes in Sanity, set a webhook in [Sanity Manage](https://www.sanity.io/manage):
+  1. Project → API → Webhooks → Add webhook.
+  2. **URL:** `https://<your-domain>/api/revalidate?secret=<SANITY_PREVIEW_SECRET>` (or use `SANITY_REVALIDATE_SECRET` if you set it).
+  3. **Trigger:** on Create, Update, Delete.
+  4. **Payload:** Sanity sends a JSON body with `_type` and optionally `language`; the handler calls `revalidateTag()` for the matching tags (`projects-es`, `projects-en`, `notes-es`, etc.).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

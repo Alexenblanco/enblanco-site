@@ -1,0 +1,24 @@
+{
+  "name": "enblanco-studio",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "start": "sanity start",
+    "deploy": "sanity deploy",
+    "schema:extract": "sanity schema extract"
+  },
+  "dependencies": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sanity": "^3.69.0",
+    "styled-components": "^6.1.13"
+  },
+  "devDependencies": {
+    "@sanity/vision": "^3.69.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}

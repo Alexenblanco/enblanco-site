@@ -14,7 +14,7 @@ import {
 const STAGGER_DELAY_MS = 50;
 const EXIT_DURATION_MS = 250;
 
-function getStaggerIndex(index: number, clickedIndex: number, total: number): number {
+function getStaggerIndex(index: number, clickedIndex: number, _total: number): number {
   if (index === clickedIndex) return 0;
   return index < clickedIndex ? index : index - 1;
 }

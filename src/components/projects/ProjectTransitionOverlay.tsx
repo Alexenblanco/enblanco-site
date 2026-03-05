@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import type { TransitionTarget } from "@/contexts/ProjectTransitionContext";
 
 const HERO_PADDING = 32;
-const HERO_RADIUS = 8;
 const HERO_ASPECT = 9 / 16;
 
 const CARD_DURATION = 0.7;
@@ -152,6 +151,7 @@ export default function ProjectTransitionOverlay({
           sizes="100vw"
           className="object-cover"
           priority
+          placeholder="empty"
         />
       </motion.div>
     </motion.div>

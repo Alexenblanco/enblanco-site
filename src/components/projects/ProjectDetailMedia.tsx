@@ -39,6 +39,7 @@ function MediaImage({
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1600px"
       className={`object-cover ${className ?? ""}`}
       onError={handleError}
+      placeholder="empty"
     />
   );
 }
@@ -47,13 +48,11 @@ function MediaVideo({
   src,
   poster,
   alt,
-  className,
   load,
 }: {
   src: string;
   poster?: string;
   alt: string;
-  className?: string;
   load: boolean;
 }) {
   if (!load) {
@@ -64,6 +63,7 @@ function MediaVideo({
         fill
         sizes="(max-width: 768px) 100vw, 1600px"
         className="object-cover"
+        placeholder="empty"
       />
     ) : (
       <div className="h-full w-full bg-[var(--color-bg)]" aria-hidden />
@@ -77,8 +77,9 @@ function MediaVideo({
       loop
       muted
       playsInline
+      preload="none"
+      controls={false}
       className="h-full w-full object-cover"
-      preload="metadata"
     >
       Tu navegador no soporta la reproducción de vídeo.
     </video>
@@ -110,7 +111,7 @@ export default function ProjectDetailMedia({
       (entries) => {
         if (entries[0]?.isIntersecting) setShouldLoadVideo(true);
       },
-      { rootMargin: "100px", threshold: 0 }
+      { rootMargin: "200px", threshold: 0 }
     );
     observer.observe(el);
     return () => observer.disconnect();

@@ -185,8 +185,10 @@ function CardWithPosition({
         src={project.coverImage}
         alt={project.coverAlt}
         fill
-        sizes={`${Math.round(baseWidth * CENTER_SCALE)}px`}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
         className="pointer-events-none object-cover"
+        priority={isCentered}
+        placeholder="empty"
       />
       {isCentered &&
         (onDetailClick ? (

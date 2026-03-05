@@ -1,20 +1,14 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import FloatingDock from "@/components/Dock/FloatingDock";
+import SetLocaleLang from "@/components/SetLocaleLang";
+import { objectSans } from "./fonts";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
 const ogImage = `${siteUrl}/og-default.jpg`;
 const logoUrl = `${siteUrl}/logo.png`;
-
-/* Object Sans: under src/app/fonts so next/font/local bundles it in production */
-const objectSans = localFont({
-  src: "./fonts/ObjectSans-Regular.otf",
-  variable: "--font-sans",
-  display: "swap",
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -23,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Enblanco", template: "%s — Enblanco" },
+  title: { default: "enblanco", template: "%s — enblanco" },
   description:
     "Estudio de branding y diseño. Identidad visual, packaging y experiencias digitales.",
   icons: {
@@ -40,13 +34,13 @@ export const metadata: Metadata = {
     ],
   },
   themeColor: "#F2F1F1",
-  applicationName: "Enblanco",
+  applicationName: "enblanco",
   manifest: "/site.webmanifest",
   openGraph: {
     type: "website",
-    siteName: "Enblanco",
+    siteName: "enblanco",
     url: siteUrl,
-    title: "Enblanco",
+    title: "enblanco",
     description:
       "Estudio de branding y diseño. Identidad visual, packaging y experiencias digitales.",
     images: [
@@ -54,16 +48,9 @@ export const metadata: Metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: "Enblanco",
+        alt: "enblanco",
       },
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Enblanco",
-    description:
-      "Estudio de branding y diseño. Identidad visual, packaging y experiencias digitales.",
-    images: [ogImage],
   },
 };
 
@@ -73,8 +60,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={objectSans.variable}>
+    <html lang="es" className={objectSans.variable} suppressHydrationWarning>
       <body className={`${geistMono.variable} antialiased`}>
+        <SetLocaleLang />
         <div className="page">
         <script
           type="application/ld+json"

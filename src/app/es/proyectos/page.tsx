@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import JsonLd from "@/components/Seo/JsonLd";
 import ProjectsView from "@/components/projects/ProjectsView";
+import { getListingProjects } from "@/content/projects";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
@@ -30,11 +31,12 @@ const breadcrumbJsonLd = {
 };
 
 export default function ProyectosPage() {
+  const listingProjects = getListingProjects();
   return (
     <main className="proyectos-page mx-auto w-full max-w-[100vw] overflow-x-hidden">
       <JsonLd data={breadcrumbJsonLd} />
       <Suspense fallback={null}>
-        <ProjectsView />
+        <ProjectsView listingProjects={listingProjects} />
       </Suspense>
     </main>
   );
