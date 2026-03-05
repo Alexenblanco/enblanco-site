@@ -1,0 +1,11 @@
+{
+  "siteName": "enblanco",
+  "nav": {
+    "home": "home",
+    "projects": "projects",
+    "areas": "areas",
+    "about": "enblanco",
+    "notes": "notes",
+    "contact": "contact"
+  }
+}

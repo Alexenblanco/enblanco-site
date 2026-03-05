@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  themeColor: "#F2F1F1",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "enblanco", template: "%s — enblanco" },
@@ -33,7 +37,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  themeColor: "#F2F1F1",
   applicationName: "enblanco",
   manifest: "/site.webmanifest",
   openGraph: {

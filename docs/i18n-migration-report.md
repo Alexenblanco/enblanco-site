@@ -142,13 +142,28 @@ Por tanto, en esta pasada **no** se eliminan; solo se documenta y se deja el có
 - **Después:** Ejecutar de nuevo `npm run build` y comprobar que todas las rutas se generen bajo `[lang]` y que no queden referencias a `en/` o `es/` en el código (links ya usan `withLang`, por lo que no dependen de carpetas).
 - **Estado:** Tras el borrado, el único sistema de rutas es `[lang]`; las URLs públicas se mantienen (`/en/...`, `/es/...`).
 
-### Estado actual (post-migración Paso 1 y 2)
+### Estado actual (migración completada)
 
-- **Paso 1 y 2:** Completados. Todas las rutas están bajo `[lang]` con redirects y `generateStaticParams` donde aplica. `npm run build` termina con éxito.
-- **Paso 3 (borrar `app/en` y `app/es`):** Pendiente de ejecución. Cuando se desee:
-  1. Eliminar las carpetas `src/app/en` y `src/app/es` por completo.
-  2. Ejecutar `npm run build` de nuevo y comprobar que solo aparezcan rutas bajo `[lang]` (las URLs seguirán siendo `/en/...` y `/es/...`).
+- **Paso 1 y 2:** Completados.
+- **Paso 3:** Completado. Las carpetas `src/app/en` y `src/app/es` han sido eliminadas. El único sistema de rutas es `app/[lang]`. Las URLs públicas siguen siendo `/en/...` y `/es/...` (el segmento dinámico `[lang]` toma "en" o "es"). `npm run build` termina con éxito y solo se generan rutas bajo `[lang]`.
 - **Nota:** Los avisos `themeColor` en metadata son previos (layout raíz); no impiden el build. Opcional: mover `themeColor` a `viewport` export según la doc de Next.js.
+
+### Comprobación estilos y animaciones en `[lang]` (pre-borrado)
+
+Verificación realizada para asegurar que, al borrar `app/en` y `app/es`, las rutas servidas por `[lang]` mantienen los mismos estilos y animaciones:
+
+| Aspecto | Estado |
+|--------|--------|
+| **Layout** | `[lang]/layout.tsx` incluye `ProjectTransitionProvider` (igual que `es/layout`). Se añadió también a `en/layout.tsx` para paridad. |
+| **Root** | `app/layout.tsx` aplica `globals.css`, fuentes, `.page`, `FloatingDock` y `SetLocaleLang` a todas las rutas (incluidas las de `[lang]`). |
+| **Home** | `[lang]/page.tsx` usa las mismas clases que `en/page` y `es/page`: `min-h-screen bg-zinc-50`, `border-b border-zinc-200 bg-white/80 backdrop-blur`, `max-w-5xl`, `gap-16`, footer con `border-t border-zinc-200 bg-white`. |
+| **Contacto** | `[lang]/contact` y `[lang]/contacto`: mismo `<main className="mx-auto max-w-3xl px-6 py-10">`, secciones y estilos de formulario (inputs, botón, enlaces). |
+| **Proyectos (lista)** | `[lang]/projects` = lista estática (como `en/projects`). `[lang]/proyectos` = `ProjectsView` con `main className="proyectos-page mx-auto w-full max-w-[100vw] overflow-x-hidden"` y `Suspense` (como `es/proyectos`). |
+| **Proyectos (detalle)** | `[lang]/projects/[slug]` y `[lang]/proyectos/[slug]` usan `ProjectDetailBlurWrapper`, `ProjectHero`, `ProjectGalleryItem` (mismo que `en` y `es`). |
+| **Animaciones** | `ProjectTransitionProvider` en `[lang]` permite transición al detalle desde `ProjectsView` (rail, overlay). `ProjectMeta`, `ProjectsRail`, `Filters`, `NavSheet`, `DockItem` usan `framer-motion`; al ser componentes compartidos, se comportan igual bajo `[lang]`. |
+| **CSS** | `.page`, `.proyectos-page`, variables CSS y estilos globales están en `globals.css` (layout raíz); aplican a todas las páginas de `[lang]`. |
+
+Conclusión: estilos, animaciones y estructura en `[lang]` son equivalentes a los de `en` y `es`. Es seguro borrar `app/en` y `app/es`.
 
 ---
 
