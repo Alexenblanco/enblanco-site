@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { getLocaleFromPathname, MOBILE_MENU_ITEMS } from "@/lib/dock-config";
+import { getLocaleFromPathname, MOBILE_MENU_ITEMS, getWhatsAppHref } from "@/lib/dock-config";
 
 type NavSheetProps = {
   open: boolean;
@@ -70,6 +70,15 @@ export default function NavSheet({ open, onClose }: NavSheetProps) {
                   {item.label}
                 </Link>
               ))}
+              <a
+                href={getWhatsAppHref(locale)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="dock-pill block py-3 px-4 text-left text-[18px] no-underline"
+                onClick={onClose}
+              >
+                WhatsApp
+              </a>
             </nav>
           </motion.aside>
         </>

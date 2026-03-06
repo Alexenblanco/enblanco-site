@@ -7,5 +7,43 @@
     "about": "enblanco",
     "notes": "notas",
     "contact": "contacto"
+  },
+  "contact": {
+    "heroTitle": "Hablemos",
+    "heroSubtitle": "Selecciona el tipo de consulta y te guiaremos en unos pocos pasos.",
+    "stepOf": "Paso {{current}} de {{total}}",
+    "changeType": "Cambiar tipo de consulta",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "send": "Enviar",
+    "options": {
+      "project": { "title": "Proyecto", "subtitle": "Para nuevas marcas, rediseños, web o necesidades creativas concretas." },
+      "contact": { "title": "Contacto", "subtitle": "Para consultas generales, colaboraciones u otras conversaciones." },
+      "talent": { "title": "Talento", "subtitle": "Para perfiles que quieran colaborar con enblanco." }
+    },
+    "labels": { "name": "Nombre", "email": "Email", "phone": "Teléfono (opcional)", "services": "Servicios de interés", "message": "Mensaje" },
+    "placeholders": { "name": "Tu nombre", "email": "tu@email.com", "phone": "+34 600 000 000", "message": "Cuéntanos en qué podemos ayudarte..." },
+    "legal": "Acepto la <privacyLink>política de privacidad</privacyLink>.",
+    "success": "Gracias. Hemos recibido tu mensaje y te responderemos lo antes posible.",
+    "errorSend": "No hemos podido enviar tu mensaje. Inténtalo de nuevo en unos minutos.",
+    "errorRateLimit": "Has enviado demasiados mensajes. Espera unos minutos antes de intentar de nuevo.",
+    "errors": {
+      "nameRequired": "El nombre es obligatorio.",
+      "nameMin": "El nombre debe tener al menos 2 caracteres.",
+      "emailRequired": "El email es obligatorio.",
+      "emailInvalid": "Introduce un email válido.",
+      "messageRequired": "El mensaje es obligatorio.",
+      "messageMin": "El mensaje debe tener al menos 10 caracteres.",
+      "servicesRequired": "Selecciona al menos un servicio.",
+      "privacyRequired": "Debes aceptar la política de privacidad."
+    },
+    "services": {
+      "branding": "Branding",
+      "naming": "Naming",
+      "art-direction": "Dirección de arte",
+      "marketing-creativo": "Marketing con enfoque creativo",
+      "web-design": "Diseño web",
+      "packaging": "Packaging"
+    }
   }
 }

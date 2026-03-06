@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import { getDictionary } from "@/dictionaries";
+import ContactGuidedFlow from "@/components/contact/ContactGuidedFlow";
 
 type Props = { params: Promise<{ lang: string }> };
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
@@ -24,10 +28,14 @@ export default async function ContactoPage({ params }: Props) {
   if (!isValidLang(lang)) notFound();
   if (lang === "en") redirect(withLang("en", "contact"));
 
+  const dict = getDictionary("es");
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <section aria-labelledby="contacto-heading" className="mb-10">
-        <h1 id="contacto-heading" className="text-2xl font-semibold tracking-tight">¿hablamos?</h1>
+        <h1 id="contacto-heading" className="text-2xl font-semibold tracking-tight">
+          {dict.contact.heroTitle}
+        </h1>
         <p className="mt-3 text-sm text-zinc-700">
           Para contarnos un proyecto, proponer una colaboración o simplemente saludar.
         </p>
@@ -51,30 +59,12 @@ export default async function ContactoPage({ params }: Props) {
           </address>
         </div>
       </section>
-      <section id="formulario" aria-labelledby="form-heading" className="border-t border-zinc-200 pt-8">
-        <h2 id="form-heading" className="text-base font-semibold tracking-tight">Envíanos un mensaje</h2>
-        <form action="#" method="post" className="mt-4 flex flex-col gap-4" aria-label="Formulario de contacto">
-          <div>
-            <label htmlFor="contacto-nombre" className="block text-sm font-medium text-zinc-800">Nombre</label>
-            <input id="contacto-nombre" type="text" name="nombre" required autoComplete="name" className="mt-1 w-full max-w-md rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-900" />
-          </div>
-          <div>
-            <label htmlFor="contacto-email" className="block text-sm font-medium text-zinc-800">Email</label>
-            <input id="contacto-email" type="email" name="email" required autoComplete="email" className="mt-1 w-full max-w-md rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-900" />
-          </div>
-          <div>
-            <label htmlFor="contacto-mensaje" className="block text-sm font-medium text-zinc-800">Cuéntanos</label>
-            <textarea id="contacto-mensaje" name="mensaje" rows={4} className="mt-1 w-full max-w-md rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-900" />
-          </div>
-          <div className="flex items-start gap-2">
-            <input id="contacto-privacidad" type="checkbox" name="privacidad" required className="mt-1 rounded border-zinc-300" aria-describedby="contacto-privacidad-desc" />
-            <label htmlFor="contacto-privacidad" id="contacto-privacidad-desc" className="text-sm text-zinc-700">
-              Acepto la <Link href={withLang("es", "privacidad")} className="underline">política de privacidad</Link>.
-            </label>
-          </div>
-          <button type="submit" className="w-fit rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">Enviar</button>
-        </form>
-      </section>
+      <ContactGuidedFlow
+        dict={dict.contact}
+        lang="es"
+        privacyHref={withLang("es", "privacidad")}
+        pageUrl={`${SITE_URL}/es/contacto`}
+      />
       <p className="mt-8 text-sm text-zinc-600">
         <Link href={withLang("es", "")} className="underline">inicio</Link>
         {" · "}

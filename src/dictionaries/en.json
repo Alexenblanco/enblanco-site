@@ -7,5 +7,63 @@
     "about": "enblanco",
     "notes": "notes",
     "contact": "contact"
+  },
+  "contact": {
+    "heroTitle": "Let's talk",
+    "heroSubtitle": "Select the type of enquiry and we'll guide you in a few steps.",
+    "stepOf": "Step {{current}} of {{total}}",
+    "changeType": "Change enquiry type",
+    "back": "Back",
+    "next": "Next",
+    "send": "Send",
+    "options": {
+      "project": {
+        "title": "Project",
+        "subtitle": "For new brands, redesigns, web or specific creative needs."
+      },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "For general enquiries, collaborations or other conversations."
+      },
+      "talent": {
+        "title": "Talent",
+        "subtitle": "For people who want to collaborate with enblanco."
+      }
+    },
+    "labels": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone (optional)",
+      "services": "Services of interest",
+      "message": "Message"
+    },
+    "placeholders": {
+      "name": "Your name",
+      "email": "you@email.com",
+      "phone": "+34 600 000 000",
+      "message": "Tell us how we can help..."
+    },
+    "legal": "I accept the <privacyLink>privacy policy</privacyLink>.",
+    "success": "Thanks. We've received your message and will get back to you soon.",
+    "errorSend": "We couldn't send your message. Please try again in a few minutes.",
+    "errorRateLimit": "You've sent too many messages. Please wait a few minutes before trying again.",
+    "errors": {
+      "nameRequired": "Name is required.",
+      "nameMin": "Name must be at least 2 characters.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email.",
+      "messageRequired": "Message is required.",
+      "messageMin": "Message must be at least 10 characters.",
+      "servicesRequired": "Select at least one service.",
+      "privacyRequired": "You must accept the privacy policy."
+    },
+    "services": {
+      "branding": "Branding",
+      "naming": "Naming",
+      "art-direction": "Art direction",
+      "marketing-creativo": "Marketing with a creative focus",
+      "web-design": "Web design",
+      "packaging": "Packaging"
+    }
   }
 }

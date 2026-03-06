@@ -44,3 +44,6 @@ studio/.env*.local
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lead fallback store (may contain PII)
+data/failed-leads.json

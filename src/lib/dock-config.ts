@@ -55,11 +55,24 @@ export const MOBILE_MENU_ITEMS: Record<
 /** Acción contextual móvil por pathname: texto y tipo (external href vs "filtros" panel) */
 export type ContextAction = { label: string; href?: string; type: "link" | "filtros" | "none" };
 
-const WHATSAPP_URL = "https://wa.me/34619526784";
+/** URL base WhatsApp (número desde env o constante). Mensaje pre-rellenado por idioma se añade en getWhatsAppHref. */
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "34619526784";
+const WHATSAPP_BASE = `https://wa.me/${WHATSAPP_NUMBER}`;
+
+const WHATSAPP_PREFILL_ES = "Hola, me gustaría contactar con enblanco.";
+const WHATSAPP_PREFILL_EN = "Hi, I'd like to get in touch with enblanco.";
+
+export function getWhatsAppHref(locale: Locale): string {
+  const text = locale === "es" ? WHATSAPP_PREFILL_ES : WHATSAPP_PREFILL_EN;
+  return `${WHATSAPP_BASE}?text=${encodeURIComponent(text)}`;
+}
 
 export function getMobileContextAction(pathname: string, locale: Locale): ContextAction {
   const base = withLang(locale, "");
-  if (pathname === base || pathname === `${base}/`) return { label: "whatsapp", href: WHATSAPP_URL, type: "link" };
+  if (pathname === base || pathname === `${base}/`)
+    return { label: "whatsapp", href: getWhatsAppHref(locale), type: "link" };
+  if (pathname === withLang(locale, "contacto") || pathname === withLang(locale, "contact"))
+    return { label: "whatsapp", href: getWhatsAppHref(locale), type: "link" };
   if (pathname.startsWith(withLang(locale, "proyectos")) || pathname.startsWith(withLang(locale, "projects")))
     return { label: "filtros", type: "filtros" };
   return { label: "—", type: "none" };
