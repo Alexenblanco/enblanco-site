@@ -107,7 +107,7 @@ function CardWithPosition({
   onPhase1Complete: () => void;
 }) {
   const top = useTransform(offset, (v) =>
-    cardTopInterp(index, normalizeOffset(v, n), baseHeightRef.current)
+    cardTopInterp(index, normalizeOffset(v, n), baseHeightRef.current ?? 0)
   );
   const baseScale = useTransform(offset, (v) =>
     scaleFromDistance(index - normalizeOffset(v, n))

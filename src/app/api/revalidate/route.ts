@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
   const tags = tagsForDocument(type, lang);
   for (const tag of tags) {
-    revalidateTag(tag, "max");
+    revalidateTag(tag);
   }
 
   return NextResponse.json({ revalidated: true, tags });
