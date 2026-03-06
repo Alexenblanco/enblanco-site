@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang, isValidLang } from "@/lib/i18n/path";
-import { NOTAS_ES, getNoteBySlug } from "@/data/notes-index";
+import { getNotasSlugsEs } from "@/lib/static-routes";
+import { getNoteBySlug } from "@/data/notes-index";
 import { getSiteUrl } from "@/lib/seo";
 
 const siteUrl = getSiteUrl();
@@ -11,7 +12,7 @@ const siteUrl = getSiteUrl();
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
 export async function generateStaticParams() {
-  return NOTAS_ES.map((n) => ({ lang: "es" as const, slug: n.slug }));
+  return getNotasSlugsEs().map((slug) => ({ lang: "es" as const, slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

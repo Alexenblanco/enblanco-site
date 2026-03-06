@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 
 type Props = { params: Promise<{ lang: string }> };
 
@@ -131,7 +132,7 @@ export default async function LangHomePage({ params }: Props) {
               <h2 id="contact-heading-en" className="text-base font-semibold tracking-tight">Let&apos;s talk</h2>
               <p className="mt-2 max-w-2xl text-sm text-zinc-700">
                 For projects, collaborations, or just to say hello, write to{" "}
-                <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.
               </p>
             </section>
           </>
@@ -188,7 +189,7 @@ export default async function LangHomePage({ params }: Props) {
               <h2 id="contacto-heading" className="text-base font-semibold tracking-tight">Hablemos</h2>
               <p className="mt-2 max-w-2xl text-sm text-zinc-700">
                 Para contarnos un proyecto, proponer una colaboración o simplemente saludar, escríbenos a{" "}
-                <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.
               </p>
             </section>
           </>

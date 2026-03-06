@@ -6,17 +6,19 @@ import ProjectHero from "@/components/projects/ProjectHero";
 import ProjectGalleryItem from "@/components/projects/ProjectGalleryItem";
 import ProjectDetailBlurWrapper from "@/components/projects/ProjectDetailBlurWrapper";
 import { EN_SERVICE_SLUGS, EN_COLLECTION_TITLES, EN_TO_ES_COLLECTION_SLUG, type EnProjectsCollectionSlug } from "@/lib/proyectos-collections";
-import { getProjectBySlug, PROJECT_SLUGS } from "@/content/projects";
-import {
-  getProjectDetailBySlug,
-  type ContentSection,
-} from "@/data/project-details";
+import { getProjectDetailSlugsEn, projectCollectionSlugsEn } from "@/lib/static-routes";
+import { getProjectBySlug } from "@/content/projects";
+import { getProjectDetailBySlug } from "@/data/project-details";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import { getSiteUrl } from "@/lib/seo";
+import { getProjectDetailMetadata, buildProjectBreadcrumbJsonLd } from "@/lib/project-detail-metadata";
+import { groupSections } from "@/lib/project-sections";
+import { buildCaseStudyJsonLd, buildFaqJsonLd } from "@/lib/project-jsonld";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 const COLLECTION_SLUGS = new Set(EN_SERVICE_SLUGS);
+const PADDING = 32;
 
 const PROJECTS_EN: Record<
   string,
@@ -29,30 +31,10 @@ const PROJECTS_EN: Record<
   },
 };
 
-function groupSections(sections: ContentSection[]): { heading: string; blocks: { body: string; mediaRef?: number }[] }[] {
-  const groups: { heading: string; blocks: { body: string; mediaRef?: number }[] }[] = [];
-  let current: (typeof groups)[number] | null = null;
-  for (const s of sections) {
-    if (!current || current.heading !== s.heading) {
-      current = { heading: s.heading, blocks: [] };
-      groups.push(current);
-    }
-    current.blocks.push({ body: s.body, mediaRef: s.mediaRef });
-  }
-  return groups;
-}
-
-const PADDING = 32;
-
 export async function generateStaticParams() {
-  const detailSlugs = [...Object.keys(PROJECTS_EN), ...PROJECT_SLUGS].filter(
-    (s) => !COLLECTION_SLUGS.has(s as EnProjectsCollectionSlug)
-  );
-  const collectionSlugs = [...EN_SERVICE_SLUGS];
-  return [
-    ...detailSlugs.map((slug) => ({ lang: "en" as const, slug })),
-    ...collectionSlugs.map((slug) => ({ lang: "en" as const, slug })),
-  ];
+  const detailSlugs = getProjectDetailSlugsEn().map((slug) => ({ lang: "en" as const, slug }));
+  const collectionSlugs = projectCollectionSlugsEn.map((slug) => ({ lang: "en" as const, slug }));
+  return [...detailSlugs, ...collectionSlugs];
 }
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
@@ -78,28 +60,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
   const detail = getProjectDetailBySlug(slug);
-  if (detail) {
-    const desc = detail.overview.slice(0, 155) + (detail.overview.length > 155 ? "…" : "");
-    return {
-      title: `${detail.title} – ${detail.servicePrimary} | enblanco`,
-      description: desc,
-      alternates: {
-        canonical: "/en/projects/" + slug,
-        languages: {
-          es: `/es/proyectos/${slug}`,
-          en: `/en/projects/${slug}`,
-          "x-default": `/es/proyectos/${slug}`,
-        },
-      },
-    };
-  }
+  if (detail) return getProjectDetailMetadata(detail, slug, "en", siteUrl);
   const p = PROJECTS_EN[slug];
   if (!p) return { title: "Project" };
   return {
     title: `${p.client} — ${p.primaryService}`,
     description: p.description,
     alternates: {
-      canonical: "/en/projects/" + slug,
+      canonical: `${siteUrl}/en/projects/${slug}`,
       languages: {
         es: `/es/proyectos/${slug}`,
         en: `/en/projects/${slug}`,
@@ -116,15 +84,12 @@ export default async function ProjectSlugPage({ params }: Props) {
   const isCollection = COLLECTION_SLUGS.has(slug as EnProjectsCollectionSlug);
   if (isCollection) {
     const title = EN_COLLECTION_TITLES[slug as EnProjectsCollectionSlug];
-    const breadcrumbJsonLd = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "home", item: `${siteUrl}/en` },
-        { "@type": "ListItem", position: 2, name: "projects", item: `${siteUrl}/en/projects` },
-        { "@type": "ListItem", position: 3, name: title, item: `${siteUrl}/en/projects/${slug}` },
-      ],
-    };
+    const breadcrumbJsonLd = buildProjectBreadcrumbJsonLd({
+      lang: "en",
+      slug,
+      title,
+      siteUrl,
+    });
     return (
       <main className="mx-auto max-w-5xl px-6 py-10">
         <JsonLd data={breadcrumbJsonLd} />
@@ -166,20 +131,22 @@ export default async function ProjectSlugPage({ params }: Props) {
 
   if (contentProject && detail) {
     const grouped = groupSections(detail.sections);
-    const breadcrumbJsonLd = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "home", item: `${siteUrl}/en` },
-        { "@type": "ListItem", position: 2, name: "projects", item: `${siteUrl}/en/projects` },
-        { "@type": "ListItem", position: 3, name: detail.title, item: `${siteUrl}/en/projects/${slug}` },
-      ],
-    };
+    const canonicalUrl = `${siteUrl}/en/projects/${slug}`;
+    const breadcrumbJsonLd = buildProjectBreadcrumbJsonLd({
+      lang: "en",
+      slug,
+      title: detail.title,
+      siteUrl,
+    });
+    const caseStudyJsonLd = buildCaseStudyJsonLd(detail, canonicalUrl, siteUrl);
+    const faqJsonLd = buildFaqJsonLd(detail);
 
     return (
       <ProjectDetailBlurWrapper>
         <main className="page project-detail-page mx-auto min-h-screen max-w-[1600px] pb-20">
           <JsonLd data={breadcrumbJsonLd} />
+          <JsonLd data={caseStudyJsonLd} />
+          <JsonLd data={faqJsonLd} />
           <ProjectHero
             hero={contentProject.hero}
             alt={detail.coverAlt}

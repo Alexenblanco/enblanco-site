@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import { getSiteUrl } from "@/lib/seo";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 type Props = { params: Promise<{ lang: string }> };
 
@@ -65,7 +66,7 @@ export default async function EquipoPage({ params }: Props) {
         </h2>
         <p className="mt-2 text-sm text-zinc-700">
           <Link href={withLang("es", "contacto")} className="underline">Contacto</Link> o{" "}
-          <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>.{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.{" "}
           <Link href={withLang("es", "enblanco")} className="underline">Volver a enblanco</Link>.
         </p>
       </section>

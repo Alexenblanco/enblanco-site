@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import { getSiteUrl } from "@/lib/seo";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 type Props = { params: Promise<{ lang: string }> };
 
@@ -81,7 +82,7 @@ export default async function FaqPage({ params }: Props) {
         <section id="contact" aria-labelledby="contact-heading" className="mb-8">
           <h2 id="contact-heading" className="text-base font-semibold tracking-tight">contact</h2>
           <p className="mt-2 text-sm text-zinc-700">
-            If your question isn&apos;t here: <Link href={withLang("en", "contact")} className="underline">contact</Link> or <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>. <Link href={withLang("en", "enblanco")} className="underline">Back to enblanco</Link>.
+            If your question isn&apos;t here: <Link href={withLang("en", "contact")} className="underline">contact</Link> or <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>. <Link href={withLang("en", "enblanco")} className="underline">Back to enblanco</Link>.
           </p>
         </section>
       </main>
@@ -124,7 +125,7 @@ export default async function FaqPage({ params }: Props) {
       <section id="contacto" aria-labelledby="contacto-heading" className="mb-8">
         <h2 id="contacto-heading" className="text-base font-semibold tracking-tight">contacto</h2>
         <p className="mt-2 text-sm text-zinc-700">
-          Si tu pregunta no está aquí: <Link href={withLang("es", "contacto")} className="underline">contacto</Link> o <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>. <Link href={withLang("es", "enblanco")} className="underline">Volver a enblanco</Link>.
+          Si tu pregunta no está aquí: <Link href={withLang("es", "contacto")} className="underline">contacto</Link> o <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>. <Link href={withLang("es", "enblanco")} className="underline">Volver a enblanco</Link>.
         </p>
       </section>
     </main>

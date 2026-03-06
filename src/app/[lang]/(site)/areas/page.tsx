@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang, isValidLang } from "@/lib/i18n/path";
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+import { getSiteUrl } from "@/lib/seo";
+
+const siteUrl = getSiteUrl();
 
 const AREAS_EN = [
   { slug: "retail" as const, name: "retail", description: "brand, packaging, and digital built for fast decisions." },

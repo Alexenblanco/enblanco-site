@@ -120,7 +120,10 @@ function CardWithPosition({
   const logicalIndex = index % n;
   const isCentered = activeIndex === logicalIndex;
   const baseWidth = baseHeight * CARD_ASPECT_RATIO;
-  const detailHref = `${projectDetailBasePath}/${project.detailSlug ?? project.slug}`;
+  const detailHref =
+    projectDetailBasePath && projectDetailBasePath.startsWith("/")
+      ? `${projectDetailBasePath.replace(/\/$/, "")}/${project.detailSlug ?? project.slug}`
+      : "";
   const phase1StartedRef = useRef(false);
 
   const runPhase1 =
@@ -191,6 +194,7 @@ function CardWithPosition({
         placeholder="empty"
       />
       {isCentered &&
+        detailHref &&
         (onDetailClick ? (
           <a
             href={detailHref}

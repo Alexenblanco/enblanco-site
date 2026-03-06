@@ -5,7 +5,9 @@ import { isValidLang } from "@/lib/i18n/path";
 
 type Props = { params: Promise<{ lang: string }> };
 
+/** Dev-only: Sanity projects index. Returns 404 in production so the route is not exposed. */
 export default async function DevSanityPage({ params }: Props) {
+  if (process.env.NODE_ENV === "production") notFound();
   const { lang } = await params;
   if (!isValidLang(lang)) notFound();
 

@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
-const LEAD_EMAIL = "hola@agenciaenblanco.com";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 min
 const NAME_MIN = 2;
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
 
   const { error } = await resend.emails.send({
     from: fromEmail,
-    to: LEAD_EMAIL,
+    to: CONTACT_EMAIL,
     subject,
     text,
     headers: { "X-Lead-Type": data.type },

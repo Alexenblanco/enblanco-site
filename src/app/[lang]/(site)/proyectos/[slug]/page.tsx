@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import ProjectHero from "@/components/projects/ProjectHero";
@@ -9,52 +8,32 @@ import ProjectDetailFaq from "@/components/projects/ProjectDetailFaq";
 import ProjectDetailReady from "@/components/projects/ProjectDetailReady";
 import ProjectDetailBlurWrapper from "@/components/projects/ProjectDetailBlurWrapper";
 import { ES_SERVICE_SLUGS, ES_COLLECTION_TITLES, ES_TO_EN_COLLECTION_SLUG, type EsProyectosCollectionSlug } from "@/lib/proyectos-collections";
+import { getProjectDetailSlugsEs, projectCollectionSlugsEs } from "@/lib/static-routes";
 import {
   getProjectDetailBySlug,
   getRelatedProjectDetails,
-  PROJECT_DETAILS,
   type ProjectDetail,
   type ContentSection,
 } from "@/data/project-details";
 import { getProjectBySlug } from "@/content/projects";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import { getSiteUrl } from "@/lib/seo";
+import { getProjectDetailMetadata, buildProjectBreadcrumbJsonLd } from "@/lib/project-detail-metadata";
+import { groupSections } from "@/lib/project-sections";
+import { buildCaseStudyJsonLd, buildFaqJsonLd } from "@/lib/project-jsonld";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
+
+/** Base path for ES project routes. Using <a> instead of Link to avoid Next 15 client router is-dynamic error on hydration. */
+const ES_PROYECTOS_BASE = "/es/proyectos";
+const ES_BASE = "/es";
 
 const COLLECTION_SLUGS = new Set(ES_SERVICE_SLUGS);
 const PADDING = 32;
 
-type GroupedBlock = {
-  eyebrow?: string;
-  body: string;
-  media?: ContentSection["media"];
-  mediaRef?: number;
-};
-
-function groupSections(sections: ContentSection[]): { heading: string; blocks: GroupedBlock[] }[] {
-  const groups: { heading: string; blocks: GroupedBlock[] }[] = [];
-  let current: { heading: string; blocks: GroupedBlock[] } | null = null;
-  for (const s of sections) {
-    if (!current || current.heading !== s.heading) {
-      current = { heading: s.heading, blocks: [] };
-      groups.push(current);
-    }
-    current.blocks.push({
-      eyebrow: s.eyebrow,
-      body: s.body,
-      media: s.media,
-      mediaRef: s.mediaRef,
-    });
-  }
-  return groups;
-}
-
 export async function generateStaticParams() {
-  const detailSlugs = PROJECT_DETAILS.filter(
-    (d) => !COLLECTION_SLUGS.has(d.slug as EsProyectosCollectionSlug)
-  ).map((d) => ({ lang: "es" as const, slug: d.slug }));
-  const collectionSlugs = ES_SERVICE_SLUGS.map((slug) => ({ lang: "es" as const, slug }));
+  const detailSlugs = getProjectDetailSlugsEs().map((slug) => ({ lang: "es" as const, slug }));
+  const collectionSlugs = projectCollectionSlugsEs.map((slug) => ({ lang: "es" as const, slug }));
   return [...detailSlugs, ...collectionSlugs];
 }
 
@@ -82,78 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const detail = getProjectDetailBySlug(slug);
   if (!detail) return { title: "Proyecto" };
-  const description =
-    detail.overview.slice(0, 155) + (detail.overview.length > 155 ? "…" : "");
-  const ogImage = detail.ogImage ?? detail.coverImage;
-  const ogImageUrl = ogImage ? (ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}`) : null;
-  const canonical = `${siteUrl}/es/proyectos/${slug}`;
-  return {
-    title: `${detail.title} – ${detail.servicePrimary} | enblanco`,
-    description,
-    alternates: {
-      canonical,
-      languages: {
-        es: `/es/proyectos/${slug}`,
-        en: `/en/projects/${slug}`,
-        "x-default": `/es/proyectos/${slug}`,
-      },
-    },
-    openGraph: {
-      title: `${detail.title} – ${detail.servicePrimary} | enblanco`,
-      description,
-      url: canonical,
-      siteName: "enblanco",
-      images: ogImageUrl
-        ? [{ url: ogImageUrl, width: 1200, height: 630, alt: `${detail.title} — enblanco` }]
-        : [],
-    },
-    robots: { index: true, follow: true },
-  };
-}
-
-function buildCaseStudyJsonLd(detail: ProjectDetail) {
-  const canonical = `${siteUrl}/es/proyectos/${detail.slug}`;
-  return {
-    "@context": "https://schema.org",
-    "@type": "CaseStudy",
-    name: detail.title,
-    about: [
-      "Naming",
-      "Brand Strategy",
-      "Identidad visual",
-      "Litografía",
-      ...detail.services.slice(0, 3),
-    ],
-    dateCreated: detail.year,
-    industry: detail.industry,
-    author: {
-      "@type": "Organization",
-      name: "enblanco",
-      url: siteUrl,
-    },
-    provider: {
-      "@type": "Organization",
-      name: "enblanco",
-      url: siteUrl,
-    },
-    url: canonical,
-    image: detail.coverImage.startsWith("http") ? detail.coverImage : `${siteUrl}${detail.coverImage}`,
-  };
-}
-
-function buildFaqJsonLd(detail: ProjectDetail) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: detail.faqs.map((f) => ({
-      "@type": "Question",
-      name: f.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: f.answer,
-      },
-    })),
-  };
+  return getProjectDetailMetadata(detail, slug, "es", siteUrl);
 }
 
 export default async function ProyectoSlugPage({ params }: Props) {
@@ -163,15 +71,12 @@ export default async function ProyectoSlugPage({ params }: Props) {
   const isCollection = COLLECTION_SLUGS.has(slug as EsProyectosCollectionSlug);
   if (isCollection) {
     const title = ES_COLLECTION_TITLES[slug as EsProyectosCollectionSlug];
-    const breadcrumbJsonLd = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "inicio", item: `${siteUrl}/es` },
-        { "@type": "ListItem", position: 2, name: "proyectos", item: `${siteUrl}/es/proyectos` },
-        { "@type": "ListItem", position: 3, name: title, item: `${siteUrl}/es/proyectos/${slug}` },
-      ],
-    };
+    const breadcrumbJsonLd = buildProjectBreadcrumbJsonLd({
+      lang: "es",
+      slug,
+      title,
+      siteUrl,
+    });
     return (
       <main className="mx-auto max-w-5xl px-6 py-10">
         <JsonLd data={breadcrumbJsonLd} />
@@ -179,8 +84,8 @@ export default async function ProyectoSlugPage({ params }: Props) {
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           <p className="mt-2 max-w-2xl text-sm text-zinc-700">
             Trabajos por servicio. También puedes explorar por{" "}
-            <Link href={withLang("es", "areas")} className="underline">área</Link> o ver el{" "}
-            <Link href={withLang("es", `servicios/${slug}`)} className="underline">servicio</Link>.
+            <a href={`${ES_BASE}/areas`} className="underline">área</a> o ver el{" "}
+            <a href={`${ES_BASE}/servicios/${slug}`} className="underline">servicio</a>.
           </p>
         </header>
         <section aria-labelledby="list-heading" className="mb-10">
@@ -199,7 +104,7 @@ export default async function ProyectoSlugPage({ params }: Props) {
                   <td className="py-3 pr-4 text-zinc-700">—</td>
                   <td className="py-3 pr-4 text-zinc-500">Los proyectos de esta colección se listarán aquí.</td>
                   <td className="py-3 pr-4">
-                    <Link href={withLang("es", "proyectos")} className="underline">ver todos los proyectos</Link>
+                    <a href={ES_PROYECTOS_BASE} className="underline">ver todos los proyectos</a>
                   </td>
                 </tr>
               </tbody>
@@ -209,11 +114,11 @@ export default async function ProyectoSlugPage({ params }: Props) {
         <p className="text-sm text-zinc-600">
           {ES_SERVICE_SLUGS.filter((s) => s !== slug).map((s) => (
             <span key={s}>
-              <Link href={withLang("es", `proyectos/${s}`)} className="underline">{ES_COLLECTION_TITLES[s]}</Link>
+              <a href={`${ES_PROYECTOS_BASE}/${s}`} className="underline">{ES_COLLECTION_TITLES[s]}</a>
               {" · "}
             </span>
           ))}
-          <Link href={withLang("es", "proyectos")} className="underline">proyectos</Link>.
+          <a href={ES_PROYECTOS_BASE} className="underline">proyectos</a>.
         </p>
       </main>
     );
@@ -224,16 +129,17 @@ export default async function ProyectoSlugPage({ params }: Props) {
   const project = getProjectBySlug(slug);
   const related = getRelatedProjectDetails(detail);
   const grouped = groupSections(detail.sections);
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "inicio", item: `${siteUrl}/es` },
-      { "@type": "ListItem", position: 2, name: "proyectos", item: `${siteUrl}/es/proyectos` },
-      { "@type": "ListItem", position: 3, name: detail.title, item: `${siteUrl}/es/proyectos/${slug}` },
-    ],
-  };
-  const caseStudyJsonLd = buildCaseStudyJsonLd(detail);
+  const breadcrumbJsonLd = buildProjectBreadcrumbJsonLd({
+    lang: "es",
+    slug,
+    title: detail.title,
+    siteUrl,
+  });
+  const caseStudyJsonLd = buildCaseStudyJsonLd(
+    detail,
+    `${siteUrl}/es/proyectos/${detail.slug}`,
+    siteUrl
+  );
   const faqJsonLd = buildFaqJsonLd(detail);
 
   return (
@@ -368,28 +274,28 @@ export default async function ProyectoSlugPage({ params }: Props) {
               const detailSlug = p.detailSlug ?? p.slug;
               return (
                 <li key={p.id}>
-                  <Link
-                    href={withLang("es", `proyectos/${detailSlug}`)}
+                  <a
+                    href={`${ES_PROYECTOS_BASE}/${detailSlug}`}
                     className="block font-normal no-underline opacity-90 transition-opacity hover:opacity-100"
                   >
                     <span className="font-normal">{p.title}</span>
                     <span className="ml-1 text-sm opacity-80">
                       — {p.industry} · {p.year}
                     </span>
-                  </Link>
+                  </a>
                 </li>
               );
             })}
           </ul>
         ) : (
           <p className="text-sm opacity-80">
-            <Link href={withLang("es", "proyectos/branding")} className="underline">
+            <a href={`${ES_PROYECTOS_BASE}/branding`} className="underline">
               Ver más proyectos de branding
-            </Link>{" "}
+            </a>{" "}
             o{" "}
-            <Link href={withLang("es", "proyectos")} className="underline">
+            <a href={ES_PROYECTOS_BASE} className="underline">
               todos los proyectos
-            </Link>
+            </a>
             .
           </p>
         )}

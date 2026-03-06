@@ -8,6 +8,7 @@ import {
   ES_TO_EN_SERVICE_SLUG,
 } from "@/lib/services-slugs";
 import type { EnServicePageSlug, EsServicePageSlug } from "@/lib/services-slugs";
+import { servicePageSlugsEn, servicePageSlugsEs } from "@/lib/static-routes";
 import { ServiceDetail } from "../../services/[slug]/ServiceDetail";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
@@ -21,8 +22,8 @@ function isEsServiceSlug(s: string): s is EsServicePageSlug {
 
 export async function generateStaticParams() {
   const params: { lang: string; slug: string }[] = [];
-  for (const slug of EN_SERVICE_PAGE_SLUGS) params.push({ lang: "en", slug });
-  for (const slug of ES_SERVICE_PAGE_SLUGS) params.push({ lang: "es", slug });
+  for (const slug of servicePageSlugsEn) params.push({ lang: "en", slug });
+  for (const slug of servicePageSlugsEs) params.push({ lang: "es", slug });
   return params;
 }
 
@@ -59,12 +60,18 @@ export default async function ServicioSlugPage({ params }: Props) {
   if (!isValidLang(lang)) notFound();
 
   if (lang === "es") {
-    if (isEnServiceSlug(slug)) redirect(withLang("es", `servicios/${EN_TO_ES_SERVICE_SLUG[slug as EnServicePageSlug]}`));
+    if (isEnServiceSlug(slug)) {
+      const esSlug = EN_TO_ES_SERVICE_SLUG[slug as EnServicePageSlug];
+      if (esSlug !== slug) redirect(withLang("es", `servicios/${esSlug}`));
+    }
     if (!isEsServiceSlug(slug)) notFound();
     return <ServiceDetail lang="es" slug={slug} />;
   }
 
-  if (isEsServiceSlug(slug)) redirect(withLang("en", `services/${ES_TO_EN_SERVICE_SLUG[slug]}`));
+  if (isEsServiceSlug(slug)) {
+    const enSlug = ES_TO_EN_SERVICE_SLUG[slug];
+    if (enSlug !== slug) redirect(withLang("en", `services/${enSlug}`));
+  }
   if (!isEnServiceSlug(slug)) notFound();
   return <ServiceDetail lang="en" slug={slug} />;
 }

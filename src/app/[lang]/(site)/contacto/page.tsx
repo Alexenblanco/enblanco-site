@@ -4,10 +4,19 @@ import { notFound, redirect } from "next/navigation";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 import { getDictionary } from "@/dictionaries";
 import ContactGuidedFlow from "@/components/contact/ContactGuidedFlow";
+import { getSiteUrl } from "@/lib/seo";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 
 type Props = { params: Promise<{ lang: string }> };
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
+
+/** Literal paths for Link hrefs to avoid Next 15 client router resolution errors (is-dynamic). */
+const ES_HOME = "/es";
+const ES_PROYECTOS = "/es/proyectos";
+const ES_SERVICIOS = "/es/servicios";
+const ES_NOTAS = "/es/notas";
+const ES_PRIVACIDAD = "/es/privacidad";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
@@ -43,7 +52,7 @@ export default async function ContactoPage({ params }: Props) {
       <section id="datos-contacto" aria-labelledby="datos-heading" className="mb-10">
         <h2 id="datos-heading" className="text-base font-semibold tracking-tight">Datos de contacto</h2>
         <p className="mt-2 text-sm text-zinc-700">
-          <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>
           {" · "}
           <a href="tel:+349681234567" className="underline">+34 968 12 34 56</a>
         </p>
@@ -62,17 +71,17 @@ export default async function ContactoPage({ params }: Props) {
       <ContactGuidedFlow
         dict={dict.contact}
         lang="es"
-        privacyHref={withLang("es", "privacidad")}
-        pageUrl={`${SITE_URL}/es/contacto`}
+        privacyHref={ES_PRIVACIDAD}
+        pageUrl={`${siteUrl}/es/contacto`}
       />
       <p className="mt-8 text-sm text-zinc-600">
-        <Link href={withLang("es", "")} className="underline">inicio</Link>
+        <Link href={ES_HOME} className="underline">inicio</Link>
         {" · "}
-        <Link href={withLang("es", "proyectos")} className="underline">proyectos</Link>
+        <Link href={ES_PROYECTOS} className="underline">proyectos</Link>
         {" · "}
-        <Link href={withLang("es", "servicios")} className="underline">servicios</Link>
+        <Link href={ES_SERVICIOS} className="underline">servicios</Link>
         {" · "}
-        <Link href={withLang("es", "notas")} className="underline">notas</Link>
+        <Link href={ES_NOTAS} className="underline">notas</Link>
       </p>
     </main>
   );

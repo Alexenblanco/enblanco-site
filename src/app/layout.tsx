@@ -5,6 +5,7 @@ import FloatingDock from "@/components/Dock/FloatingDock";
 import SetLocaleLang from "@/components/SetLocaleLang";
 import { objectSans } from "./fonts";
 import { getSiteUrl } from "@/lib/seo";
+import { CONTACT_EMAIL, SITE_NAME } from "@/lib/site-config";
 
 const siteUrl = getSiteUrl();
 const ogImage = `${siteUrl}/og-default.jpg`;
@@ -13,6 +14,7 @@ const logoUrl = `${siteUrl}/logo.png`;
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  adjustFontFallback: false,
 });
 
 export const viewport = {
@@ -76,7 +78,7 @@ export default function RootLayout({
                 {
                   "@type": "Organization",
                   "@id": `${siteUrl}/#organization`,
-                  name: "enblanco",
+                  name: SITE_NAME,
                   url: siteUrl,
                   logo: {
                     "@type": "ImageObject",
@@ -99,7 +101,7 @@ export default function RootLayout({
                   contactPoint: {
                     "@type": "ContactPoint",
                     contactType: "customer support",
-                    email: "hola@agenciaenblanco.com",
+                    email: CONTACT_EMAIL,
                     telephone: "+34619526784",
                     areaServed: "ES",
                     availableLanguage: ["Spanish", "English"],
@@ -109,7 +111,7 @@ export default function RootLayout({
                   "@type": "WebSite",
                   "@id": `${siteUrl}/#website`,
                   url: siteUrl,
-                  name: "enblanco",
+                  name: SITE_NAME,
                   publisher: {
                     "@id": `${siteUrl}/#organization`,
                   },

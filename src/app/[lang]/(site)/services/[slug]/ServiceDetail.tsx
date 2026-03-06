@@ -2,9 +2,10 @@ import Link from "next/link";
 import JsonLd from "@/components/Seo/JsonLd";
 import { withLang } from "@/lib/i18n/path";
 import type { EnServicePageSlug, EsServicePageSlug } from "@/lib/services-slugs";
+import { getSiteUrl } from "@/lib/seo";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.agenciaenblanco.com";
+const siteUrl = getSiteUrl();
 
 type Lang = "en" | "es";
 type Props = { lang: Lang; slug: EnServicePageSlug | EsServicePageSlug };
@@ -102,7 +103,7 @@ function getServiceContent(lang: Lang, slug: EnServicePageSlug | EsServicePageSl
           heading: "contact",
           body: (
             <p>
-              if you want to check whether a project fits this kind of work, you can reach us through the <Link href={w("contact")} className="underline">contact</Link> page or directly at <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>.
+              if you want to check whether a project fits this kind of work, you can reach us through the <Link href={w("contact")} className="underline">contact</Link> page or directly at <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.
             </p>
           ),
         },
@@ -165,7 +166,7 @@ function getServiceContent(lang: Lang, slug: EnServicePageSlug | EsServicePageSl
           heading: "contacto",
           body: (
             <p>
-              si quieres comprobar si un proyecto encaja con este tipo de trabajo, puedes contactarnos en <Link href={w("contacto")} className="underline">contacto</Link> o en <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>.
+              si quieres comprobar si un proyecto encaja con este tipo de trabajo, puedes contactarnos en <Link href={w("contacto")} className="underline">contacto</Link> o en <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.
             </p>
           ),
         },
@@ -183,7 +184,7 @@ function getServiceContent(lang: Lang, slug: EnServicePageSlug | EsServicePageSl
       heading: contactLabel,
       body: (
         <p>
-          <Link href={w(contactPath)} className="underline">{contactLabel}</Link> or <a href="mailto:hola@agenciaenblanco.com" className="underline">hola@agenciaenblanco.com</a>.
+          <Link href={w(contactPath)} className="underline">{contactLabel}</Link> or <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.
         </p>
       ),
     },

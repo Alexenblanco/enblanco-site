@@ -13,13 +13,17 @@ import Filters from "./Filters";
 type ProjectsViewProps = {
   /** When provided, used as the project list (e.g. from getListingProjects()); otherwise falls back to data/projects. */
   listingProjects?: Project[];
+  /** Base path for project detail links (e.g. /es/proyectos). Pass from server to avoid usePathname() being null during hydration. */
+  projectDetailBasePath?: string;
 };
 
-export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}) {
+export default function ProjectsView({ listingProjects, projectDetailBasePath: basePathFromServer }: ProjectsViewProps = {}) {
   const reducedMotion = useReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  /** Prefer server-provided base path to avoid Link href "null/slug" when pathname is null during hydration (Next.js). */
+  const projectDetailBasePath = basePathFromServer ?? pathname ?? "";
 
   const serviceFromUrl = searchParams.get("service");
   const industryFromUrl = searchParams.get("industry");
@@ -39,10 +43,11 @@ export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}
       if (newService) params.set("service", newService);
       if (newIndustry) params.set("industry", newIndustry);
       const q = params.toString();
-      const href = q ? `${pathname}?${q}` : pathname;
+      const base = pathname ?? projectDetailBasePath ?? "/";
+      const href = q ? `${base}?${q}` : base;
       router.push(href, { scroll: false });
     },
-    [pathname, router]
+    [pathname, projectDetailBasePath, router]
   );
 
   const setService = useCallback(
@@ -83,8 +88,8 @@ export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}
   const activeProject = filtered[activeIndex] ?? filtered[0] ?? null;
   const { setTransitionTarget } = useProjectTransition();
 
-  const detailHref = activeProject
-    ? `${pathname}/${activeProject.detailSlug ?? activeProject.slug}`
+  const detailHref = activeProject && projectDetailBasePath
+    ? `${projectDetailBasePath}/${activeProject.detailSlug ?? activeProject.slug}`
     : null;
   useEffect(() => {
     if (detailHref) router.prefetch(detailHref);
@@ -119,7 +124,7 @@ export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}
               projects={filtered}
               activeIndex={activeIndex}
               onActiveChange={setActiveIndex}
-              projectDetailBasePath={pathname}
+              projectDetailBasePath={projectDetailBasePath}
               onDetailClick={handleDetailClick}
             />
           </div>
@@ -127,7 +132,7 @@ export default function ProjectsView({ listingProjects }: ProjectsViewProps = {}
           <ProjectMeta
             project={activeProject}
             reducedMotion={!!reducedMotion}
-            detailBasePath={pathname}
+            detailBasePath={projectDetailBasePath}
           />
         </section>
       </div>

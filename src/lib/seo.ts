@@ -1,26 +1,26 @@
 /**
  * Central SEO URL and metadata helpers.
- * Canonical domain: https://www.agenciaenblanco.com (www only).
+ * Canonical domain from site-config (www only).
  */
 
-const DEFAULT_SITE_URL = "https://www.agenciaenblanco.com";
+import { SITE_URL_DEFAULT } from "@/lib/site-config";
 
 /**
- * Returns the canonical site URL. Always https://www.agenciaenblanco.com for SEO.
- * Use for metadataBase, sitemap, robots, JSON-LD, and OG URLs. No mixed or non-www canonicals.
+ * Returns the canonical site URL. Uses SITE_URL_DEFAULT for production domain.
+ * Use for metadataBase, sitemap, robots, JSON-LD, and OG URLs.
  */
 export function getSiteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL || "";
-  if (!raw || raw === "") return DEFAULT_SITE_URL;
+  if (!raw || raw === "") return SITE_URL_DEFAULT;
   try {
     const u = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
     const host = u.hostname.toLowerCase();
-    if (host === "www.agenciaenblanco.com") return DEFAULT_SITE_URL;
+    if (host === "www.agenciaenblanco.com") return SITE_URL_DEFAULT;
     if (host === "agenciaenblanco.com" || host.endsWith("agenciaenblanco.com"))
-      return DEFAULT_SITE_URL;
-    return DEFAULT_SITE_URL;
+      return SITE_URL_DEFAULT;
+    return SITE_URL_DEFAULT;
   } catch {
-    return DEFAULT_SITE_URL;
+    return SITE_URL_DEFAULT;
   }
 }
 
