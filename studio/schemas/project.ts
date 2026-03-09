@@ -1,5 +1,4 @@
 import { defineField, defineType } from "sanity";
-import { mediaItem } from "./objects/mediaItem";
 
 export const project = defineType({
   name: "project",
@@ -58,13 +57,13 @@ export const project = defineType({
       name: "mediaDesktop",
       type: "array",
       title: "Media (desktop)",
-      of: [mediaItem],
+      of: [{ type: "mediaItem" }],
     }),
     defineField({
       name: "mediaMobile",
       type: "array",
       title: "Media (mobile)",
-      of: [mediaItem],
+      of: [{ type: "mediaItem" }],
     }),
     defineField({
       name: "services",

@@ -28,14 +28,9 @@ export default function ProjectsView({ listingProjects, projectDetailBasePath: b
   const serviceFromUrl = searchParams.get("service");
   const industryFromUrl = searchParams.get("industry");
 
-  const [service, setServiceState] = useState<string | null>(() => serviceFromUrl);
-  const [industry, setIndustryState] = useState<string | null>(() => industryFromUrl);
+  const service = serviceFromUrl;
+  const industry = industryFromUrl;
   const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    setServiceState(serviceFromUrl);
-    setIndustryState(industryFromUrl);
-  }, [serviceFromUrl, industryFromUrl]);
 
   const updateUrl = useCallback(
     (newService: string | null, newIndustry: string | null) => {
@@ -52,7 +47,6 @@ export default function ProjectsView({ listingProjects, projectDetailBasePath: b
 
   const setService = useCallback(
     (value: string | null) => {
-      setServiceState(value);
       updateUrl(value, industry);
     },
     [industry, updateUrl]
@@ -60,7 +54,6 @@ export default function ProjectsView({ listingProjects, projectDetailBasePath: b
 
   const setIndustry = useCallback(
     (value: string | null) => {
-      setIndustryState(value);
       updateUrl(service, value);
     },
     [service, updateUrl]
@@ -79,13 +72,8 @@ export default function ProjectsView({ listingProjects, projectDetailBasePath: b
     [sourceProjects, service, industry]
   );
 
-  useEffect(() => {
-    if (activeIndex >= filtered.length && filtered.length > 0) {
-      setActiveIndex(0);
-    }
-  }, [filtered.length, activeIndex]);
-
-  const activeProject = filtered[activeIndex] ?? filtered[0] ?? null;
+  const safeActiveIndex = activeIndex >= filtered.length ? 0 : activeIndex;
+  const activeProject = filtered[safeActiveIndex] ?? filtered[0] ?? null;
   const { setTransitionTarget } = useProjectTransition();
 
   const detailHref = activeProject && projectDetailBasePath
@@ -122,7 +110,7 @@ export default function ProjectsView({ listingProjects, projectDetailBasePath: b
           <div className="relative flex-1 min-h-0 overflow-visible">
             <ProjectsRail
               projects={filtered}
-              activeIndex={activeIndex}
+              activeIndex={safeActiveIndex}
               onActiveChange={setActiveIndex}
               projectDetailBasePath={projectDetailBasePath}
               onDetailClick={handleDetailClick}

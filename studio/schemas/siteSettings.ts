@@ -4,7 +4,6 @@ export const siteSettings = defineType({
   name: "siteSettings",
   title: "Site settings",
   type: "document",
-  options: { singleton: true },
   fields: [
     defineField({ name: "title", type: "string", title: "Site title" }),
     defineField({

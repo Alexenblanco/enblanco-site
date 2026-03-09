@@ -4,6 +4,13 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
 import { CONTACT_EMAIL } from "@/lib/site-config";
+
+/**
+ * Required env vars:
+ * - RESEND_API_KEY: API key used to send emails via Resend.
+ * Optional env vars:
+ * - RESEND_FROM_EMAIL: sender email; falls back to onboarding@resend.dev.
+ */
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 min
 const NAME_MIN = 2;
@@ -39,6 +46,24 @@ function escapePlain(s: string): string {
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type ResendClient = {
+  emails: {
+    send: (params: {
+      from: string;
+      to: string;
+      subject: string;
+      text: string;
+      headers?: Record<string, string>;
+    }) => Promise<{ error: unknown }> | { error: unknown };
+  };
+};
+type ResendFactory = (apiKey: string) => ResendClient;
+let createResendClient: ResendFactory = (apiKey) => new Resend(apiKey);
+
+/** Test hook to inject a mocked Resend client factory. */
+export function __setResendFactoryForTests(factory?: ResendFactory) {
+  createResendClient = factory ?? ((apiKey: string) => new Resend(apiKey));
+}
 
 export type LeadType = "project" | "contact" | "talent";
 
@@ -53,6 +78,11 @@ export interface LeadPayload {
   servicesInterested?: string[];
   message: string;
   acceptPrivacyPolicy: boolean;
+}
+
+function resolveFromEmail(raw: string | undefined): string {
+  const trimmed = raw?.trim() ?? "";
+  return EMAIL_REGEX.test(trimmed) ? trimmed : "onboarding@resend.dev";
 }
 
 function validate(body: unknown): { ok: true; data: LeadPayload } | { ok: false; error: string } {
@@ -165,24 +195,30 @@ export async function POST(request: NextRequest) {
   const data = validated.data;
 
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  const fromEmail = resolveFromEmail(process.env.RESEND_FROM_EMAIL);
 
   if (!apiKey) {
     await persistFailedLead(data);
     return NextResponse.json({ ok: false, error: "send_failed" }, { status: 500 });
   }
 
-  const resend = new Resend(apiKey);
+  const resend = createResendClient(apiKey);
   const subject = getSubject(data.type);
   const text = buildEmailBody(data);
 
-  const { error } = await resend.emails.send({
-    from: fromEmail,
-    to: CONTACT_EMAIL,
-    subject,
-    text,
-    headers: { "X-Lead-Type": data.type },
-  });
+  let error: unknown = null;
+  try {
+    const result = await resend.emails.send({
+      from: fromEmail,
+      to: CONTACT_EMAIL,
+      subject,
+      text,
+      headers: { "X-Lead-Type": data.type },
+    });
+    error = result.error;
+  } catch (sendError) {
+    error = sendError;
+  }
 
   if (error) {
     await persistFailedLead(data);

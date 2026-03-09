@@ -27,11 +27,14 @@ export default function FloatingDock() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [clickedId, setClickedId] = useState<string | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false
+  );
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
     const handler = () => setReducedMotion(mq.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);

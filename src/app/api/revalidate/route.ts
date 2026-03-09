@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
 
   const tags = tagsForDocument(type, lang);
   for (const tag of tags) {
-    revalidateTag(tag);
+    // Next.js 16 requires a cache life profile. "max" keeps SWR semantics for tag invalidation.
+    revalidateTag(tag, "max");
   }
 
   return NextResponse.json({ revalidated: true, tags });

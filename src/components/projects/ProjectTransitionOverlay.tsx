@@ -47,7 +47,10 @@ export default function ProjectTransitionOverlay({
   const [willChangeActive, setWillChangeActive] = useState(true);
 
   useLayoutEffect(() => {
-    setTargetRect(getTargetRect());
+    const raf = window.requestAnimationFrame(() => {
+      setTargetRect(getTargetRect());
+    });
+    return () => window.cancelAnimationFrame(raf);
   }, []);
 
   const handleReady = useCallback(() => {

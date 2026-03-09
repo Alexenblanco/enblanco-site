@@ -229,7 +229,6 @@ export default function ProjectsRail({
   const [baseHeight, setBaseHeight] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const baseHeightRef = useRef(0);
-  baseHeightRef.current = baseHeight;
 
   const offset = useMotionValue(initialOffset);
   const offsetRef = useRef(initialOffset);
@@ -252,6 +251,10 @@ export default function ProjectsRail({
   }, []);
 
   useEffect(() => {
+    baseHeightRef.current = baseHeight;
+  }, [baseHeight]);
+
+  useEffect(() => {
     if (n > 0) {
       lastReportedIndexRef.current = (Math.round(offsetRef.current) % n + n) % n;
     }
@@ -264,7 +267,7 @@ export default function ProjectsRail({
       }
     });
     return unsub;
-  }, [n, onActiveChange]);
+  }, [n, offset, onActiveChange]);
 
   /** Snap: si casi no te moviste, vuelve al inicio. Si no, según dirección y posición: pasada la mitad del step (0.5) en la dirección del movimiento, se va a ese step; si no, se queda. Así no vuelve al anterior cuando ya estabas casi a la mitad del siguiente. */
   const snapToNearestStep = useCallback(() => {

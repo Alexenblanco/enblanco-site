@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getProjectsIndex } from "@/lib/sanity/queries";
 import { buildImageUrl } from "@/lib/sanity/image";
@@ -24,9 +25,11 @@ export default async function DevSanityPage({ params }: Props) {
             <li key={i} className="border-b pb-4">
               <div className="flex gap-3">
                 {coverUrl && (
-                  <img
+                  <Image
                     src={coverUrl}
                     alt={p.title ?? ""}
+                    width={80}
+                    height={80}
                     className="h-20 w-20 shrink-0 object-cover"
                   />
                 )}

@@ -157,7 +157,7 @@ export default function Filters({
               className="absolute bottom-full right-0 mb-2 flex flex-wrap gap-x-3 gap-y-1 justify-end px-0 py-1"
               style={{ minWidth: "10rem" }}
             >
-              <li role="option">
+              <li role="option" aria-selected={service === null}>
                 <button
                   type="button"
                   onClick={() => {
@@ -175,7 +175,7 @@ export default function Filters({
                 </button>
               </li>
               {serviceOptions.map(({ value, count }) => (
-                <li key={value} role="option">
+                <li key={value} role="option" aria-selected={service === value}>
                   <button
                     type="button"
                     onClick={() => {
@@ -230,7 +230,7 @@ export default function Filters({
               className="absolute bottom-full left-0 mb-2 flex flex-wrap gap-x-3 gap-y-1 justify-start px-0 py-1"
               style={{ minWidth: "10rem" }}
             >
-              <li role="option">
+              <li role="option" aria-selected={industry === null}>
                 <button
                   type="button"
                   onClick={() => {
@@ -248,7 +248,7 @@ export default function Filters({
                 </button>
               </li>
               {industryOptions.map(({ value, count }) => (
-                <li key={value} role="option">
+                <li key={value} role="option" aria-selected={industry === value}>
                   <button
                     type="button"
                     onClick={() => {
