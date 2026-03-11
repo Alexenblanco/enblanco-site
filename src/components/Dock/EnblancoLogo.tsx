@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 type EnblancoLogoProps = {
   className?: string;
   width?: number;
@@ -10,13 +8,22 @@ type EnblancoLogoProps = {
 
 export default function EnblancoLogo({ className = "", width = 110, height = 20 }: EnblancoLogoProps) {
   return (
-    <Image
-      src="/logo-enblanco.svg"
-      alt="enblanco"
-      width={width}
-      height={height}
-      className={`h-[20px] w-auto ${className}`}
-      style={{ color: "var(--color-text)" }}
+    <span
+      aria-hidden
+      className={`inline-block ${className}`}
+      style={{
+        width,
+        height,
+        backgroundColor: "var(--color-text)",
+        maskImage: 'url("/logo-enblanco.svg")',
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        maskSize: "contain",
+        WebkitMaskImage: 'url("/logo-enblanco.svg")',
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        WebkitMaskSize: "contain",
+      }}
     />
   );
 }

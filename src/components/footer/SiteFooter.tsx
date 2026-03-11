@@ -29,12 +29,13 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
   ];
 
   return (
-    <footer className="enblanco-footer relative w-full overflow-hidden bg-[var(--color-bg)] pt-16 pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20">
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center" aria-hidden>
-        <div className="enblanco-footer-logo-mask absolute top-6 aspect-[99.4/18.3] w-[calc(100vw-64px)] max-w-none md:top-8 lg:top-10" />
-      </div>
+    <footer className="enblanco-footer relative w-full overflow-hidden bg-[var(--color-bg)] pb-14 md:pb-16 lg:pb-20">
+      <div
+        className="enblanco-footer-logo-mask pointer-events-none absolute left-1/2 top-[var(--footer-logo-top)] z-0 aspect-[99.4/18.3] w-[var(--footer-logo-width)] max-w-[var(--footer-logo-width)] -translate-x-1/2"
+        aria-hidden
+      />
 
-      <div className="relative z-10 mx-auto w-full px-8 pt-[108px] md:pt-[132px] lg:pt-[178px]">
+      <div className="enblanco-footer-content relative z-10 mx-auto w-full px-8">
         <div className="grid w-full grid-cols-1 gap-y-8 text-[14px] leading-[1.45] md:grid-cols-[19fr_18fr_23fr_18fr_22fr] md:items-start md:gap-x-8 md:gap-y-0 lg:gap-x-12">
           <section className="order-1">
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">menú</p>
