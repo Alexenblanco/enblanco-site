@@ -8,8 +8,6 @@ import { CONTACT_EMAIL } from "@/lib/site-config";
 /**
  * Required env vars:
  * - RESEND_API_KEY: API key used to send emails via Resend.
- * Optional env vars:
- * - RESEND_FROM_EMAIL: sender email; falls back to onboarding@resend.dev.
  */
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 min
@@ -53,6 +51,7 @@ type ResendClient = {
       to: string;
       subject: string;
       text: string;
+      replyTo?: string | string[];
       headers?: Record<string, string>;
     }) => Promise<{ error: unknown }> | { error: unknown };
   };
@@ -78,11 +77,6 @@ export interface LeadPayload {
   servicesInterested?: string[];
   message: string;
   acceptPrivacyPolicy: boolean;
-}
-
-function resolveFromEmail(raw: string | undefined): string {
-  const trimmed = raw?.trim() ?? "";
-  return EMAIL_REGEX.test(trimmed) ? trimmed : "onboarding@resend.dev";
 }
 
 function validate(body: unknown): { ok: true; data: LeadPayload } | { ok: false; error: string } {
@@ -195,7 +189,7 @@ export async function POST(request: NextRequest) {
   const data = validated.data;
 
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = resolveFromEmail(process.env.RESEND_FROM_EMAIL);
+  const fromEmail = "Web Enblanco <web@agenciaenblanco.com>";
 
   if (!apiKey) {
     await persistFailedLead(data);
@@ -213,6 +207,7 @@ export async function POST(request: NextRequest) {
       to: CONTACT_EMAIL,
       subject,
       text,
+      replyTo: data.email,
       headers: { "X-Lead-Type": data.type },
     });
     error = result.error;
