@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import FloatingDock from "@/components/Dock/FloatingDock";
 import SetLocaleLang from "@/components/SetLocaleLang";
+import FooterSlot from "@/components/footer/FooterSlot";
 import { objectSans } from "./fonts";
 import { getSiteUrl } from "@/lib/seo";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/site-config";
@@ -121,6 +122,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <FooterSlot />
         <FloatingDock />
         </div>
       </body>

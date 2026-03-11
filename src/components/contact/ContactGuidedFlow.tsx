@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useLayoutEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import type { Dictionary } from "@/dictionaries";
 import { LEAD_SERVICE_IDS } from "@/lib/lead-form-services";
@@ -14,6 +15,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_FONT_SIZE_PX = 12;
 /** Transición suave al cambiar font-size */
 const FONT_SIZE_TRANSITION_MS = 120;
+const MESSAGE_MAX_HEIGHT_PX = 176;
 
 type ContactDict = Dictionary["contact"];
 
@@ -45,16 +47,52 @@ const initialForm: FormData = {
 };
 
 function getTotalSteps(type: LeadType): number {
-  return type === "project" ? 6 : 5;
+  if (type === "project") return 5;
+  if (type === "talent") return 3;
+  return 4;
 }
 function getServicesStep(): number {
   return 4;
 }
 function getMessageStep(type: LeadType): number {
-  return type === "project" ? 5 : 4;
+  if (type === "project") return 5;
+  if (type === "talent") return 3;
+  return 4;
 }
-function getLegalStep(type: LeadType): number {
-  return getTotalSteps(type);
+
+function AnimatedFeedback({
+  id,
+  message,
+  tone = "error",
+  centered = true,
+}: {
+  id?: string;
+  message?: string;
+  tone?: "error" | "warning";
+  centered?: boolean;
+}) {
+  const toneClass = tone === "warning" ? "text-amber-800" : "text-red-700";
+
+  return (
+    <div className="min-h-6">
+      <AnimatePresence initial={false} mode="wait">
+        {message ? (
+          <motion.p
+            key={message}
+            id={id}
+            role="alert"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className={`text-sm ${toneClass} ${centered ? "text-center" : "text-left"}`}
+          >
+            {message}
+          </motion.p>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: Props) {
@@ -76,7 +114,11 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
 
   useEffect(() => {
     if (!leadType) return;
-    const hasInput = step === 1 || step === 2 || step === 3 || step === getMessageStep(leadType);
+    const hasInput =
+      step === 1 ||
+      step === 2 ||
+      (leadType !== "talent" && step === 3) ||
+      step === getMessageStep(leadType);
     if (hasInput) stepInputRef.current?.focus();
   }, [leadType, step]);
 
@@ -94,15 +136,14 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
       baseFontSizeRef.current = null;
       prevStepRef.current = step;
     }
-    const hasInput = leadType && (step === 1 || step === 2 || step === 3 || step === getMessageStep(leadType));
+    const hasInput = leadType && (step === 1 || step === 2 || (leadType !== "talent" && step === 3));
     if (!hasInput) return;
     const inputEl = stepInputRef.current;
     const wrapperEl = inputWrapperRef.current;
     const measureSpan = measureSpanRef.current;
     if (!inputEl || !wrapperEl || !measureSpan) return;
 
-    const value =
-      step === 1 ? form.name : step === 2 ? form.email : step === 3 ? form.phone : form.message;
+    const value = step === 1 ? form.name : step === 2 ? form.email : form.phone;
     const textToMeasure = value || (inputEl.getAttribute("placeholder") ?? "");
     const availableWidth = wrapperEl.clientWidth;
     if (availableWidth <= 0) return;
@@ -133,7 +174,19 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
       );
       setDynamicFontSizePx(nextFontSize);
     }
-  }, [leadType, step, form.name, form.email, form.phone, form.message, resizeDeps]);
+  }, [leadType, step, form.name, form.email, form.phone, resizeDeps]);
+
+  useLayoutEffect(() => {
+    if (!leadType || step !== getMessageStep(leadType)) return;
+    const textarea = stepInputRef.current;
+    if (!(textarea instanceof HTMLTextAreaElement)) return;
+
+    textarea.style.height = "0px";
+    const nextHeight = Math.min(textarea.scrollHeight, MESSAGE_MAX_HEIGHT_PX);
+    textarea.style.height = `${Math.max(nextHeight, 56)}px`;
+    textarea.style.overflowY =
+      textarea.scrollHeight > MESSAGE_MAX_HEIGHT_PX ? "auto" : "hidden";
+  }, [leadType, step, form.message]);
 
   const setField = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -159,7 +212,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
         if (!form.message.trim()) err.message = dict.errors.messageRequired;
         else if (form.message.trim().length < MESSAGE_MIN) err.message = dict.errors.messageMin;
       }
-      if (currentStep === getLegalStep(leadType!)) {
+      if (currentStep === getMessageStep(leadType!)) {
         if (!form.acceptPrivacy) err.acceptPrivacy = dict.errors.privacyRequired;
       }
       setFieldErrors(err);
@@ -213,10 +266,13 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
   }, [leadType, step, form, lang, pageUrl, validateStep]);
 
   const isLastStep = leadType ? step === getTotalSteps(leadType) : false;
+  const optionalPrefix = lang === "es" ? "(opcional) " : "(optional) ";
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key !== "Enter") return;
+      const isTextarea = e.currentTarget instanceof HTMLTextAreaElement;
+      if (isTextarea && !e.metaKey && !e.ctrlKey) return;
       e.preventDefault();
       if (isLastStep) submit();
       else goNext();
@@ -240,7 +296,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 setStep(1);
                 setFieldErrors({});
               }}
-              className="rounded border border-zinc-300 bg-white px-4 py-4 text-left transition hover:border-zinc-400 hover:bg-zinc-50"
+              className="cursor-pointer rounded border border-zinc-300 bg-white px-4 py-4 text-left transition hover:border-zinc-400 hover:bg-zinc-50"
               aria-label={dict.options[type].title}
             >
               <span className="block text-sm font-medium text-zinc-900">{dict.options[type].title}</span>
@@ -269,7 +325,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
         <button
           type="button"
           onClick={closeOverlay}
-          className="flex h-6 w-6 items-center justify-center rounded-full border border-white/60 bg-white/10 text-zinc-800 transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white/60 bg-white/10 text-zinc-800 transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/50"
           aria-label={lang === "es" ? "Cerrar y volver al contacto" : "Close and return to contact"}
         >
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden className="scale-90">
@@ -287,23 +343,21 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
             <button
               type="button"
               onClick={() => setLeadType(null)}
-              className="rounded-full border border-white/60 bg-transparent px-6 py-3 text-sm font-medium text-zinc-800 transition hover:bg-white/20"
+              className="cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-3 text-sm font-medium text-zinc-800 transition hover:bg-white/20"
             >
               {dict.back}
             </button>
           </div>
         )}
-        {(submitStatus === "error" || submitStatus === "rate_limit") && (
-          <p
-            className={`mb-4 text-center text-sm ${submitStatus === "error" ? "text-red-700" : "text-amber-800"}`}
-            role="alert"
-          >
-            {submitStatus === "error" ? dict.errorSend : dict.errorRateLimit}
-          </p>
-        )}
 
         {submitStatus !== "success" && (
           <>
+            <div className="mb-4 min-h-6 w-full max-w-xl">
+              <AnimatedFeedback
+                message={submitStatus === "error" ? dict.errorSend : submitStatus === "rate_limit" ? dict.errorRateLimit : undefined}
+                tone={submitStatus === "rate_limit" ? "warning" : "error"}
+              />
+            </div>
             <div className="mb-16 w-full max-w-xl">
               <div className="flex justify-center gap-1">
                 {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
@@ -318,258 +372,262 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
               </div>
             </div>
 
-            {step === 1 && (
-              <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                <label htmlFor="lead-name" className="sr-only col-span-3">{dict.labels.name}</label>
-                <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                <div ref={inputWrapperRef} className="min-w-0 w-full">
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={`${leadType}-${step}`}
+                initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="flex w-full flex-col items-center"
+              >
+                {step === 1 && (
+                  <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
+                    <label htmlFor="lead-name" className="sr-only col-span-3">{dict.labels.name}</label>
+                    <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
+                    <div ref={inputWrapperRef} className="min-w-0 w-full">
+                      <input
+                        ref={stepInputRef as React.RefObject<HTMLInputElement>}
+                        id="lead-name"
+                        type="text"
+                        value={form.name}
+                        onChange={(e) => setField("name", e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        autoComplete="name"
+                        placeholder={dict.placeholders.name}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.name.trim() ? "caret-transparent" : ""}`}
+                        style={{
+                          outline: "none",
+                          boxSizing: "border-box",
+                          transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
+                          ...(step === 1 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
+                        }}
+                        aria-invalid={!!fieldErrors.name}
+                        aria-describedby={fieldErrors.name ? "lead-name-err" : undefined}
+                      />
+                    </div>
+                    <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
+                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="h-[2px] min-w-0 bg-white" />
+                    {!isLastStep ? (
+                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                    ) : (
+                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                    )}
+                    <div className="col-span-3 mt-2">
+                      <AnimatedFeedback id="lead-name-err" message={fieldErrors.name} />
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
+                    <label htmlFor="lead-email" className="sr-only col-span-3">{dict.labels.email}</label>
+                    <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
+                    <div ref={inputWrapperRef} className="min-w-0 w-full">
+                      <input
+                        ref={stepInputRef as React.RefObject<HTMLInputElement>}
+                        id="lead-email"
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setField("email", e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        autoComplete="email"
+                        placeholder={dict.placeholders.email}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.email.trim() ? "caret-transparent" : ""}`}
+                        style={{
+                          outline: "none",
+                          boxSizing: "border-box",
+                          transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
+                          ...(step === 2 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
+                        }}
+                        aria-invalid={!!fieldErrors.email}
+                        aria-describedby={fieldErrors.email ? "lead-email-err" : undefined}
+                      />
+                    </div>
+                    <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
+                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="h-[2px] min-w-0 bg-white" />
+                    {!isLastStep ? (
+                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                    ) : (
+                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                    )}
+                    <div className="col-span-3 mt-2">
+                      <AnimatedFeedback id="lead-email-err" message={fieldErrors.email} />
+                    </div>
+                  </div>
+                )}
+
+                {leadType !== "talent" && step === 3 && (
+                  <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
+                    <label htmlFor="lead-phone" className="sr-only col-span-3">{dict.labels.phone}</label>
+                    <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
+                    <div ref={inputWrapperRef} className="min-w-0 w-full">
+                      <input
+                        ref={stepInputRef as React.RefObject<HTMLInputElement>}
+                        id="lead-phone"
+                        type="tel"
+                        value={form.phone}
+                        onChange={(e) => setField("phone", e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        autoComplete="tel"
+                        placeholder={`${optionalPrefix}${dict.placeholders.phone}`}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.phone.trim() ? "caret-transparent" : ""}`}
+                        style={{
+                          outline: "none",
+                          boxSizing: "border-box",
+                          transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
+                          ...(step === 3 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
+                        }}
+                      />
+                    </div>
+                    <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
+                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="h-[2px] min-w-0 bg-white" />
+                    {!isLastStep ? (
+                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                    ) : (
+                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                    )}
+                    <div className="col-span-3 mt-2 min-h-6" />
+                  </div>
+                )}
+
+                <div className="absolute -left-[9999px] opacity-0" aria-hidden>
                   <input
-                    ref={stepInputRef as React.RefObject<HTMLInputElement>}
-                    id="lead-name"
+                    id="lead-company"
                     type="text"
-                    value={form.name}
-                    onChange={(e) => setField("name", e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    autoComplete="name"
-                    placeholder={dict.placeholders.name}
-                    className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.name.trim() ? "caret-transparent" : ""}`}
-                    style={{
-                      outline: "none",
-                      boxSizing: "border-box",
-                      transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
-                      ...(step === 1 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
-                    }}
-                    aria-invalid={!!fieldErrors.name}
-                    aria-describedby={fieldErrors.name ? "lead-name-err" : undefined}
+                    name="company"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form.company}
+                    onChange={(e) => setField("company", e.target.value)}
                   />
                 </div>
-                <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                <button type="button" onClick={goBack} className="shrink-0 rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                <div className="h-[2px] min-w-0 bg-white" />
-                {!isLastStep ? (
-                  <button type="button" onClick={goNext} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
-                ) : (
-                  <button type="button" onClick={submit} disabled={loading} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:opacity-60">{loading ? "…" : dict.send}</button>
-                )}
-                {fieldErrors.name && (
-                  <p id="lead-name-err" className="col-span-3 mt-1 text-center text-sm text-red-700" role="alert">
-                    {fieldErrors.name}
-                  </p>
-                )}
-              </div>
-            )}
 
-            {step === 2 && (
-              <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                <label htmlFor="lead-email" className="sr-only col-span-3">{dict.labels.email}</label>
-                <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                <div ref={inputWrapperRef} className="min-w-0 w-full">
-                  <input
-                    ref={stepInputRef as React.RefObject<HTMLInputElement>}
-                    id="lead-email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setField("email", e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    autoComplete="email"
-                    placeholder={dict.placeholders.email}
-                    className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.email.trim() ? "caret-transparent" : ""}`}
-                    style={{
-                      outline: "none",
-                      boxSizing: "border-box",
-                      transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
-                      ...(step === 2 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
-                    }}
-                    aria-invalid={!!fieldErrors.email}
-                    aria-describedby={fieldErrors.email ? "lead-email-err" : undefined}
-                  />
-                </div>
-                <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                <button type="button" onClick={goBack} className="shrink-0 rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                <div className="h-[2px] min-w-0 bg-white" />
-                {!isLastStep ? (
-                  <button type="button" onClick={goNext} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
-                ) : (
-                  <button type="button" onClick={submit} disabled={loading} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:opacity-60">{loading ? "…" : dict.send}</button>
-                )}
-                {fieldErrors.email && (
-                  <p id="lead-email-err" className="col-span-3 mt-1 text-center text-sm text-red-700" role="alert">{fieldErrors.email}</p>
-                )}
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                <label htmlFor="lead-phone" className="sr-only col-span-3">{dict.labels.phone}</label>
-                <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                <div ref={inputWrapperRef} className="min-w-0 w-full">
-                  <input
-                    ref={stepInputRef as React.RefObject<HTMLInputElement>}
-                    id="lead-phone"
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setField("phone", e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    autoComplete="tel"
-                    placeholder={dict.placeholders.phone}
-                    className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.phone.trim() ? "caret-transparent" : ""}`}
-                    style={{
-                      outline: "none",
-                      boxSizing: "border-box",
-                      transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
-                      ...(step === 3 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
-                    }}
-                  />
-                </div>
-                <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                <button type="button" onClick={goBack} className="shrink-0 rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                <div className="h-[2px] min-w-0 bg-white" />
-                {!isLastStep ? (
-                  <button type="button" onClick={goNext} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
-                ) : (
-                  <button type="button" onClick={submit} disabled={loading} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:opacity-60">{loading ? "…" : dict.send}</button>
-                )}
-              </div>
-            )}
-
-            <div className="absolute -left-[9999px] opacity-0" aria-hidden>
-              <input
-                id="lead-company"
-                type="text"
-                name="company"
-                tabIndex={-1}
-                autoComplete="off"
-                value={form.company}
-                onChange={(e) => setField("company", e.target.value)}
-              />
-            </div>
-
-            {leadType === "project" && step === getServicesStep() && (
-              <div className="w-full max-w-xl">
-                <p className="mb-6 text-center text-xl font-light text-zinc-800 sm:text-2xl">
-                  {dict.labels.services}
-                </p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {LEAD_SERVICE_IDS.map((id) => {
-                    const label = (dict.services as Record<string, string>)[id] ?? id;
-                    const checked = form.services.includes(id);
-                    return (
-                      <label
-                        key={id}
-                        className={`cursor-pointer rounded-full px-4 py-2 text-sm transition ${
-                          checked ? "bg-white text-zinc-900" : "bg-white/40 text-zinc-700 hover:bg-white/60"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={(e) => {
-                            setField(
-                              "services",
-                              e.target.checked
-                                ? [...form.services, id]
-                                : form.services.filter((s) => s !== id)
-                            );
-                          }}
-                          className="sr-only"
-                        />
-                        {label}
-                      </label>
-                    );
-                  })}
-                </div>
-                {fieldErrors.services && (
-                  <p className="mt-2 text-center text-sm text-red-700" role="alert">
-                    {fieldErrors.services}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {step === getMessageStep(leadType) && (
-              <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                <label htmlFor="lead-message" className="sr-only col-span-3">{dict.labels.message}</label>
-                <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                <div ref={inputWrapperRef} className="min-w-0 w-full">
-                  <textarea
-                    ref={stepInputRef as React.RefObject<HTMLTextAreaElement>}
-                    id="lead-message"
-                    value={form.message}
-                    onChange={(e) => setField("message", e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={dict.placeholders.message}
-                    rows={4}
-                    className={`w-full max-w-full resize-none bg-transparent text-center text-xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-2xl ${!form.message.trim() ? "caret-transparent" : ""}`}
-                    style={{
-                      outline: "none",
-                      boxSizing: "border-box",
-                      transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
-                      ...(step === getMessageStep(leadType) && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
-                    }}
-                    aria-invalid={!!fieldErrors.message}
-                    aria-describedby={fieldErrors.message ? "lead-message-err" : undefined}
-                  />
-                </div>
-                <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                <button type="button" onClick={goBack} className="shrink-0 rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                <div className="h-[2px] min-w-0 bg-white" />
-                {!isLastStep ? (
-                  <button type="button" onClick={goNext} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
-                ) : (
-                  <button type="button" onClick={submit} disabled={loading} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:opacity-60">{loading ? "…" : dict.send}</button>
-                )}
-                {fieldErrors.message && (
-                  <p id="lead-message-err" className="col-span-3 mt-1 text-center text-sm text-red-700" role="alert">{fieldErrors.message}</p>
-                )}
-              </div>
-            )}
-
-            {isLastStep && (
-              <div className="w-full max-w-xl text-center">
-                <div className="flex flex-col items-center gap-3">
-                  <label className="flex cursor-pointer items-start gap-3 text-left text-base font-light text-zinc-800">
-                    <input
-                      type="checkbox"
-                      checked={form.acceptPrivacy}
-                      onChange={(e) => setField("acceptPrivacy", e.target.checked)}
-                      className="mt-1.5 h-4 w-4 rounded border-white bg-white/20"
-                      aria-invalid={!!fieldErrors.acceptPrivacy}
-                    />
-                    <span>
-                      {(() => {
-                        const parts = dict.legal.split(/<privacyLink>|<\/privacyLink>/);
-                        return (
-                          <>
-                            {parts[0]}
-                            <Link href={privacyHref} className="underline hover:text-zinc-900">
-                              {parts[1]}
-                            </Link>
-                            {parts[2] ?? ""}
-                          </>
-                        );
-                      })()}
-                    </span>
-                  </label>
-                  {fieldErrors.acceptPrivacy && (
-                    <p className="text-sm text-red-700" role="alert">
-                      {fieldErrors.acceptPrivacy}
+                {leadType === "project" && step === getServicesStep() && (
+                  <div className="w-full max-w-xl">
+                    <p className="mb-6 text-center text-xl font-light text-zinc-800 sm:text-2xl">
+                      {dict.labels.services}
                     </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {((leadType === "project" && step === getServicesStep()) || isLastStep) && (
-              <div className="mt-8 flex w-full max-w-xl items-center gap-4">
-                <button type="button" onClick={goBack} className="shrink-0 rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                <div className="h-[2px] flex-1 bg-white" />
-                {!isLastStep ? (
-                  <button type="button" onClick={goNext} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
-                ) : (
-                  <button type="button" onClick={submit} disabled={loading} className="shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {LEAD_SERVICE_IDS.map((id) => {
+                        const label = (dict.services as Record<string, string>)[id] ?? id;
+                        const checked = form.services.includes(id);
+                        return (
+                          <label
+                            key={id}
+                            className={`cursor-pointer rounded-full px-4 py-2 text-sm transition ${
+                              checked ? "bg-white text-zinc-900" : "bg-white/40 text-zinc-700 hover:bg-white/60"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) => {
+                                setField(
+                                  "services",
+                                  e.target.checked
+                                    ? [...form.services, id]
+                                    : form.services.filter((s) => s !== id)
+                                );
+                              }}
+                              className="sr-only"
+                            />
+                            {label}
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-3">
+                      <AnimatedFeedback message={fieldErrors.services} />
+                    </div>
+                  </div>
                 )}
-              </div>
-            )}
+
+                {step === getMessageStep(leadType) && (
+                  <div className="w-full max-w-xl">
+                    <label htmlFor="lead-message" className="sr-only">{dict.labels.message}</label>
+                    <div className="flex min-h-[164px] items-end">
+                      <div ref={inputWrapperRef} className="w-full">
+                        <textarea
+                          ref={stepInputRef as React.RefObject<HTMLTextAreaElement>}
+                          id="lead-message"
+                          value={form.message}
+                          onChange={(e) => setField("message", e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          placeholder={dict.placeholders.message}
+                          rows={1}
+                          className={`w-full max-w-full resize-none overflow-y-auto border-b-2 border-white bg-transparent px-0 pb-3 text-center text-xl font-light leading-relaxed tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-2xl ${!form.message.trim() ? "caret-transparent" : ""}`}
+                          style={{
+                            outline: "none",
+                            boxSizing: "border-box",
+                            maxHeight: `${MESSAGE_MAX_HEIGHT_PX}px`,
+                            transition: "border-color 180ms ease, color 180ms ease",
+                          }}
+                          aria-invalid={!!fieldErrors.message}
+                          aria-describedby="lead-message-err lead-privacy-err"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <AnimatedFeedback id="lead-message-err" message={fieldErrors.message} centered={false} />
+                    </div>
+                    <div className="mt-3">
+                      <label className="flex cursor-pointer items-start gap-3 text-left text-sm font-light leading-relaxed text-zinc-800 sm:text-base">
+                        <span className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
+                          <input
+                            type="checkbox"
+                            checked={form.acceptPrivacy}
+                            onChange={(e) => setField("acceptPrivacy", e.target.checked)}
+                            className="peer sr-only"
+                            aria-invalid={!!fieldErrors.acceptPrivacy}
+                          />
+                          <span className="h-4 w-4 rounded-[4px] border border-white/80 bg-white/10 transition peer-checked:border-white peer-checked:bg-white" />
+                          <svg
+                            viewBox="0 0 16 16"
+                            aria-hidden
+                            className="pointer-events-none absolute h-2.5 w-2.5 text-zinc-800 opacity-0 transition peer-checked:opacity-100"
+                          >
+                            <path d="M3.5 8.5 6.5 11.5 12.5 5.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                        <span>
+                          {(() => {
+                            const parts = dict.legal.split(/<privacyLink>|<\/privacyLink>/);
+                            return (
+                              <>
+                                {parts[0]}
+                                <Link href={privacyHref} className="underline hover:text-zinc-900">
+                                  {parts[1]}
+                                </Link>
+                                {parts[2] ?? ""}
+                              </>
+                            );
+                          })()}
+                        </span>
+                      </label>
+                      <div className="mt-2">
+                        <AnimatedFeedback id="lead-privacy-err" message={fieldErrors.acceptPrivacy} centered={false} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {((leadType === "project" && step === getServicesStep()) || isLastStep) && (
+                  <div className="mt-8 flex w-full max-w-xl items-center gap-4">
+                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="h-[2px] flex-1 bg-white" />
+                    {!isLastStep ? (
+                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                    ) : (
+                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </>
         )}
       </div>
