@@ -48,9 +48,8 @@ export default async function NotaSlugPage({ params }: Props) {
     datePublished: nota.date,
     dateModified: nota.date,
     author: {
-      "@type": "Organization",
+      "@type": "Person",
       name: nota.author,
-      url: siteUrl,
     },
     publisher: {
       "@type": "Organization",
