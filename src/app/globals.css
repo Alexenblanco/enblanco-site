@@ -306,42 +306,53 @@ img, video {
 
 .footer-link-pill {
   position: relative;
-  z-index: 0;
+  z-index: 2;
   transition: color 0.18s ease;
 }
 
-.footer-link-pill::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: -10px;
-  width: calc(100% + 20px);
-  height: calc(100% + 8px);
-  transform: translateY(-50%) scaleX(0.2);
-  transform-origin: left center;
-  border-radius: 9999px;
-  background: #FFFFFF;
-  opacity: 0;
-  filter: blur(7px);
-  transition: opacity 0.18s ease, transform 0.2s ease, filter 0.18s ease;
-  z-index: -1;
-  pointer-events: none;
+.footer-link-reveal {
+  --footer-reveal-x: 50%;
+  --footer-reveal-y: 50%;
+  --footer-reveal-inner: 16px;
+  --footer-reveal-outer: 36px;
+  color: #1A1C1F !important;
 }
 
-.footer-link-pill:hover::before,
-.footer-link-pill:focus-visible::before {
-  opacity: 0.95;
-  transform: translateY(-50%) scaleX(1);
-  filter: blur(5px);
-}
-
-.footer-link-pill:hover,
-.footer-link-pill:focus-visible {
-  color: var(--color-text) !important;
+.footer-link-reveal__text {
+  display: block;
+  white-space: nowrap;
+  color: #1A1C1F !important;
 }
 
 .footer-link-pill:focus-visible {
   outline: none;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .footer-link-reveal__text {
+    --footer-reveal-tone-1: #1A1C1F;
+    --footer-reveal-tone-2: #1A1C1F;
+    --footer-reveal-tone-3: #1A1C1F;
+    background-image: radial-gradient(
+      circle at var(--footer-reveal-x) var(--footer-reveal-y),
+      var(--footer-reveal-tone-1) 0,
+      var(--footer-reveal-tone-1) var(--footer-reveal-inner),
+      var(--footer-reveal-tone-2) calc(var(--footer-reveal-inner) + 6px),
+      var(--footer-reveal-tone-3) calc(var(--footer-reveal-outer) - 4px),
+      #1A1C1F var(--footer-reveal-outer)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .footer-link-reveal:hover .footer-link-reveal__text,
+  .footer-link-reveal:focus-visible .footer-link-reveal__text {
+    --footer-reveal-tone-1: var(--color-text);
+    --footer-reveal-tone-2: #6f6f6f;
+    --footer-reveal-tone-3: #3f4042;
+  }
 }
 
 /* ========== LEGACY / ACCESSIBILITY ========== */

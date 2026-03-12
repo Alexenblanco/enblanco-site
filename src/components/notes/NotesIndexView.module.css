@@ -2,15 +2,17 @@
   display: grid;
   width: 100%;
   gap: var(--space-24);
-  margin-bottom: var(--space-32);
+  margin-top: 124px;
+  margin-bottom: 84px;
   align-items: start;
 }
 
 .headerLeft,
 .headerRight {
-  width: 364px;
-  max-width: 364px;
+  width: 182px;
+  max-width: 182px;
   text-align: justify;
+  align-self: start;
 }
 
 .heading {
@@ -50,7 +52,7 @@
 }
 
 .listSection {
-  margin: 0;
+  margin: 0 0 132px 0;
 }
 
 .list {
