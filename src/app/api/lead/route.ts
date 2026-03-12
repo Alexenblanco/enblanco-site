@@ -4,6 +4,7 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
 import { CONTACT_EMAIL } from "@/lib/site-config";
+import { isValidEmail, normalizeEmail } from "@/lib/email-validation";
 
 /**
  * Required env vars:
@@ -43,7 +44,6 @@ function escapePlain(s: string): string {
     .slice(0, 50_000);
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type ResendClient = {
   emails: {
     send: (params: {
@@ -86,11 +86,11 @@ function validate(body: unknown): { ok: true; data: LeadPayload } | { ok: false;
   if (type !== "project" && type !== "contact" && type !== "talent")
     return { ok: false, error: "validation" };
   const name = typeof b.name === "string" ? b.name.trim() : "";
-  const email = typeof b.email === "string" ? b.email.trim() : "";
+  const email = normalizeEmail(b.email);
   const message = typeof b.message === "string" ? b.message.trim() : "";
   const acceptPrivacyPolicy = b.acceptPrivacyPolicy === true;
   if (name.length < NAME_MIN) return { ok: false, error: "validation" };
-  if (!email || !EMAIL_REGEX.test(email)) return { ok: false, error: "validation" };
+  if (!isValidEmail(email)) return { ok: false, error: "validation" };
   if (message.length < MESSAGE_MIN) return { ok: false, error: "validation" };
   if (!acceptPrivacyPolicy) return { ok: false, error: "validation" };
   if (type === "project") {

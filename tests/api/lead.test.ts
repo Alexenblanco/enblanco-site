@@ -194,6 +194,22 @@ test("API /lead - errores probables de input", async (t) => {
     await assertValidation({ ...BASE_PAYLOAD, email: "foo@" }, "email-invalid");
   });
 
+  await t.test("email con caracteres no ASCII", async () => {
+    await assertValidation({ ...BASE_PAYLOAD, email: "a€@gmail.com" }, "email-non-ascii");
+  });
+
+  await t.test("email sin TLD", async () => {
+    await assertValidation({ ...BASE_PAYLOAD, email: "a@gmail" }, "email-no-tld");
+  });
+
+  await t.test("email con coma en dominio", async () => {
+    await assertValidation({ ...BASE_PAYLOAD, email: "a@gmail,com" }, "email-domain-comma");
+  });
+
+  await t.test("email con espacios internos", async () => {
+    await assertValidation({ ...BASE_PAYLOAD, email: "a @gmail.com" }, "email-inner-space");
+  });
+
   await t.test("email válido con + y mayúsculas", async () => {
     const calls = setupResendMock();
     const { res } = await postLead(

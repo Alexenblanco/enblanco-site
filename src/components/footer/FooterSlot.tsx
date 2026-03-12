@@ -18,6 +18,7 @@ function shouldShowFooter(pathname: string): boolean {
   const root = `/${lang}`;
   const paths = new Set<string>([
     root,
+    `${root}/enblanco`,
     `${root}/servicios`,
     `${root}/services`,
     `${root}/areas`,

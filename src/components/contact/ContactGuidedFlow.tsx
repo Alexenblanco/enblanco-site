@@ -6,10 +6,10 @@ import Link from "next/link";
 import type { Dictionary } from "@/dictionaries";
 import { LEAD_SERVICE_IDS } from "@/lib/lead-form-services";
 import type { LeadType } from "@/app/api/lead/route";
+import { isValidEmail } from "@/lib/email-validation";
 
 const NAME_MIN = 2;
 const MESSAGE_MIN = 10;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Tamaño mínimo de fuente al reducir para que el texto quepa (legibilidad) */
 const MIN_FONT_SIZE_PX = 12;
@@ -102,6 +102,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error" | "rate_limit">("idle");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const totalSteps = leadType ? getTotalSteps(leadType) : 0;
   const stepInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -202,7 +203,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
       }
       if (currentStep === 2) {
         if (!form.email.trim()) err.email = dict.errors.emailRequired;
-        else if (!EMAIL_REGEX.test(form.email.trim())) err.email = dict.errors.emailInvalid;
+        else if (!isValidEmail(form.email)) err.email = dict.errors.emailInvalid;
       }
       if (leadType === "project" && currentStep === getServicesStep()) {
         if (!form.services.length) err.services = dict.errors.servicesRequired;
@@ -295,6 +296,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 setLeadType(type);
                 setStep(1);
                 setFieldErrors({});
+                setEmailTouched(false);
               }}
               className="cursor-pointer rounded border border-zinc-300 bg-white px-4 py-4 text-left transition hover:border-zinc-400 hover:bg-zinc-50"
               aria-label={dict.options[type].title}
@@ -395,7 +397,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                         onKeyDown={handleKeyDown}
                         autoComplete="name"
                         placeholder={dict.placeholders.name}
-                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.name.trim() ? "caret-transparent" : ""}`}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.name.trim() ? "caret-transparent" : ""}`}
                         style={{
                           outline: "none",
                           boxSizing: "border-box",
@@ -430,11 +432,31 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                         id="lead-email"
                         type="email"
                         value={form.email}
-                        onChange={(e) => setField("email", e.target.value)}
+                        onChange={(e) => {
+                          setField("email", e.target.value);
+                          if (emailTouched) {
+                            const nextValue = e.target.value;
+                            setFieldErrors((prev) => ({
+                              ...prev,
+                              email: nextValue.trim()
+                                ? (isValidEmail(nextValue) ? undefined : dict.errors.emailInvalid)
+                                : dict.errors.emailRequired,
+                            }));
+                          }
+                        }}
+                        onBlur={() => {
+                          setEmailTouched(true);
+                          setFieldErrors((prev) => ({
+                            ...prev,
+                            email: form.email.trim()
+                              ? (isValidEmail(form.email) ? undefined : dict.errors.emailInvalid)
+                              : dict.errors.emailRequired,
+                          }));
+                        }}
                         onKeyDown={handleKeyDown}
                         autoComplete="email"
                         placeholder={dict.placeholders.email}
-                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.email.trim() ? "caret-transparent" : ""}`}
+                        className={`w-full max-w-full rounded-md bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.email.trim() ? "caret-transparent" : ""} ${fieldErrors.email ? "ring-1 ring-red-500/50" : ""}`}
                         style={{
                           outline: "none",
                           boxSizing: "border-box",
@@ -473,7 +495,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                         onKeyDown={handleKeyDown}
                         autoComplete="tel"
                         placeholder={`${optionalPrefix}${dict.placeholders.phone}`}
-                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-3xl md:text-4xl ${!form.phone.trim() ? "caret-transparent" : ""}`}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.phone.trim() ? "caret-transparent" : ""}`}
                         style={{
                           outline: "none",
                           boxSizing: "border-box",
@@ -549,8 +571,9 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 {step === getMessageStep(leadType) && (
                   <div className="w-full max-w-xl">
                     <label htmlFor="lead-message" className="sr-only">{dict.labels.message}</label>
-                    <div className="flex min-h-[164px] items-end">
-                      <div ref={inputWrapperRef} className="w-full">
+                    <div className="grid w-full grid-cols-[auto_1fr_auto] items-end gap-x-8 gap-y-0">
+                      <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                      <div ref={inputWrapperRef} className="relative min-w-0">
                         <textarea
                           ref={stepInputRef as React.RefObject<HTMLTextAreaElement>}
                           id="lead-message"
@@ -559,22 +582,24 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                           onKeyDown={handleKeyDown}
                           placeholder={dict.placeholders.message}
                           rows={1}
-                          className={`w-full max-w-full resize-none overflow-y-auto border-b-2 border-white bg-transparent px-0 pb-3 text-center text-xl font-light leading-relaxed tracking-tight text-zinc-800 placeholder:text-zinc-500 sm:text-2xl ${!form.message.trim() ? "caret-transparent" : ""}`}
+                          className={`relative z-[1] w-full max-w-full resize-none overflow-y-auto bg-transparent px-0 pb-3 text-center text-xl font-light leading-relaxed tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-2xl ${!form.message.trim() ? "caret-transparent" : ""}`}
                           style={{
                             outline: "none",
                             boxSizing: "border-box",
                             maxHeight: `${MESSAGE_MAX_HEIGHT_PX}px`,
-                            transition: "border-color 180ms ease, color 180ms ease",
+                            transition: "color 180ms ease",
                           }}
                           aria-invalid={!!fieldErrors.message}
                           aria-describedby="lead-message-err lead-privacy-err"
                         />
+                        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
                       </div>
+                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
                     </div>
                     <div className="mt-3">
                       <AnimatedFeedback id="lead-message-err" message={fieldErrors.message} centered={false} />
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-4">
                       <label className="flex cursor-pointer items-start gap-3 text-left text-sm font-light leading-relaxed text-zinc-800 sm:text-base">
                         <span className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
                           <input
@@ -615,7 +640,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                   </div>
                 )}
 
-                {((leadType === "project" && step === getServicesStep()) || isLastStep) && (
+                {leadType === "project" && step === getServicesStep() && (
                   <div className="mt-8 flex w-full max-w-xl items-center gap-4">
                     <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
                     <div className="h-[2px] flex-1 bg-white" />
