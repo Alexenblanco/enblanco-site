@@ -43,7 +43,7 @@ export default async function NoteSlugPage({ params }: Props) {
 
   const articleJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: note.title,
     datePublished: note.date,
     dateModified: note.date,

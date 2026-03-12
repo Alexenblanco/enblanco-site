@@ -62,15 +62,7 @@ export default function NotesIndexView({
             notes.map((note) => (
               <li key={note.slug} className={styles.item}>
                 <article className={styles.row}>
-                  <Link
-                    href={withLang(lang, `${noteBasePath}/${note.slug}`)}
-                    className={styles.centerRectLink}
-                    aria-label={lang === "es" ? `abrir nota: ${note.title}` : `open note: ${note.title}`}
-                  >
-                    <span className="sr-only">
-                      {lang === "es" ? `abrir nota: ${note.title}` : `open note: ${note.title}`}
-                    </span>
-                  </Link>
+                  <span aria-hidden className={styles.centerRect} />
 
                   <div className={styles.leftMeta}>
                     <p className={`${styles.meta} ${styles.index}`}>[ {note.index} ]</p>

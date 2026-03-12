@@ -92,7 +92,7 @@
   transform: scaleX(1.006);
 }
 
-.centerRectLink {
+.centerRect {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -104,15 +104,15 @@
   background: var(--color-surface);
   opacity: 0.72;
   z-index: 1;
-  pointer-events: auto;
+  pointer-events: none;
   will-change: transform, opacity;
   transition:
     transform 260ms cubic-bezier(0.22, 0.8, 0.28, 1),
     opacity 220ms cubic-bezier(0.22, 0.8, 0.28, 1);
 }
 
-.row:hover .centerRectLink,
-.row:focus-within .centerRectLink {
+.row:hover .centerRect,
+.row:focus-within .centerRect {
   transform: translate(-50%, -50%) scaleY(1);
   opacity: 1;
 }
@@ -172,9 +172,11 @@
 }
 
 .title .titleLink {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-height: 100%;
   color: var(--color-text) !important;
   text-decoration: none !important;
   cursor: pointer;
@@ -266,7 +268,7 @@
     text-align: left;
   }
 
-  .titleLink {
+  .title .titleLink {
     justify-content: flex-start;
   }
 

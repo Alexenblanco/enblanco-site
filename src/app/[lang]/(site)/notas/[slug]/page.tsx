@@ -43,7 +43,7 @@ export default async function NotaSlugPage({ params }: Props) {
 
   const articleJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: nota.title,
     datePublished: nota.date,
     dateModified: nota.date,
