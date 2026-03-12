@@ -9,8 +9,8 @@ type FooterInteractiveLogoProps = {
 const VIEWBOX_WIDTH = 99.4;
 const VIEWBOX_HEIGHT = 18.3;
 const MASK_RADIUS = 6;
-const LERP = 0.18;
-const OPACITY_LERP = 0.16;
+const BASE_LERP = 0.14;
+const BASE_OPACITY_LERP = 0.16;
 
 export default function FooterInteractiveLogo({
   className = "",
@@ -26,41 +26,54 @@ export default function FooterInteractiveLogo({
     const canHover = window.matchMedia("(hover: hover) and (pointer: fine)")
       .matches;
     if (!canHover) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches;
 
     const root = rootRef.current;
     const mask = maskRef.current;
     const blurGroup = blurGroupRef.current;
     if (!root || !mask || !blurGroup) return;
+    const lerp = reducedMotion ? 1 : BASE_LERP;
+    const opacityLerp = reducedMotion ? 1 : BASE_OPACITY_LERP;
 
     let rafId = 0;
     let running = false;
-    let currentX = 0;
-    let currentY = 0;
-    let targetX = 0;
-    let targetY = 0;
+    let currentU = 0.5;
+    let currentV = 0.5;
+    let targetU = 0.5;
+    let targetV = 0.5;
     let currentOpacity = 0;
     let targetOpacity = 0;
+    let cursorHidden = false;
 
     const syncStyles = () => {
-      mask.setAttribute("cx", String(currentX));
-      mask.setAttribute("cy", String(currentY));
+      const cx = currentU * VIEWBOX_WIDTH;
+      const cy = currentV * VIEWBOX_HEIGHT;
+      mask.setAttribute("cx", String(cx));
+      mask.setAttribute("cy", String(cy));
       blurGroup.style.opacity = String(currentOpacity);
     };
 
+    const setCursorHidden = (hidden: boolean) => {
+      if (cursorHidden === hidden) return;
+      cursorHidden = hidden;
+      document.body.style.cursor = hidden ? "none" : "";
+    };
+
     const stopIfSettled = () =>
-      Math.abs(currentX - targetX) < 0.25 &&
-      Math.abs(currentY - targetY) < 0.25 &&
+      Math.abs(currentU - targetU) < 0.0018 &&
+      Math.abs(currentV - targetV) < 0.0018 &&
       Math.abs(currentOpacity - targetOpacity) < 0.01;
 
     const tick = () => {
-      currentX += (targetX - currentX) * LERP;
-      currentY += (targetY - currentY) * LERP;
-      currentOpacity += (targetOpacity - currentOpacity) * OPACITY_LERP;
+      currentU += (targetU - currentU) * lerp;
+      currentV += (targetV - currentV) * lerp;
+      currentOpacity += (targetOpacity - currentOpacity) * opacityLerp;
       syncStyles();
 
       if (stopIfSettled()) {
-        currentX = targetX;
-        currentY = targetY;
+        currentU = targetU;
+        currentV = targetV;
         currentOpacity = targetOpacity;
         syncStyles();
         running = false;
@@ -87,15 +100,17 @@ export default function FooterInteractiveLogo({
 
       if (!inside) {
         targetOpacity = 0;
+        setCursorHidden(false);
         ensureLoop();
         return;
       }
 
-      targetX = ((clientX - rect.left) / rect.width) * VIEWBOX_WIDTH;
-      targetY = ((clientY - rect.top) / rect.height) * VIEWBOX_HEIGHT;
+      setCursorHidden(true);
+      targetU = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      targetV = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
       if (currentOpacity === 0 && targetOpacity === 0) {
-        currentX = targetX;
-        currentY = targetY;
+        currentU = targetU;
+        currentV = targetV;
       }
       targetOpacity = 1;
       ensureLoop();
@@ -107,12 +122,10 @@ export default function FooterInteractiveLogo({
 
     const handlePointerLeave = () => {
       targetOpacity = 0;
+      setCursorHidden(false);
       ensureLoop();
     };
 
-    const rect = root.getBoundingClientRect();
-    currentX = targetX = VIEWBOX_WIDTH / 2;
-    currentY = targetY = VIEWBOX_HEIGHT / 2;
     syncStyles();
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
@@ -122,6 +135,7 @@ export default function FooterInteractiveLogo({
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerleave", handlePointerLeave);
       if (rafId) window.cancelAnimationFrame(rafId);
+      setCursorHidden(false);
     };
   }, []);
 

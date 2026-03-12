@@ -41,7 +41,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
               <ul className="space-y-0.5">
                 {menuLinks.map((item) => (
                   <li key={item.label}>
-                    <Link href={item.href} className="footer-link-pill inline-block cursor-pointer whitespace-nowrap !text-[#1A1C1F]">
+                    <Link href={item.href} className="footer-link-pill inline-block cursor-pointer whitespace-nowrap !text-[#1A1C1F] hover:!text-[#8A8A8A] focus-visible:!text-[#8A8A8A]">
                       {item.label}
                     </Link>
                   </li>
@@ -60,7 +60,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
                       href={item.href}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F]"
+                      className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F] hover:!text-[#8A8A8A] focus-visible:!text-[#8A8A8A]"
                     >
                       {item.label}
                     </a>
@@ -74,12 +74,12 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">contact</p>
             <ul className="space-y-0.5">
               <li>
-                <a href="mailto:hola@agenciaenblanco.com" className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F]">
+                <a href="mailto:hola@agenciaenblanco.com" className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F] hover:!text-[#8A8A8A] focus-visible:!text-[#8A8A8A]">
                   hola@agenciaenblanco.com
                 </a>
               </li>
               <li>
-                <a href="tel:+34619526784" className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F]">
+                <a href="tel:+34619526784" className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F] hover:!text-[#8A8A8A] focus-visible:!text-[#8A8A8A]">
                   +34 619 52 67 84
                 </a>
               </li>
@@ -96,7 +96,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
               <ul className="space-y-0.5">
                 {legalLinks.map((item) => (
                   <li key={item.label}>
-                    <Link href={item.href} className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F]">
+                    <Link href={item.href} className="footer-link-pill inline-block cursor-pointer !text-[#1A1C1F] hover:!text-[#8A8A8A] focus-visible:!text-[#8A8A8A]">
                       {item.label}
                     </Link>
                   </li>

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 import { getDictionary } from "@/dictionaries";
@@ -12,10 +11,6 @@ type Props = { params: Promise<{ lang: string }> };
 const siteUrl = getSiteUrl();
 
 /** Literal paths for Link hrefs to avoid Next 15 client router resolution errors (is-dynamic). */
-const ES_HOME = "/es";
-const ES_PROYECTOS = "/es/proyectos";
-const ES_SERVICIOS = "/es/servicios";
-const ES_NOTAS = "/es/notas";
 const ES_PRIVACIDAD = "/es/privacidad";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -74,15 +69,6 @@ export default async function ContactoPage({ params }: Props) {
         privacyHref={ES_PRIVACIDAD}
         pageUrl={`${siteUrl}/es/contacto`}
       />
-      <p className="mt-8 text-sm text-zinc-600">
-        <Link href={ES_HOME} className="underline">inicio</Link>
-        {" · "}
-        <Link href={ES_PROYECTOS} className="underline">proyectos</Link>
-        {" · "}
-        <Link href={ES_SERVICIOS} className="underline">servicios</Link>
-        {" · "}
-        <Link href={ES_NOTAS} className="underline">notas</Link>
-      </p>
     </main>
   );
 }

@@ -335,6 +335,11 @@ img, video {
   filter: blur(5px);
 }
 
+.footer-link-pill:hover,
+.footer-link-pill:focus-visible {
+  color: var(--color-text) !important;
+}
+
 .footer-link-pill:focus-visible {
   outline: none;
 }
