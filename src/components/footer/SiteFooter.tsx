@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { withLang, type Locale } from "@/lib/i18n/path";
+import FooterInteractiveLogo from "./FooterInteractiveLogo";
 
 type SiteFooterProps = {
   lang: Locale;
@@ -30,10 +31,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
 
   return (
     <footer className="enblanco-footer relative w-full overflow-hidden bg-[var(--color-bg)] pb-14 md:pb-16 lg:pb-20">
-      <div
-        className="enblanco-footer-logo-mask pointer-events-none absolute left-1/2 top-[var(--footer-logo-top)] z-0 aspect-[99.4/18.3] w-[var(--footer-logo-width)] max-w-[var(--footer-logo-width)] -translate-x-1/2"
-        aria-hidden
-      />
+      <FooterInteractiveLogo />
 
       <div className="enblanco-footer-content relative z-10 mx-auto w-full px-8">
         <div className="grid w-full grid-cols-1 gap-y-8 text-[14px] leading-[1.45] md:grid-cols-[19fr_18fr_23fr_18fr_22fr] md:items-start md:gap-x-8 md:gap-y-0 lg:gap-x-12">

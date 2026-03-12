@@ -304,22 +304,6 @@ img, video {
   padding-top: calc(var(--footer-logo-top) + var(--footer-logo-height) + var(--footer-logo-gap));
 }
 
-.enblanco-footer-logo-mask {
-  background: #F9F9F9;
-  display: block;
-  mask-image: url("/logo-enblanco.svg");
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: 100% 100%;
-  mask-mode: alpha;
-  mask-type: alpha;
-  -webkit-mask-image: url("/logo-enblanco.svg");
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: 100% 100%;
-  opacity: 1;
-}
-
 .footer-link-pill {
   position: relative;
   z-index: 0;
