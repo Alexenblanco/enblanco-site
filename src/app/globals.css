@@ -312,9 +312,6 @@ img, video {
 
 .footer-link-reveal {
   --footer-reveal-x: 50%;
-  --footer-reveal-y: 50%;
-  --footer-reveal-inner: 16px;
-  --footer-reveal-outer: 36px;
   color: #1A1C1F !important;
 }
 
@@ -330,28 +327,46 @@ img, video {
 
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .footer-link-reveal__text {
-    --footer-reveal-tone-1: #1A1C1F;
-    --footer-reveal-tone-2: #1A1C1F;
-    --footer-reveal-tone-3: #1A1C1F;
-    background-image: radial-gradient(
-      circle at var(--footer-reveal-x) var(--footer-reveal-y),
-      var(--footer-reveal-tone-1) 0,
-      var(--footer-reveal-tone-1) var(--footer-reveal-inner),
-      var(--footer-reveal-tone-2) calc(var(--footer-reveal-inner) + 6px),
-      var(--footer-reveal-tone-3) calc(var(--footer-reveal-outer) - 4px),
-      #1A1C1F var(--footer-reveal-outer)
+    background-image: linear-gradient(
+      90deg,
+      #1A1C1F 0%,
+      #1A1C1F calc(var(--footer-reveal-x) - 12%),
+      #1A1C1F calc(var(--footer-reveal-x) - 7%),
+      #1A1C1F calc(var(--footer-reveal-x) - 2%),
+      #1A1C1F var(--footer-reveal-x),
+      #1A1C1F calc(var(--footer-reveal-x) + 2%),
+      #1A1C1F calc(var(--footer-reveal-x) + 7%),
+      #1A1C1F calc(var(--footer-reveal-x) + 12%),
+      #1A1C1F 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent !important;
     -webkit-text-fill-color: transparent;
+    transition: background-image 120ms linear, color 120ms linear;
   }
 
   .footer-link-reveal:hover .footer-link-reveal__text,
-  .footer-link-reveal:focus-visible .footer-link-reveal__text {
-    --footer-reveal-tone-1: var(--color-text);
-    --footer-reveal-tone-2: #6f6f6f;
-    --footer-reveal-tone-3: #3f4042;
+  .footer-link-reveal:focus-visible .footer-link-reveal__text,
+  .footer-link-reveal:active .footer-link-reveal__text {
+    background-image: linear-gradient(
+      90deg,
+      #1A1C1F 0%,
+      #1A1C1F calc(var(--footer-reveal-x) - 12%),
+      rgba(255, 255, 255, 0.24) calc(var(--footer-reveal-x) - 7%),
+      rgba(255, 255, 255, 0.72) calc(var(--footer-reveal-x) - 2%),
+      #FFFFFF var(--footer-reveal-x),
+      rgba(255, 255, 255, 0.72) calc(var(--footer-reveal-x) + 2%),
+      rgba(255, 255, 255, 0.24) calc(var(--footer-reveal-x) + 7%),
+      #1A1C1F calc(var(--footer-reveal-x) + 12%),
+      #1A1C1F 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-link-reveal__text {
+    transition-duration: 0.01ms !important;
   }
 }
 

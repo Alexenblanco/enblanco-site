@@ -11,12 +11,10 @@ type FooterRevealLinkProps = {
   openInNewTab?: boolean;
 };
 
-function updatePointerVars(el: HTMLElement, clientX: number, clientY: number) {
+function updatePointerX(el: HTMLElement, clientX: number) {
   const rect = el.getBoundingClientRect();
   const x = ((clientX - rect.left) / rect.width) * 100;
-  const y = ((clientY - rect.top) / rect.height) * 100;
   el.style.setProperty("--footer-reveal-x", `${Math.max(0, Math.min(100, x))}%`);
-  el.style.setProperty("--footer-reveal-y", `${Math.max(0, Math.min(100, y))}%`);
 }
 
 export default function FooterRevealLink({
@@ -29,12 +27,14 @@ export default function FooterRevealLink({
   const classes = `footer-link-pill footer-link-reveal inline-block cursor-pointer whitespace-nowrap !text-[#1A1C1F] ${className}`.trim();
 
   const handlers = {
+    onPointerEnter: (e: React.PointerEvent<HTMLElement>) => {
+      updatePointerX(e.currentTarget, e.clientX);
+    },
     onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
-      updatePointerVars(e.currentTarget, e.clientX, e.clientY);
+      updatePointerX(e.currentTarget, e.clientX);
     },
     onFocus: (e: React.FocusEvent<HTMLElement>) => {
       e.currentTarget.style.setProperty("--footer-reveal-x", "50%");
-      e.currentTarget.style.setProperty("--footer-reveal-y", "50%");
     },
   };
 
