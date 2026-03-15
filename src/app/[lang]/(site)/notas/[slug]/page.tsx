@@ -5,9 +5,11 @@ import NoteDetailView from "@/components/notes/NoteDetailView";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 import { getNotasSlugsEs } from "@/lib/static-routes";
 import { getAdjacentNotes, getNoteBySlug } from "@/data/notes-index";
-import { getSiteUrl } from "@/lib/seo";
-
-const siteUrl = getSiteUrl();
+import {
+  buildNoteArticleJsonLd,
+  buildNoteBreadcrumbJsonLd,
+  getNoteDetailMetadata,
+} from "@/lib/note-detail-seo";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
@@ -20,18 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isValidLang(lang) || lang === "en") return {};
   const nota = getNoteBySlug("es", slug);
   if (!nota) return { title: "Nota" };
-  return {
-    title: nota.title,
-    description: `Nota de enblanco: ${nota.type}. ${nota.date}.`,
-    alternates: {
-      canonical: `/es/notas/${slug}`,
-      languages: {
-        es: `/es/notas/${slug}`,
-        en: `/en/notes/${slug}`,
-        "x-default": `/es/notas/${slug}`,
-      },
-    },
-  };
+  return getNoteDetailMetadata({ lang: "es", slug, note: nota });
 }
 
 export default async function NotaSlugPage({ params }: Props) {
@@ -41,37 +32,8 @@ export default async function NotaSlugPage({ params }: Props) {
   const nota = getNoteBySlug("es", slug);
   if (!nota) notFound();
   const { previous, next } = getAdjacentNotes("es", slug);
-
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: nota.title,
-    datePublished: nota.date,
-    dateModified: nota.date,
-    author: {
-      "@type": "Person",
-      name: nota.author,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "enblanco",
-      url: `${siteUrl}/es`,
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${siteUrl}/es/notas/${slug}`,
-    },
-  };
-
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "inicio", item: `${siteUrl}/es` },
-      { "@type": "ListItem", position: 2, name: "notas", item: `${siteUrl}/es/notas` },
-      { "@type": "ListItem", position: 3, name: nota.title, item: `${siteUrl}/es/notas/${slug}` },
-    ],
-  };
+  const articleJsonLd = buildNoteArticleJsonLd({ lang: "es", slug, note: nota });
+  const breadcrumbJsonLd = buildNoteBreadcrumbJsonLd({ lang: "es", slug, note: nota });
 
   return (
     <main>

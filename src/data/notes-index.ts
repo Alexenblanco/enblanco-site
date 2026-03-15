@@ -2,6 +2,8 @@
  * Single source for notes (list, slug pages, RSS, sitemap).
  * Add or edit notes here only.
  */
+import { SITE_NAME } from "@/lib/site-config";
+
 export type NoteItem = {
   slug: string;
   index: string;
@@ -473,6 +475,58 @@ export const NOTES_INDEX_ES = NOTAS_ES;
 export const NOTES_INDEX_EN = NOTES_EN;
 
 export type Locale = "es" | "en";
+
+const AUTHOR_NAMES: Record<string, string> = {
+  clara: "Clara",
+  alex: "Alex",
+};
+
+function truncate(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+  return value.slice(0, maxLength).trimEnd() + "…";
+}
+
+export function hasNoteBody(note: NoteItem): boolean {
+  return !!note.body?.some((paragraph) => paragraph.trim().length > 0);
+}
+
+export function getNoteBodyText(note: NoteItem): string {
+  return (note.body ?? [])
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export function getNoteSeoDescription(note: NoteItem, lang: Locale): string {
+  if (note.description?.trim()) {
+    return truncate(note.description.trim(), 160);
+  }
+
+  const bodyText = getNoteBodyText(note);
+  if (bodyText) {
+    return truncate(bodyText.replace(/\s+/g, " ").trim(), 160);
+  }
+
+  return lang === "es"
+    ? `Nota de ${SITE_NAME} sobre ${note.type}.`
+    : `${SITE_NAME} note about ${note.type}.`;
+}
+
+export function getNoteWordCount(note: NoteItem): number | undefined {
+  const bodyText = getNoteBodyText(note);
+  if (!bodyText) return undefined;
+
+  const words = bodyText
+    .split(/\s+/)
+    .map((word) => word.trim())
+    .filter(Boolean);
+
+  return words.length > 0 ? words.length : undefined;
+}
+
+export function getAuthorDisplayName(author: string): string {
+  return AUTHOR_NAMES[author] ?? author;
+}
 
 export function getNoteBySlug(
   lang: Locale,

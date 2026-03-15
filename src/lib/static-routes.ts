@@ -6,7 +6,7 @@
 
 import { PROJECT_DETAILS } from "@/data/project-details";
 import type { EsProyectosCollectionSlug } from "@/lib/proyectos-collections";
-import { NOTAS_ES, NOTES_EN } from "@/data/notes-index";
+import { NOTAS_ES, NOTES_EN, hasNoteBody } from "@/data/notes-index";
 import {
   ES_SERVICE_SLUGS,
   EN_SERVICE_SLUGS,
@@ -85,6 +85,14 @@ const NOTE_SLUGS_SET = new Set([
 ]);
 export function getNoteSlugs(): string[] {
   return [...NOTE_SLUGS_SET];
+}
+
+export function getIndexableNotasSlugsEs(): string[] {
+  return NOTAS_ES.filter(hasNoteBody).map((n) => n.slug);
+}
+
+export function getIndexableNotesSlugsEn(): string[] {
+  return NOTES_EN.filter(hasNoteBody).map((n) => n.slug);
 }
 
 export function getNotasSlugsEs(): string[] {

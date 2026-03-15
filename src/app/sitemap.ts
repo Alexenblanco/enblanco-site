@@ -5,7 +5,8 @@ import {
   getProjectDetailSlugsEn,
   projectCollectionSlugsEs,
   projectCollectionSlugsEn,
-  getNoteSlugs,
+  getIndexableNotasSlugsEs,
+  getIndexableNotesSlugsEn,
   areaSlugsEs,
   areaSlugsEn,
   servicePageSlugsEs,
@@ -42,8 +43,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entries.push(url(`/en/projects/${slug}`, now));
   }
 
-  for (const slug of getNoteSlugs()) {
+  for (const slug of getIndexableNotasSlugsEs()) {
     entries.push(url(`/es/notas/${slug}`, now));
+  }
+  for (const slug of getIndexableNotesSlugsEn()) {
     entries.push(url(`/en/notes/${slug}`, now));
   }
 

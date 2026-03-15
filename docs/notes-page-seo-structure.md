@@ -52,6 +52,7 @@ Cada nota define:
 - `displayDate`
 - `author`
 - `description`
+- `body` (cuando la nota tiene contenido editorial completo)
 
 ## 3. Estructura HTML del listado
 
@@ -239,11 +240,18 @@ Archivos:
 Campos actuales:
 
 - `headline`
+- `description`
+- `url`
 - `datePublished`
 - `dateModified`
+- `inLanguage`
 - `author`
 - `publisher`
+- `publisher.logo`
 - `mainEntityOfPage`
+- `isPartOf`
+- `articleBody` (cuando existe `body`)
+- `wordCount` (cuando existe `body`)
 
 Se cambió de `Article` a `BlogPosting` para reflejar mejor la naturaleza editorial del contenido.
 
@@ -262,10 +270,13 @@ Comportamiento:
 
 Conclusión:
 
-- la página es indexable en producción
+- la página es indexable en producción si la nota tiene `body`
+- una nota sin `body` queda accesible, pero su detalle se marca como `noindex, follow`
 - previews/staging quedan bloqueadas a propósito
 
 ### Sitemap
+
+- el sitemap solo incluye detalles de notas indexables con `body`
 
 Archivo:
 

@@ -9,9 +9,11 @@
   --note-detail-top-space: calc((100vh - 4px) * 0.112);
   --note-detail-middle-space: calc((100vh - 4px) * 0.776);
   --note-detail-bottom-space: calc((100vh - 4px) * 0.112);
-  height: 100vh;
-  min-height: 100vh;
-  overflow: hidden;
+  --note-detail-scroll-allowance: 112px;
+  height: auto;
+  min-height: calc(100vh + var(--note-detail-scroll-allowance));
+  overflow-x: clip;
+  overflow-y: visible;
   display: flex;
   flex-direction: column;
   width: min(100%, var(--note-detail-max-width));
@@ -152,7 +154,7 @@
   flex: 0 0 auto;
   height: var(--note-detail-middle-space);
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   display: flex;
   align-items: stretch;

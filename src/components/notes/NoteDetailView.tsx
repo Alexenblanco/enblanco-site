@@ -31,6 +31,7 @@ export default function NoteDetailView({
 }: NoteDetailViewProps) {
   const copy = COPY[lang];
   const noteBasePath = lang === "es" ? "notas" : "notes";
+  const listHref = withLang(lang, noteBasePath);
   const bodyParagraphs =
     note.body && note.body.length > 0
       ? note.body
@@ -40,6 +41,9 @@ export default function NoteDetailView({
 
   return (
     <article className={styles.page}>
+      <Link href={listHref} className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:!text-[#1A1C1F]">
+        {lang === "es" ? "volver a notas" : "back to notes"}
+      </Link>
       <div className={styles.topBlock}>
         <nav className={styles.navTop} aria-label={copy.previous}>
           <div className={styles.navCell}>
