@@ -260,7 +260,7 @@ img, video {
   box-shadow: none;
 }
 .dock-pill:hover::before {
-  background: #DDDDDD;
+  background: #F3F3F3;
 }
 .dock-pill:active::before {
   background: #EDECEB;
@@ -270,7 +270,7 @@ img, video {
   padding-right: 32px;
 }
 .dock-pill:hover {
-  color: #5D5D5D;
+  color: #767676;
 }
 .dock-pill:active {
   color: #5D5D5D;
@@ -285,7 +285,7 @@ img, video {
 }
 .dock .dock-pill:hover,
 .dock .dock-pill a:hover {
-  color: #5D5D5D !important;
+  color: #767676 !important;
 }
 .dock .dock-pill:active,
 .dock .dock-pill a:active {

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
+import NoteDetailView from "@/components/notes/NoteDetailView";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 import { getNotasSlugsEs } from "@/lib/static-routes";
-import { getNoteBySlug } from "@/data/notes-index";
+import { getAdjacentNotes, getNoteBySlug } from "@/data/notes-index";
 import { getSiteUrl } from "@/lib/seo";
 
 const siteUrl = getSiteUrl();
@@ -40,6 +40,7 @@ export default async function NotaSlugPage({ params }: Props) {
   if (lang === "en") redirect(withLang("en", `notes/${slug}`));
   const nota = getNoteBySlug("es", slug);
   if (!nota) notFound();
+  const { previous, next } = getAdjacentNotes("es", slug);
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -73,39 +74,10 @@ export default async function NotaSlugPage({ params }: Props) {
   };
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main>
       <JsonLd data={articleJsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
-
-      <article>
-        <header className="mb-10">
-          <p className="text-xs uppercase tracking-wide text-zinc-500">{nota.type}</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-            {nota.title}
-          </h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            <time dateTime={nota.date}>{nota.date}</time>
-            {nota.author && ` · ${nota.author}`}
-          </p>
-        </header>
-
-        <div className="prose prose-zinc prose-sm max-w-none">
-          <p className="text-zinc-700">
-            Contenido de la nota. Sustituir por contenido real desde CMS o markdown.
-            Criterios, decisiones y reflexiones aplicadas en el trabajo de enblanco.
-          </p>
-        </div>
-
-        <footer className="mt-10 border-t border-zinc-200 pt-6 text-sm text-zinc-600">
-          <p>
-            Más en{" "}
-            <Link href={withLang("es", "notas")} className="underline">notas</Link>,{" "}
-            <Link href={withLang("es", "proyectos")} className="underline">proyectos</Link>,{" "}
-            <Link href={withLang("es", "servicios")} className="underline">servicios</Link> y{" "}
-            <Link href={withLang("es", "contacto")} className="underline">contacto</Link>.
-          </p>
-        </footer>
-      </article>
+      <NoteDetailView lang="es" note={nota} previousNote={previous} nextNote={next} />
     </main>
   );
 }

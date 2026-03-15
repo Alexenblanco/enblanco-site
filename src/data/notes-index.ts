@@ -11,6 +11,7 @@ export type NoteItem = {
   displayDate: string;
   author: string;
   description?: string;
+  body?: string[];
 };
 
 export const NOTAS_ES: NoteItem[] = [
@@ -193,6 +194,22 @@ export const NOTAS_ES: NoteItem[] = [
     displayDate: "mar 2026",
     author: "alex",
     description: "nota de enblanco sobre sistemas preexistentes y lectura estratégica de marca.",
+    body: [
+      "Antes incluso de empezar, había una duda sobre la mesa:",
+      "La diéresis en Mernë.",
+      "Nos preguntábamos si prescindir de ella. Visualmente podía simplificar el nombre, hacerlo más neutro, incluso acercarlo a un imaginario más nórdico. La decisión parecía casi técnica, y durante un momento dimos por hecho que acabaríamos eliminándola.",
+      "Antes de recibir el briefing, esa era nuestra intuición.",
+      "Habíamos preparado una serie de preguntas para entender el origen del estudio, cómo había nacido la marca, qué significaba para él, qué quería proyectar. Y fue ahí donde todo cambió.",
+      "Al leer el briefing entendimos que la diéresis no era un adorno ni una rareza tipográfica. Era parte del origen del nombre, de su construcción y de su sentido. No estaba ahí para destacar, sino para ser fiel a una historia concreta.",
+      "La decisión dejó de ser si eliminarla o no.",
+      "Pasó a ser cómo trabajar con ella.",
+      "En lugar de esconderla, la convertimos en el centro del sistema. Dos puntos que empezaron a ordenar la identidad gráfica, a generar ritmo, estructura y lenguaje propio. Lo que en un principio parecía un problema se convirtió en el elemento más reconocible del conjunto.",
+      "A partir de ahí, el resto acompañó: una paleta cálida, un tono cercano, una identidad que ya no buscaba parecer otra cosa, sino expresar lo que siempre había estado ahí.",
+      "La marca empezó a encajar.",
+      "A veces creemos que una identidad necesita simplificarse eliminando elementos.",
+      "Y otras veces, lo que necesita es ser leída con más atención.",
+      "Porque entender bien el origen suele cambiar por completo las decisiones que parecían evidentes al principio.",
+    ],
   },
   {
     slug: "ni-bien-ni-mal-se-trata-de-una-decision",
@@ -213,6 +230,22 @@ export const NOTAS_ES: NoteItem[] = [
     displayDate: "dic 2025",
     author: "clara",
     description: "nota de enblanco sobre contraste, matiz y decisiones visuales mínimas.",
+    body: [
+      "Antes incluso de empezar, había una duda sobre la mesa:",
+      "La diéresis en Mernë.",
+      "Nos preguntábamos si prescindir de ella. Visualmente podía simplificar el nombre, hacerlo más neutro, incluso acercarlo a un imaginario más nórdico. La decisión parecía casi técnica, y durante un momento dimos por hecho que acabaríamos eliminándola.",
+      "Antes de recibir el briefing, esa era nuestra intuición.",
+      "Habíamos preparado una serie de preguntas para entender el origen del estudio, cómo había nacido la marca, qué significaba para él, qué quería proyectar. Y fue ahí donde todo cambió.",
+      "Al leer el briefing entendimos que la diéresis no era un adorno ni una rareza tipográfica. Era parte del origen del nombre, de su construcción y de su sentido. No estaba ahí para destacar, sino para ser fiel a una historia concreta.",
+      "La decisión dejó de ser si eliminarla o no.",
+      "Pasó a ser cómo trabajar con ella.",
+      "En lugar de esconderla, la convertimos en el centro del sistema. Dos puntos que empezaron a ordenar la identidad gráfica, a generar ritmo, estructura y lenguaje propio. Lo que en un principio parecía un problema se convirtió en el elemento más reconocible del conjunto.",
+      "A partir de ahí, el resto acompañó: una paleta cálida, un tono cercano, una identidad que ya no buscaba parecer otra cosa, sino expresar lo que siempre había estado ahí.",
+      "La marca empezó a encajar.",
+      "A veces creemos que una identidad necesita simplificarse eliminando elementos.",
+      "Y otras veces, lo que necesita es ser leída con más atención.",
+      "Porque entender bien el origen suele cambiar por completo las decisiones que parecían evidentes al principio.",
+    ],
   },
 ];
 
@@ -416,6 +449,22 @@ export const NOTES_EN: NoteItem[] = [
     displayDate: "dec 2025",
     author: "clara",
     description: "enblanco note on contrast, nuance, and minimal visual decisions.",
+    body: [
+      "Before we even started, there was a question on the table:",
+      "The diaeresis in Mernë.",
+      "We wondered whether to drop it. Visually it could simplify the name, make it more neutral, even bring it closer to a more Nordic feel. The decision seemed almost technical, and for a moment we assumed we would end up removing it.",
+      "Before we received the briefing, that was our intuition.",
+      "We had prepared a set of questions to understand the origin of the studio, how the brand had been born, what it meant to them, what they wanted to project. And that was where everything changed.",
+      "When we read the briefing we understood that the diaeresis was not an ornament or a typographic oddity. It was part of the origin of the name, of its construction and meaning. It was not there to stand out, but to be faithful to a specific story.",
+      "The decision was no longer whether to remove it or not.",
+      "It became how to work with it.",
+      "Instead of hiding it, we made it the centre of the system. Two dots that began to organise the visual identity, to create rhythm, structure and a language of its own. What had at first seemed like a problem became the most recognisable element of the whole.",
+      "From there, the rest followed: a warm palette, a close tone, an identity that no longer sought to look like something else, but to express what had always been there.",
+      "The brand began to fit.",
+      "Sometimes we think an identity needs to be simplified by removing elements.",
+      "And other times, what it needs is to be read with more attention.",
+      "Because understanding the origin well often changes completely the decisions that seemed obvious at the start.",
+    ],
   },
 ];
 
@@ -428,14 +477,28 @@ export type Locale = "es" | "en";
 export function getNoteBySlug(
   lang: Locale,
   slug: string
-): { title: string; date: string; author: string; type: string } | null {
+): NoteItem | null {
   const list = lang === "es" ? NOTAS_ES : NOTES_EN;
-  const note = list.find((n) => n.slug === slug);
-  if (!note) return null;
+  return list.find((n) => n.slug === slug) ?? null;
+}
+
+export function getAdjacentNotes(
+  lang: Locale,
+  slug: string
+): { previous: NoteItem | null; next: NoteItem | null } {
+  const list = lang === "es" ? NOTAS_ES : NOTES_EN;
+  const index = list.findIndex((note) => note.slug === slug);
+  const total = list.length;
+
+  if (index === -1 || total <= 1) {
+    return { previous: null, next: null };
+  }
+
+  const previousIndex = index === 0 ? total - 1 : index - 1;
+  const nextIndex = index === total - 1 ? 0 : index + 1;
+
   return {
-    title: note.title,
-    date: note.date,
-    author: note.author,
-    type: note.type,
+    previous: list[previousIndex] ?? null,
+    next: list[nextIndex] ?? null,
   };
 }

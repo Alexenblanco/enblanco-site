@@ -69,7 +69,7 @@ export default async function NotasPage({ params }: Props) {
         notes={NOTAS_ES}
         headingLead="notas"
         headingFirstLineRemainder="sobre creatividad,"
-        headingLines={["diseño y procesos de", "marca en enblanco"]}
+        headingLines={["diseño y procesos de", "marca en enblanco."]}
         introLines={[
           "una colección de",
           "decisiones, matices y",

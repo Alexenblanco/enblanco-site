@@ -1,0 +1,357 @@
+.page {
+  --note-detail-max-width: 1460px;
+  --note-detail-side: clamp(220px, 20vw, 294px);
+  --note-detail-gap: clamp(36px, 3.6vw, 52px);
+  --note-detail-axis: clamp(64px, 7vw, 104px);
+  --note-detail-pad: 32px;
+  --note-detail-meta-gap: 38px;
+  --note-detail-outer: 127px;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, var(--note-detail-max-width));
+  max-width: var(--note-detail-max-width);
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+/* Bloque superior: 127px; la línea queda en el borde inferior */
+.topBlock {
+  flex-shrink: 0;
+  height: var(--note-detail-outer);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.navTop,
+.navBottom,
+.ruleMetaRow,
+.contentGrid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--note-detail-side))
+    minmax(560px, 1fr)
+    minmax(0, var(--note-detail-side));
+  column-gap: var(--note-detail-gap);
+}
+
+.navTop {
+  margin-bottom: 30px;
+}
+
+.navBottom {
+  margin: 0;
+}
+
+.navCell {
+  grid-column: 2;
+  justify-self: center;
+}
+
+.bottomBlock .navCell {
+  justify-self: center;
+}
+
+/* Misma anchura que el rectángulo blanco (664px); enlace a 82px del inicio */
+.navTopInner {
+  width: 664px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: 82px;
+  box-sizing: border-box;
+}
+
+.navLink,
+.navPlaceholder,
+.meta,
+.metaLink {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: var(--letter-spacing-base);
+}
+
+.navLink,
+.metaLink {
+  color: var(--color-link) !important;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.navLink:hover,
+.navLink:focus-visible,
+.metaLink:hover,
+.metaLink:focus-visible {
+  color: var(--color-link-hover) !important;
+  outline: none;
+}
+
+.navPlaceholder {
+  visibility: hidden;
+}
+
+.ruleMetaRow {
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.indexMeta {
+  grid-column: 1;
+  padding-left: var(--note-detail-axis);
+}
+
+.typeMeta {
+  grid-column: 3;
+  justify-self: end;
+  padding-right: var(--note-detail-axis);
+  text-align: right;
+}
+
+.meta {
+  color: var(--color-text) !important;
+}
+
+/* Zona entre las dos líneas: rectángulo pegado a ambas, sin hueco */
+.middleBlock {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.contentGrid {
+  align-items: stretch;
+  padding-top: 0;
+  padding-bottom: 0;
+  width: 100%;
+  min-height: 0;
+}
+
+.titleColumn {
+  grid-column: 1;
+  align-self: start;
+  padding-left: var(--note-detail-axis);
+}
+
+.title {
+  max-width: 190px;
+  margin: 0;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  font-weight: 400;
+  letter-spacing: var(--letter-spacing-base);
+  color: var(--color-text) !important;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.title::before {
+  content: "‘";
+  margin-right: 0.08em;
+}
+
+.title::after {
+  content: "’";
+  margin-left: 0.08em;
+}
+
+.bodyColumn {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.bodyCard {
+  width: min(100%, 664px);
+  height: 100%;
+  min-height: 0;
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bodyInner {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--note-detail-pad);
+  box-sizing: border-box;
+}
+
+.bodyText {
+  max-width: 52ch;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.24;
+  letter-spacing: var(--letter-spacing-base);
+  color: var(--color-text) !important;
+}
+
+.bodyText + .bodyText {
+  margin-top: 1em;
+}
+
+.metaColumn {
+  grid-column: 3;
+  align-self: end;
+  justify-self: end;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: var(--note-detail-meta-gap);
+  padding-right: var(--note-detail-axis);
+}
+
+.ruleBottom {
+  flex-shrink: 0;
+  height: 2px;
+  background: var(--color-border);
+}
+
+/* Bloque inferior: 127px desde la línea hasta el bottom de la vista */
+.bottomBlock {
+  flex-shrink: 0;
+  height: var(--note-detail-outer);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1023px) {
+  .page {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    padding: 72px 24px 72px;
+  }
+
+  .topBlock {
+    height: auto;
+    min-height: auto;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 0;
+    justify-content: flex-start;
+  }
+
+  .navTop {
+    margin-bottom: 32px;
+  }
+
+  .middleBlock {
+    flex: none;
+    min-height: auto;
+    overflow: visible;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .contentGrid {
+    align-items: start;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .bottomBlock {
+    height: auto;
+    min-height: auto;
+    padding-top: 24px;
+    padding-bottom: 0;
+  }
+
+  .navTop,
+  .navBottom,
+  .ruleMetaRow,
+  .contentGrid {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+  }
+
+  .navCell,
+  .indexMeta,
+  .typeMeta,
+  .titleColumn,
+  .bodyColumn,
+  .metaColumn {
+    grid-column: 1;
+  }
+
+  .navCell {
+    justify-self: start;
+  }
+
+  .ruleMetaRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 10px;
+  }
+
+  .indexMeta {
+    padding-left: 0;
+  }
+
+  .typeMeta {
+    padding-right: 0;
+  }
+
+  .contentGrid {
+    row-gap: 24px;
+  }
+
+  .titleColumn {
+    padding-left: 0;
+  }
+
+  .title {
+    max-width: 14ch;
+  }
+
+  .bodyColumn {
+    align-items: stretch;
+  }
+
+  .bodyCard {
+    width: 100%;
+    height: auto;
+    min-height: 280px;
+    aspect-ratio: auto;
+  }
+
+  .bodyInner {
+    padding: 24px;
+  }
+
+  .bodyText {
+    max-width: none;
+  }
+
+  .metaColumn {
+    justify-self: start;
+    gap: 24px;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .page {
+    padding-inline: 16px;
+    padding-block: 56px 72px;
+  }
+
+  .ruleMetaRow {
+    padding-top: 0;
+  }
+
+  .metaColumn {
+    grid-template-columns: auto;
+    gap: 8px;
+  }
+}

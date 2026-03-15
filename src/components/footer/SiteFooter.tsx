@@ -6,27 +6,60 @@ type SiteFooterProps = {
   lang: Locale;
 };
 
-const copyrightText = "©2026 enblanco. Murcia y Madrid";
-
 export default function SiteFooter({ lang }: SiteFooterProps) {
-  const menuLinks = [
-    { label: "proyectos", href: withLang(lang, lang === "es" ? "proyectos" : "projects") },
-    { label: "áreas", href: withLang(lang, "areas") },
-    { label: "enblanco", href: withLang(lang, "enblanco") },
-    { label: "notas", href: withLang(lang, lang === "es" ? "notas" : "notes") },
-    { label: "contacto", href: withLang(lang, lang === "es" ? "contacto" : "contact") },
-  ];
+  const currentYear = new Date().getFullYear();
+  const copyrightText =
+    lang === "es"
+      ? `©${currentYear} enblanco. Murcia y Madrid`
+      : `©${currentYear} enblanco. Murcia & Madrid`;
+
+  const copy =
+    lang === "es"
+      ? {
+          headings: {
+            menu: "menú",
+            social: "social",
+            contact: "contact",
+            legal: "legal",
+          },
+          menuLinks: [
+            { label: "proyectos", href: withLang("es", "proyectos") },
+            { label: "áreas", href: withLang("es", "areas") },
+            { label: "enblanco", href: withLang("es", "enblanco") },
+            { label: "notas", href: withLang("es", "notas") },
+            { label: "contacto", href: withLang("es", "contacto") },
+          ],
+          legalLinks: [
+            { label: "política de privacidad", href: withLang("es", "privacidad") },
+            { label: "términos y condiciones", href: withLang("es", "aviso-legal") },
+            { label: "política de cookies", href: withLang("es", "cookies") },
+          ],
+        }
+      : {
+          headings: {
+            menu: "menu",
+            social: "social",
+            contact: "contact",
+            legal: "legal",
+          },
+          menuLinks: [
+            { label: "projects", href: withLang("en", "projects") },
+            { label: "areas", href: withLang("en", "areas") },
+            { label: "enblanco", href: withLang("en", "enblanco") },
+            { label: "notes", href: withLang("en", "notes") },
+            { label: "contact", href: withLang("en", "contact") },
+          ],
+          legalLinks: [
+            { label: "privacy policy", href: withLang("en", "privacy") },
+            { label: "terms and conditions", href: withLang("en", "legal-notice") },
+            { label: "cookie policy", href: withLang("en", "cookies") },
+          ],
+        };
 
   const socialLinks = [
     { label: "instagram", href: "https://www.instagram.com/enbl_nco/" },
     { label: "behance", href: "https://www.behance.net/enbl_nco" },
     { label: "linkedin", href: "https://www.linkedin.com/company/agenciaenblanco/" },
-  ];
-
-  const legalLinks = [
-    { label: "política de privacidad", href: withLang(lang, lang === "es" ? "privacidad" : "privacy") },
-    { label: "términos y condiciones", href: withLang(lang, lang === "es" ? "aviso-legal" : "legal-notice") },
-    { label: "política de cookies", href: withLang(lang, "cookies") },
   ];
 
   return (
@@ -36,10 +69,10 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
       <div className="enblanco-footer-content relative z-10 mx-auto w-full px-8">
         <div className="grid w-full grid-cols-1 gap-y-8 text-[14px] leading-[1.45] md:grid-cols-[19fr_18fr_23fr_18fr_22fr] md:items-start md:gap-x-8 md:gap-y-0 lg:gap-x-12">
           <section className="order-1">
-            <p className="mb-2 text-[14px] !text-[#8A8A8A]">menú</p>
+            <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.menu}</p>
             <nav aria-label="menu">
               <ul className="space-y-0.5">
-                {menuLinks.map((item) => (
+                {copy.menuLinks.map((item) => (
                   <li key={item.label}>
                     <FooterRevealLink href={item.href}>
                       {item.label}
@@ -51,7 +84,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           </section>
 
           <section className="order-2">
-            <p className="mb-2 text-[14px] !text-[#8A8A8A]">social</p>
+            <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.social}</p>
             <nav aria-label="social">
               <ul className="space-y-0.5">
                 {socialLinks.map((item) => (
@@ -66,7 +99,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           </section>
 
           <section className="order-3">
-            <p className="mb-2 text-[14px] !text-[#8A8A8A]">contact</p>
+            <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.contact}</p>
             <ul className="space-y-0.5">
               <li>
                 <FooterRevealLink href="mailto:hola@agenciaenblanco.com" external>
@@ -86,10 +119,10 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           </section>
 
           <section className="order-4 md:order-5">
-            <p className="mb-2 text-[14px] !text-[#8A8A8A]">legal</p>
+            <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.legal}</p>
             <nav aria-label="legal">
               <ul className="space-y-0.5">
-                {legalLinks.map((item) => (
+                {copy.legalLinks.map((item) => (
                   <li key={item.label}>
                     <FooterRevealLink href={item.href}>
                       {item.label}
