@@ -12,11 +12,15 @@ type NoteDetailViewProps = {
 
 const COPY = {
   es: {
+    backToList: "volver al listado",
+    navigation: "navegación entre notas",
     previous: "nota anterior",
     next: "siguiente nota",
     emptyBody: "Contenido de la nota pendiente de publicar.",
   },
   en: {
+    backToList: "back to list",
+    navigation: "note navigation",
     previous: "previous note",
     next: "next note",
     emptyBody: "Note content pending publication.",
@@ -41,11 +45,11 @@ export default function NoteDetailView({
 
   return (
     <article className={styles.page}>
-      <Link href={listHref} className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:!text-[#1A1C1F]">
-        {lang === "es" ? "volver a notas" : "back to notes"}
-      </Link>
       <div className={styles.topBlock}>
-        <nav className={styles.navTop} aria-label={copy.previous}>
+        <Link href={listHref} className={`${styles.navLink} ${styles.backLink}`}>
+          {copy.backToList}
+        </Link>
+        <nav className={styles.navTop} aria-label={copy.navigation}>
           <div className={styles.navCell}>
             <div className={styles.navTopInner}>
               {previousNote ? (
@@ -59,6 +63,19 @@ export default function NoteDetailView({
               ) : (
                 <span className={styles.navPlaceholder} aria-hidden>
                   {copy.previous}
+                </span>
+              )}
+              {nextNote ? (
+                <Link
+                  href={withLang(lang, `${noteBasePath}/${nextNote.slug}`)}
+                  className={`${styles.navLink} ${styles.navLinkEnd}`}
+                  aria-label={`${copy.next}: ${nextNote.title}`}
+                >
+                  {copy.next}
+                </Link>
+              ) : (
+                <span className={`${styles.navPlaceholder} ${styles.navLinkEnd}`} aria-hidden>
+                  {copy.next}
                 </span>
               )}
             </div>
@@ -99,27 +116,7 @@ export default function NoteDetailView({
 
       <div className={styles.ruleBottom} aria-hidden />
 
-      <div className={styles.bottomBlock}>
-        <nav className={styles.navBottom} aria-label={copy.next}>
-          <div className={styles.navCell}>
-            <div className={styles.navBottomInner}>
-              {nextNote ? (
-                <Link
-                  href={withLang(lang, `${noteBasePath}/${nextNote.slug}`)}
-                  className={styles.navLink}
-                  aria-label={`${copy.next}: ${nextNote.title}`}
-                >
-                  {copy.next}
-                </Link>
-              ) : (
-                <span className={styles.navPlaceholder} aria-hidden>
-                  {copy.next}
-                </span>
-              )}
-            </div>
-          </div>
-        </nav>
-      </div>
+      <div className={styles.bottomBlock} aria-hidden />
     </article>
   );
 }
