@@ -6,7 +6,9 @@
   --note-detail-rect-width: min(38vw, 664px);
   --note-detail-pad: 32px;
   --note-detail-meta-gap: 38px;
-  --note-detail-outer: 127px;
+  --note-detail-top-space: calc((100vh - 4px) * 0.112);
+  --note-detail-middle-space: calc((100vh - 4px) * 0.776);
+  --note-detail-bottom-space: calc((100vh - 4px) * 0.112);
   height: 100vh;
   min-height: 100vh;
   overflow: hidden;
@@ -19,13 +21,14 @@
   box-sizing: border-box;
 }
 
-/* Bloque superior: 127px; línea a 32px de cada borde de la pantalla */
+/* Bloque superior: ~11.2% del alto; línea a 32px de cada borde de la pantalla */
 .topBlock {
   flex-shrink: 0;
-  height: var(--note-detail-outer);
+  height: calc(var(--note-detail-top-space) + 2px);
   width: 100vw;
   margin-left: calc(50% - 50vw);
   padding: 0 32px;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -34,8 +37,10 @@
 
 .topBlock::after {
   content: "";
-  display: block;
-  margin-top: auto;
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 0;
   border-bottom: 2px solid var(--color-border);
 }
 
@@ -51,16 +56,17 @@
 }
 
 .navTop {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .navBottom {
-  margin: 0;
+  margin-top: 32px;
 }
 
 .navCell {
   grid-column: 2;
   justify-self: center;
+  width: min(100%, var(--note-detail-rect-width));
 }
 
 .bottomBlock .navCell {
@@ -69,19 +75,17 @@
 
 /* Misma anchura que el rectángulo blanco (664px); enlace a 82px del inicio */
 .navTopInner {
-  width: min(100%, var(--note-detail-rect-width));
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
   padding-left: 82px;
   box-sizing: border-box;
 }
 
 .navBottomInner {
-  width: min(100%, var(--note-detail-rect-width));
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  padding-right: 82px;
+  box-sizing: border-box;
 }
 
 .navLink,
@@ -145,7 +149,8 @@
 
 /* Zona entre las dos líneas: rectángulo pegado a ambas, sin hueco */
 .middleBlock {
-  flex: 1;
+  flex: 0 0 auto;
+  height: var(--note-detail-middle-space);
   min-height: 0;
   overflow: hidden;
   position: relative;
@@ -232,13 +237,13 @@
 }
 
 .metaColumn {
-  grid-column: 3;
-  align-self: end;
-  justify-self: end;
+  position: absolute;
+  right: 104px;
+  bottom: 104px;
+  z-index: 2;
   display: grid;
   grid-template-columns: auto auto;
   gap: var(--note-detail-meta-gap);
-  padding-right: var(--note-detail-axis);
 }
 
 /* Línea inferior: 32px de cada borde de la pantalla */
@@ -260,16 +265,16 @@
   background: var(--color-border);
 }
 
-/* Bloque inferior: 127px desde la línea hasta el bottom de la vista */
+/* Bloque inferior: ~11.2% desde la línea hasta el bottom de la vista */
 .bottomBlock {
   flex-shrink: 0;
-  height: var(--note-detail-outer);
+  height: var(--note-detail-bottom-space);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .page {
     height: auto;
     min-height: auto;
@@ -283,6 +288,7 @@
     height: auto;
     min-height: auto;
     padding: 0 24px;
+    position: static;
     border-bottom: 2px solid var(--color-border);
     padding-bottom: 0;
     justify-content: flex-start;
@@ -345,6 +351,14 @@
 
   .navCell {
     justify-self: start;
+    width: auto;
+  }
+
+  .navTopInner,
+  .navBottomInner {
+    width: auto;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .ruleMetaRow {
@@ -404,9 +418,12 @@
   }
 
   .metaColumn {
+    position: static;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
     justify-self: start;
     gap: 24px;
-    padding-right: 0;
   }
 }
 
