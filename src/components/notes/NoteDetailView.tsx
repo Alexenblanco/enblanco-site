@@ -60,13 +60,13 @@ export default function NoteDetailView({
             </div>
           </div>
         </nav>
+      </div>
+
+      <div className={styles.middleBlock}>
         <div className={styles.ruleMetaRow}>
           <p className={`${styles.meta} ${styles.indexMeta}`}>[ {note.index} ]</p>
           <p className={`${styles.meta} ${styles.typeMeta}`}>{note.type}</p>
         </div>
-      </div>
-
-      <div className={styles.middleBlock}>
         <div className={styles.contentGrid}>
           <header className={styles.titleColumn}>
             <h1 className={styles.title}>{note.title}</h1>
