@@ -7,12 +7,12 @@
   --note-detail-pad: 32px;
   --note-detail-meta-gap: 38px;
   --note-detail-top-space: calc((100vh - 4px) * 0.112);
-  --note-detail-middle-space: calc((100vh - 4px) * 0.776);
-  --note-detail-bottom-space: calc((100vh - 4px) * 0.112);
+  --note-detail-middle-space: calc((100vh - 4px) * 0.748);
+  --note-detail-bottom-space: calc((100vh - 4px) * 0.096);
   --note-detail-scroll-allowance: 112px;
   height: auto;
   min-height: calc(100vh + var(--note-detail-scroll-allowance));
-  overflow-x: clip;
+  overflow-x: visible;
   overflow-y: visible;
   display: flex;
   flex-direction: column;
@@ -62,7 +62,7 @@
 }
 
 .navBottom {
-  margin-top: 32px;
+  margin-top: 24px;
 }
 
 .navCell {
@@ -75,10 +75,10 @@
   justify-self: center;
 }
 
-/* Misma anchura que el rectángulo blanco (664px); enlace a 82px del inicio */
+/* Misma anchura que el rectángulo blanco (664px); enlace a 64px del inicio */
 .navTopInner {
   width: 100%;
-  padding-left: 82px;
+  padding-left: 64px;
   box-sizing: border-box;
 }
 
@@ -86,8 +86,12 @@
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  padding-right: 82px;
+  padding-right: 64px;
   box-sizing: border-box;
+}
+
+.navBottomInner .navLink {
+  text-align: right;
 }
 
 .navLink,
