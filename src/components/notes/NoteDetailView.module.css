@@ -3,6 +3,7 @@
   --note-detail-side: clamp(220px, 20vw, 294px);
   --note-detail-gap: clamp(36px, 3.6vw, 52px);
   --note-detail-axis: clamp(64px, 7vw, 104px);
+  --note-detail-rect-width: min(38vw, 664px);
   --note-detail-pad: 32px;
   --note-detail-meta-gap: 38px;
   --note-detail-outer: 127px;
@@ -68,11 +69,19 @@
 
 /* Misma anchura que el rectángulo blanco (664px); enlace a 82px del inicio */
 .navTopInner {
-  width: 664px;
+  width: min(100%, var(--note-detail-rect-width));
   max-width: 100%;
   margin: 0 auto;
   padding-left: 82px;
   box-sizing: border-box;
+}
+
+.navBottomInner {
+  width: min(100%, var(--note-detail-rect-width));
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
 .navLink,
@@ -107,30 +116,24 @@
 .ruleMetaRow {
   position: absolute;
   top: 16px;
-  left: 50%;
+  left: calc(50% - 50vw);
   z-index: 3;
-  display: grid;
-  grid-template-columns:
-    minmax(0, var(--note-detail-side))
-    minmax(560px, 1fr)
-    minmax(0, var(--note-detail-side));
-  column-gap: var(--note-detail-gap);
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
   width: 100vw;
-  margin-left: calc(50% - 50vw);
   padding-left: 104px;
   padding-right: 104px;
-  transform: translateX(-50%);
   align-items: center;
   box-sizing: border-box;
 }
 
 .indexMeta {
-  grid-column: 1;
+  justify-self: start;
   padding-left: 0;
 }
 
 .typeMeta {
-  grid-column: 3;
   justify-self: end;
   padding-right: 0;
   text-align: right;
@@ -164,7 +167,7 @@
   top: 104px;
   left: calc(50% - 50vw + 294px);
   z-index: 2;
-  width: min(190px, max(48px, calc(50vw - 674px)));
+  width: min(190px, max(48px, calc(50vw - (var(--note-detail-rect-width) / 2) - 342px)));
 }
 
 .title {
@@ -198,7 +201,7 @@
 }
 
 .bodyCard {
-  width: min(100%, 664px);
+  width: min(100%, var(--note-detail-rect-width));
   height: 100%;
   min-height: 0;
   background: var(--color-surface);
@@ -350,10 +353,9 @@
     left: auto;
     z-index: auto;
     width: auto;
-    margin-left: 0;
     padding-left: 0;
     padding-right: 0;
-    transform: none;
+    display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     row-gap: 10px;
   }

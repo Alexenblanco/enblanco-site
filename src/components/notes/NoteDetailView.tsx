@@ -98,19 +98,21 @@ export default function NoteDetailView({
       <div className={styles.bottomBlock}>
         <nav className={styles.navBottom} aria-label={copy.next}>
           <div className={styles.navCell}>
-            {nextNote ? (
-              <Link
-                href={withLang(lang, `${noteBasePath}/${nextNote.slug}`)}
-                className={styles.navLink}
-                aria-label={`${copy.next}: ${nextNote.title}`}
-              >
-                {copy.next}
-              </Link>
-            ) : (
-              <span className={styles.navPlaceholder} aria-hidden>
-                {copy.next}
-              </span>
-            )}
+            <div className={styles.navBottomInner}>
+              {nextNote ? (
+                <Link
+                  href={withLang(lang, `${noteBasePath}/${nextNote.slug}`)}
+                  className={styles.navLink}
+                  aria-label={`${copy.next}: ${nextNote.title}`}
+                >
+                  {copy.next}
+                </Link>
+              ) : (
+                <span className={styles.navPlaceholder} aria-hidden>
+                  {copy.next}
+                </span>
+              )}
+            </div>
           </div>
         </nav>
       </div>
