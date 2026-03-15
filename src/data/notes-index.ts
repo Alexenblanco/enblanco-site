@@ -536,6 +536,11 @@ export function getNoteBySlug(
   return list.find((n) => n.slug === slug) ?? null;
 }
 
+export function getOtherNotes(lang: Locale, slug: string): NoteItem[] {
+  const list = lang === "es" ? NOTAS_ES : NOTES_EN;
+  return list.filter((note) => note.slug !== slug);
+}
+
 export function getAdjacentNotes(
   lang: Locale,
   slug: string
