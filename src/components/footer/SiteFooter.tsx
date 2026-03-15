@@ -66,9 +66,9 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
     <footer className="enblanco-footer relative w-full overflow-hidden bg-[var(--color-bg)] pb-14 md:pb-16 lg:pb-20">
       <FooterInteractiveLogo />
 
-      <div className="enblanco-footer-content relative z-10 mx-auto w-full px-8">
-        <div className="grid w-full grid-cols-1 gap-y-8 text-[14px] leading-[1.45] md:grid-cols-[19fr_18fr_23fr_18fr_22fr] md:items-start md:gap-x-8 md:gap-y-0 lg:gap-x-12">
-          <section className="order-1">
+      <div className="enblanco-footer-content relative z-10 mx-auto w-full">
+        <div className="enblanco-footer-grid text-[14px] leading-[1.45]">
+          <section className="enblanco-footer-section enblanco-footer-menu order-1">
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.menu}</p>
             <nav aria-label="menu">
               <ul className="space-y-0.5">
@@ -83,7 +83,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
             </nav>
           </section>
 
-          <section className="order-2">
+          <section className="enblanco-footer-section enblanco-footer-social order-2">
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.social}</p>
             <nav aria-label="social">
               <ul className="space-y-0.5">
@@ -98,7 +98,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
             </nav>
           </section>
 
-          <section className="order-3">
+          <section className="enblanco-footer-section enblanco-footer-contact order-3">
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.contact}</p>
             <ul className="space-y-0.5">
               <li>
@@ -114,11 +114,11 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
             </ul>
           </section>
 
-          <section className="order-5 md:order-4">
+          <section className="enblanco-footer-section enblanco-footer-copyright order-5 md:order-4">
             <p className="!text-[#8A8A8A]">{copyrightText}</p>
           </section>
 
-          <section className="order-4 md:order-5">
+          <section className="enblanco-footer-section enblanco-footer-legal order-4 md:order-5">
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.legal}</p>
             <nav aria-label="legal">
               <ul className="space-y-0.5">
