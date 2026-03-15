@@ -105,16 +105,22 @@ export default function NoteDetailView({
 
       <div className={styles.middleBlock}>
         <div className={styles.ruleMetaRow}>
-          <p className={`${styles.meta} ${styles.indexMeta}`}>[ {note.index} ]</p>
-          <p className={`${styles.meta} ${styles.typeMeta}`}>{note.type}</p>
+          <p className={`${styles.meta} ${styles.indexMeta}`} data-note-detail-index>
+            [ {note.index} ]
+          </p>
+          <p className={`${styles.meta} ${styles.typeMeta}`} data-note-detail-type>
+            {note.type}
+          </p>
         </div>
         <div className={styles.contentGrid}>
           <header className={styles.titleColumn}>
-            <h1 className={styles.title}>{note.title}</h1>
+            <h1 className={styles.title} data-note-detail-title>
+              {note.title}
+            </h1>
           </header>
 
           <section className={styles.bodyColumn} aria-label={lang === "es" ? "contenido de la nota" : "note content"}>
-            <div className={styles.bodyCard}>
+            <div className={styles.bodyCard} data-note-detail-card>
               <div className={styles.bodyInner}>
                 {bodyParagraphs.map((paragraph, index) => (
                   <p key={`${note.slug}-paragraph-${index}`} className={styles.bodyText}>

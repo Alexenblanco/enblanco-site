@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { NoteTransitionProvider } from "@/contexts/NoteTransitionContext";
 import { ProjectTransitionProvider } from "@/contexts/ProjectTransitionContext";
 import { isValidLang } from "@/lib/i18n/path";
 
@@ -10,7 +11,9 @@ export default async function LangLayout({ children, params }: Props) {
 
   return (
     <ProjectTransitionProvider>
-      {children}
+      <NoteTransitionProvider>
+        {children}
+      </NoteTransitionProvider>
     </ProjectTransitionProvider>
   );
 }
