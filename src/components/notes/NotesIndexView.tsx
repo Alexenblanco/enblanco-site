@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
@@ -20,7 +20,9 @@ type NotesIndexViewProps = {
   emptyText: string;
 };
 
-const PHASE1_DURATION_MS = 120;
+const SOURCE_FADE_DURATION = 1.62;
+const SOURCE_HIDE_BUFFER_MS = 140;
+const SOURCE_FADE_EASE = [0.18, 0.8, 0.28, 1] as const;
 
 function readRect(element: Element | null): RectSnapshot | null {
   if (!(element instanceof HTMLElement)) return null;
@@ -57,7 +59,8 @@ export default function NotesIndexView({
   const noteBasePath = lang === "es" ? "notas" : "notes";
   const reduceMotion = useReducedMotion();
   const router = useRouter();
-  const phaseTimerRef = useRef<number | null>(null);
+  const hideSourceTimerRef = useRef<number | null>(null);
+  const [isSourceHidden, setIsSourceHidden] = useState(false);
   const { transitionTarget, setTransitionTarget } = useNoteTransition();
 
   const containerTransition = reduceMotion
@@ -84,8 +87,8 @@ export default function NotesIndexView({
 
   useEffect(() => {
     return () => {
-      if (phaseTimerRef.current !== null) {
-        window.clearTimeout(phaseTimerRef.current);
+      if (hideSourceTimerRef.current !== null) {
+        window.clearTimeout(hideSourceTimerRef.current);
       }
     };
   }, []);
@@ -104,8 +107,9 @@ export default function NotesIndexView({
       }
 
       event.preventDefault();
-      if (phaseTimerRef.current !== null) {
-        window.clearTimeout(phaseTimerRef.current);
+      setIsSourceHidden(false);
+      if (hideSourceTimerRef.current !== null) {
+        window.clearTimeout(hideSourceTimerRef.current);
       }
 
       const link = event.currentTarget;
@@ -144,10 +148,9 @@ export default function NotesIndexView({
       };
 
       setTransitionTarget(nextTarget);
-
-      phaseTimerRef.current = window.setTimeout(() => {
-        setTransitionTarget({ ...nextTarget, phase: "phase2" });
-      }, reduceMotion ? 0 : PHASE1_DURATION_MS);
+      hideSourceTimerRef.current = window.setTimeout(() => {
+        setIsSourceHidden(true);
+      }, reduceMotion ? 0 : SOURCE_FADE_DURATION * 1000 + SOURCE_HIDE_BUFFER_MS);
     },
     [reduceMotion, router, setTransitionTarget]
   );
@@ -157,8 +160,20 @@ export default function NotesIndexView({
       <motion.header
         className={styles.header}
         initial={headerInitial}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        transition={containerTransition}
+        animate={
+          transitionTarget
+            ? { opacity: 0, y: 0, filter: reduceMotion ? "blur(0px)" : "blur(10px)" }
+            : { opacity: 1, y: 0, filter: "blur(0px)" }
+        }
+        transition={
+          transitionTarget
+            ? {
+                duration: reduceMotion ? 0 : SOURCE_FADE_DURATION,
+                ease: SOURCE_FADE_EASE,
+              }
+            : containerTransition
+        }
+        style={{ visibility: isSourceHidden ? "hidden" : "visible" }}
       >
         <div className={styles.headerLeft}>
           <h1 className={styles.heading}>
@@ -187,11 +202,22 @@ export default function NotesIndexView({
         aria-labelledby={`notes-list-heading-${lang}`}
         className={styles.listSection}
         initial={sectionInitial}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        animate={
+          transitionTarget
+            ? { opacity: 0, y: 0, filter: reduceMotion ? "blur(0px)" : "blur(10px)" }
+            : { opacity: 1, y: 0, filter: "blur(0px)" }
+        }
         transition={{
-          ...containerTransition,
-          delay: reduceMotion ? 0 : 0.14,
+          ...(transitionTarget
+            ? {
+                duration: reduceMotion ? 0 : SOURCE_FADE_DURATION,
+                ease: SOURCE_FADE_EASE,
+                delay: 0,
+              }
+            : containerTransition),
+          delay: transitionTarget ? 0 : reduceMotion ? 0 : 0.14,
         }}
+        style={{ visibility: isSourceHidden ? "hidden" : "visible" }}
       >
         <h2 id={`notes-list-heading-${lang}`} className="sr-only">
           {listHeading}
@@ -205,6 +231,11 @@ export default function NotesIndexView({
                 className={`${styles.item} ${
                   transitionTarget?.note.slug === note.slug ? styles.itemActive : ""
                 } ${
+                  transitionTarget?.note.slug === note.slug &&
+                  transitionTarget.phase === "phase1"
+                    ? styles.itemFocus
+                    : ""
+                } ${
                   transitionTarget && transitionTarget.note.slug !== note.slug
                     ? styles.itemInactive
                     : ""
@@ -214,19 +245,27 @@ export default function NotesIndexView({
                   transitionTarget
                     ? transitionTarget.note.slug === note.slug
                       ? {
-                          opacity: transitionTarget.phase === "phase2" ? 0.02 : 1,
-                          filter: "blur(0px)",
+                          opacity: 0,
+                          filter: reduceMotion ? "blur(0px)" : "blur(8px)",
                         }
                       : {
-                          opacity: reduceMotion ? 0.28 : 0.22,
-                          filter: reduceMotion ? "blur(0px)" : "blur(3px)",
+                          opacity: 0,
+                          filter: reduceMotion ? "blur(0px)" : "blur(10px)",
                         }
                     : { opacity: 1, filter: "blur(0px)" }
                 }
                 transition={{
-                  duration: reduceMotion ? 0 : 0.42,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: reduceMotion ? 0 : 0.2 + index * 0.025,
+                  duration:
+                    reduceMotion
+                      ? 0
+                      : transitionTarget?.phase === "phase1"
+                        ? SOURCE_FADE_DURATION
+                        : 0.42,
+                  ease: SOURCE_FADE_EASE,
+                  delay:
+                    reduceMotion || transitionTarget
+                      ? 0
+                      : 0.2 + index * 0.025,
                 }}
               >
                 <article className={styles.row} data-note-row>

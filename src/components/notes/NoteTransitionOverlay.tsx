@@ -8,13 +8,16 @@ import type {
   RectSnapshot,
 } from "@/contexts/NoteTransitionContext";
 
-const CARD_DURATION = 0.56;
-const EXIT_FADE_MS = 220;
-const ROUTE_PUSH_DELAY_MS = 70;
-const BLUR_PX = 6;
+const PHASE1_DURATION = 0.72;
+const CARD_DURATION = 1.42;
+const EXIT_FADE_MS = 280;
+const ROUTE_PUSH_DELAY_MS = 180;
+const BLUR_PX = 10;
 const EASE = [0.22, 1, 0.36, 1] as const;
+const EXPANSION_EASE = [0.08, 0.9, 0.24, 1] as const;
 
 export const NOTE_DETAIL_READY_EVENT = "note-detail-ready";
+export const NOTE_DETAIL_REVEAL_EVENT = "note-detail-reveal";
 
 type NoteDetailReadyPayload = {
   cardRect: RectSnapshot;
@@ -26,6 +29,7 @@ type NoteDetailReadyPayload = {
 type NoteTransitionOverlayProps = {
   target: NoteTransitionTarget;
   onClose: () => void;
+  onPhase1Complete: () => void;
 };
 
 function formatRect(rect: RectSnapshot) {
@@ -37,18 +41,40 @@ function formatRect(rect: RectSnapshot) {
   };
 }
 
+function getPredictedTargetRect(): RectSnapshot {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const cardWidth = Math.min(viewportWidth * 0.38, 664);
+  const cardHeight = Math.max(280, (viewportHeight - 4) * 0.776);
+
+  return {
+    left: viewportWidth / 2 - cardWidth / 2,
+    top: Math.max(0, (viewportHeight - 4) * 0.112 + 2),
+    width: cardWidth,
+    height: cardHeight,
+  };
+}
+
 export function emitNoteDetailReady(detail: NoteDetailReadyPayload) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent(NOTE_DETAIL_READY_EVENT, { detail }));
 }
 
+export function emitNoteDetailReveal() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(NOTE_DETAIL_REVEAL_EVENT));
+}
+
 export default function NoteTransitionOverlay({
   target,
   onClose,
+  onPhase1Complete,
 }: NoteTransitionOverlayProps) {
   const router = useRouter();
   const hasNavigated = useRef(false);
+  const phase1CompletedRef = useRef(false);
   const readyTimerRef = useRef<number | null>(null);
+  const [predictedTargetRect, setPredictedTargetRect] = useState<RectSnapshot | null>(null);
   const [detailRects, setDetailRects] = useState<NoteDetailReadyPayload | null>(null);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -69,6 +95,7 @@ export default function NoteTransitionOverlay({
       setDetailRects(customEvent.detail);
       clearReadyTimer();
       readyTimerRef.current = window.setTimeout(() => {
+        emitNoteDetailReveal();
         setIsExiting(true);
       }, CARD_DURATION * 1000 - 40);
     };
@@ -84,22 +111,35 @@ export default function NoteTransitionOverlay({
   }, [clearReadyTimer]);
 
   useLayoutEffect(() => {
-    if (hasNavigated.current) return;
+    const raf = window.requestAnimationFrame(() => {
+      setPredictedTargetRect(getPredictedTargetRect());
+    });
+
+    return () => window.cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    if (target.phase !== "phase1") {
+      phase1CompletedRef.current = false;
+    }
+  }, [target.phase]);
+
+  useLayoutEffect(() => {
+    if (target.phase !== "phase2" || hasNavigated.current) return;
 
     const timer = window.setTimeout(() => {
       if (hasNavigated.current) return;
       hasNavigated.current = true;
+      window.sessionStorage.setItem("note-detail-reveal-pending", "1");
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       router.push(target.href, { scroll: false });
     }, ROUTE_PUSH_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [router, target.href]);
+  }, [router, target.href, target.phase]);
 
-  const cardTarget = detailRects?.cardRect ?? target.originCardRect;
-  const titleTarget = detailRects?.titleRect ?? target.originTitleRect;
-  const indexTarget = detailRects?.indexRect ?? target.originIndexRect;
-  const typeTarget = detailRects?.typeRect ?? target.originTypeRect;
+  const cardTarget =
+    detailRects?.cardRect ?? predictedTargetRect ?? target.originCardRect;
 
   return (
     <motion.div
@@ -114,83 +154,68 @@ export default function NoteTransitionOverlay({
         style={{
           backdropFilter: `blur(${BLUR_PX}px)`,
           WebkitBackdropFilter: `blur(${BLUR_PX}px)`,
-          backgroundColor: "rgba(237, 236, 235, 0.34)",
+          backgroundColor: "rgba(237, 236, 235, 0.96)",
           contain: "paint",
         }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: detailRects ? 0.18 : 0.72 }}
-        transition={{ duration: CARD_DURATION, ease: EASE }}
+        animate={{
+          opacity: isExiting ? 0 : target.phase === "phase1" ? 1 : 0.88,
+        }}
+        transition={{
+          duration: isExiting ? 0.18 : target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
+          ease: EASE,
+        }}
       />
 
       <motion.div
         className="absolute left-0 top-0 bg-white"
         style={{
           borderRadius: 0,
-          willChange: "transform, width, height, filter, opacity",
+          transformOrigin: "50% 50%",
+          boxShadow: "none",
+          filter: "none",
+          willChange: "transform, width, height, opacity",
         }}
         initial={{
           ...formatRect(target.originCardRect),
-          filter: "blur(0px)",
+          scale: 1,
           opacity: 1,
         }}
         animate={{
-          ...formatRect(cardTarget),
-          filter: detailRects ? "blur(0px)" : `blur(${BLUR_PX}px)`,
+          ...(target.phase === "phase1"
+            ? formatRect(target.originCardRect)
+            : formatRect(cardTarget)),
+          scale: target.phase === "phase1" ? 0.92 : 1,
           opacity: 1,
         }}
         transition={{
-          x: { duration: CARD_DURATION, ease: EASE },
-          y: { duration: CARD_DURATION, ease: EASE },
-          width: { duration: CARD_DURATION, ease: EASE },
-          height: { duration: CARD_DURATION, ease: EASE },
-          filter: { duration: CARD_DURATION, ease: EASE },
+          x: {
+            duration: target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
+            ease: target.phase === "phase1" ? EASE : EXPANSION_EASE,
+          },
+          y: {
+            duration: target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
+            ease: target.phase === "phase1" ? EASE : EXPANSION_EASE,
+          },
+          width: {
+            duration: target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
+            ease: target.phase === "phase1" ? EASE : EXPANSION_EASE,
+          },
+          height: {
+            duration: target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
+            ease: target.phase === "phase1" ? EASE : EXPANSION_EASE,
+          },
+          scale: {
+            duration: target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
+            ease: EASE,
+          },
+        }}
+        onAnimationComplete={() => {
+          if (target.phase !== "phase1" || phase1CompletedRef.current) return;
+          phase1CompletedRef.current = true;
+          onPhase1Complete();
         }}
       />
-
-      <motion.p
-        className="absolute m-0 text-[14px] leading-none tracking-[var(--letter-spacing-base)] text-[var(--color-text)]"
-        style={{ willChange: "transform, width, height, opacity" }}
-        initial={formatRect(target.originIndexRect)}
-        animate={formatRect(indexTarget)}
-        transition={{
-          x: { duration: CARD_DURATION, ease: EASE },
-          y: { duration: CARD_DURATION, ease: EASE },
-          width: { duration: CARD_DURATION, ease: EASE },
-          height: { duration: CARD_DURATION, ease: EASE },
-        }}
-      >
-        {`[ ${target.note.index} ]`}
-      </motion.p>
-
-      <motion.p
-        className="absolute m-0 text-[14px] leading-none tracking-[var(--letter-spacing-base)] text-[var(--color-text)]"
-        style={{ willChange: "transform, width, height, opacity" }}
-        initial={formatRect(target.originTypeRect)}
-        animate={formatRect(typeTarget)}
-        transition={{
-          x: { duration: CARD_DURATION, ease: EASE },
-          y: { duration: CARD_DURATION, ease: EASE },
-          width: { duration: CARD_DURATION, ease: EASE },
-          height: { duration: CARD_DURATION, ease: EASE },
-        }}
-      >
-        {target.note.type}
-      </motion.p>
-
-      <motion.h2
-        className="absolute m-0 flex items-center justify-center text-[14px] leading-[1.1] tracking-[var(--letter-spacing-base)] text-[var(--color-text)]"
-        style={{ willChange: "transform, width, height, opacity" }}
-        initial={formatRect(target.originTitleRect)}
-        animate={formatRect(titleTarget)}
-        transition={{
-          x: { duration: CARD_DURATION, ease: EASE },
-          y: { duration: CARD_DURATION, ease: EASE },
-          width: { duration: CARD_DURATION, ease: EASE },
-          height: { duration: CARD_DURATION, ease: EASE },
-        }}
-      >
-        {`‘${target.note.title}’`}
-      </motion.h2>
     </motion.div>
   );
 }

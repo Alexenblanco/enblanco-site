@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
-import ProjectDetailBlurWrapper from "@/components/projects/ProjectDetailBlurWrapper";
 import NoteDetailReady from "@/components/notes/NoteDetailReady";
 import NoteDetailView from "@/components/notes/NoteDetailView";
 import { withLang, isValidLang } from "@/lib/i18n/path";
@@ -38,13 +37,11 @@ export default async function NoteSlugPage({ params }: Props) {
   const breadcrumbJsonLd = buildNoteBreadcrumbJsonLd({ lang: "en", slug, note });
 
   return (
-    <ProjectDetailBlurWrapper>
-      <main>
-        <NoteDetailReady />
-        <JsonLd data={articleJsonLd} />
-        <JsonLd data={breadcrumbJsonLd} />
-        <NoteDetailView lang="en" note={note} previousNote={previous} nextNote={next} />
-      </main>
-    </ProjectDetailBlurWrapper>
+    <main>
+      <NoteDetailReady />
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+      <NoteDetailView lang="en" note={note} previousNote={previous} nextNote={next} />
+    </main>
   );
 }

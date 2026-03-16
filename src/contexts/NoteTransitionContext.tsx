@@ -50,6 +50,13 @@ export function NoteTransitionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const onClose = useCallback(() => setTransitionTargetState(null), []);
+  const onPhase1Complete = useCallback(() => {
+    setTransitionTargetState((current) =>
+      current && current.phase === "phase1"
+        ? { ...current, phase: "phase2" }
+        : current
+    );
+  }, []);
 
   useEffect(() => {
     if (!transitionTarget) return;
@@ -67,10 +74,11 @@ export function NoteTransitionProvider({ children }: { children: ReactNode }) {
       value={{ transitionTarget, setTransitionTarget }}
     >
       {children}
-      {transitionTarget && transitionTarget.phase === "phase2" && (
+      {transitionTarget && (
         <NoteTransitionOverlay
           target={transitionTarget}
           onClose={onClose}
+          onPhase1Complete={onPhase1Complete}
         />
       )}
     </NoteTransitionContext.Provider>

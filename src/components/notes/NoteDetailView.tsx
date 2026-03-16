@@ -4,6 +4,7 @@ import {
   type NoteItem,
 } from "@/data/notes-index";
 import { withLang, type Locale } from "@/lib/i18n/path";
+import NoteDetailReveal from "./NoteDetailReveal";
 import RandomNoteLink from "./RandomNoteLink";
 import styles from "./NoteDetailView.module.css";
 
@@ -56,7 +57,7 @@ export default function NoteDetailView({
 
   return (
     <article className={styles.page}>
-      <div className={styles.topBlock}>
+      <NoteDetailReveal className={styles.topBlock} delay={0.08}>
         <div className={styles.topNavRow}>
           <Link href={listHref} className={`${styles.navLink} ${styles.backLink}`}>
             {copy.backToList}
@@ -101,48 +102,48 @@ export default function NoteDetailView({
             className={`${styles.navLink} ${styles.navButton} ${styles.randomLink}`}
           />
         </div>
-      </div>
+      </NoteDetailReveal>
 
       <div className={styles.middleBlock}>
-        <div className={styles.ruleMetaRow}>
+        <NoteDetailReveal className={styles.ruleMetaRow} delay={0.08}>
           <p className={`${styles.meta} ${styles.indexMeta}`} data-note-detail-index>
             [ {note.index} ]
           </p>
           <p className={`${styles.meta} ${styles.typeMeta}`} data-note-detail-type>
             {note.type}
           </p>
-        </div>
+        </NoteDetailReveal>
         <div className={styles.contentGrid}>
-          <header className={styles.titleColumn}>
+          <NoteDetailReveal className={styles.titleColumn} delay={0.08}>
             <h1 className={styles.title} data-note-detail-title>
               {note.title}
             </h1>
-          </header>
+          </NoteDetailReveal>
 
           <section className={styles.bodyColumn} aria-label={lang === "es" ? "contenido de la nota" : "note content"}>
             <div className={styles.bodyCard} data-note-detail-card>
-              <div className={styles.bodyInner}>
+              <NoteDetailReveal className={styles.bodyInner} delay={0.08}>
                 {bodyParagraphs.map((paragraph, index) => (
                   <p key={`${note.slug}-paragraph-${index}`} className={styles.bodyText}>
                     {paragraph}
                   </p>
                 ))}
-              </div>
+              </NoteDetailReveal>
             </div>
           </section>
 
-          <footer className={styles.metaColumn}>
+          <NoteDetailReveal className={styles.metaColumn} delay={0.08}>
             <p className={styles.meta}>
               <time dateTime={note.date}>{note.displayDate}</time>
             </p>
             <p className={styles.meta}>{note.author}</p>
-          </footer>
+          </NoteDetailReveal>
         </div>
       </div>
 
-      <div className={styles.ruleBottom} aria-hidden />
+      <NoteDetailReveal className={styles.ruleBottom} delay={0.08} aria-hidden />
 
-      <div className={styles.bottomBlock} aria-hidden />
+      <NoteDetailReveal className={styles.bottomBlock} delay={0.08} aria-hidden />
     </article>
   );
 }
