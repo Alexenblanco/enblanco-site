@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 type RandomNoteLinkProps = {
   hrefs: string[];
   label: string;
-  searchingLabel: string;
   ariaLabel: string;
   className?: string;
 };
@@ -24,7 +23,6 @@ function getRandomChar() {
 export default function RandomNoteLink({
   hrefs,
   label,
-  searchingLabel,
   ariaLabel,
   className = "",
 }: RandomNoteLinkProps) {
@@ -86,8 +84,9 @@ export default function RandomNoteLink({
     return nextChars.join("");
   }, [label]);
 
-  const startScramble = useCallback(() => {
-    if (!canScrambleRef.current || isNavigatingRef.current || hrefs.length === 0) {
+  const runScramble = useCallback((durationMs: number, restoreLabel: boolean) => {
+    if (!canScrambleRef.current || hrefs.length === 0) {
+      if (restoreLabel) setDisplayText(label);
       return;
     }
 
@@ -97,14 +96,22 @@ export default function RandomNoteLink({
 
     intervalRef.current = window.setInterval(() => {
       const elapsed = window.performance.now() - startedAt;
-      if (elapsed >= SCRAMBLE_DURATION_MS) {
-        stopScramble(true);
+      if (elapsed >= durationMs) {
+        clearScrambleInterval();
+        if (restoreLabel && !isNavigatingRef.current) {
+          setDisplayText(label);
+        }
         return;
       }
 
-      setDisplayText(buildScrambledText(elapsed / SCRAMBLE_DURATION_MS));
+      setDisplayText(buildScrambledText(elapsed / durationMs));
     }, SCRAMBLE_STEP_MS);
-  }, [buildScrambledText, clearScrambleInterval, hrefs.length, stopScramble]);
+  }, [buildScrambledText, clearScrambleInterval, hrefs.length, label]);
+
+  const startScramble = useCallback(() => {
+    if (isNavigatingRef.current) return;
+    runScramble(SCRAMBLE_DURATION_MS, true);
+  }, [runScramble]);
 
   const handlePointerLeave = useCallback(() => {
     stopScramble(true);
@@ -116,7 +123,7 @@ export default function RandomNoteLink({
     stopScramble(false);
     clearNavigateTimeout();
     isNavigatingRef.current = true;
-    setDisplayText(searchingLabel);
+    runScramble(SEARCHING_DURATION_MS, false);
 
     const nextHref = hrefs[Math.floor(Math.random() * hrefs.length)];
     if (!nextHref) {
@@ -128,7 +135,7 @@ export default function RandomNoteLink({
     timeoutRef.current = window.setTimeout(() => {
       router.push(nextHref);
     }, SEARCHING_DURATION_MS);
-  }, [clearNavigateTimeout, hrefs, label, router, searchingLabel, stopScramble]);
+  }, [clearNavigateTimeout, hrefs, label, router, runScramble, stopScramble]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

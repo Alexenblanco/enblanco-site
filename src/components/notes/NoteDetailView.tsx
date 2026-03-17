@@ -22,7 +22,6 @@ const COPY = {
     previous: "nota anterior",
     next: "siguiente nota",
     random: "nota aleatoria",
-    searching: "buscando...",
     emptyBody: "Contenido de la nota pendiente de publicar.",
   },
   en: {
@@ -31,7 +30,6 @@ const COPY = {
     previous: "previous note",
     next: "next note",
     random: "random note",
-    searching: "searching...",
     emptyBody: "Note content pending publication.",
   },
 } as const;
@@ -97,7 +95,6 @@ export default function NoteDetailView({
           <RandomNoteLink
             hrefs={randomNoteHrefs}
             label={copy.random}
-            searchingLabel={copy.searching}
             ariaLabel={copy.random}
             className={`${styles.navLink} ${styles.navButton} ${styles.randomLink}`}
           />
