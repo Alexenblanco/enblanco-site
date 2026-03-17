@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -58,14 +59,20 @@ export function NoteTransitionProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!transitionTarget) return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.dataset.noteTransitionActive = "1";
+    document.body.dataset.noteTransitionDockHidden = "1";
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      delete document.body.dataset.noteTransitionActive;
+      window.setTimeout(() => {
+        delete document.body.dataset.noteTransitionDockHidden;
+      }, 2500);
     };
   }, [transitionTarget]);
 

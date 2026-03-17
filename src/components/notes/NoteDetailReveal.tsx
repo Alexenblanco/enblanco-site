@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { NOTE_DETAIL_REVEAL_EVENT } from "./NoteTransitionOverlay";
 
-const REVEAL_DURATION = 1.55;
+const REVEAL_DURATION = 0.75;
 const REVEAL_EASE = [0.16, 1, 0.3, 1] as const;
-const REVEAL_BLUR_PX = 10;
+const REVEAL_BLUR_PX = 6;
+const REVEAL_OFFSET_Y = 8;
 
 type NoteDetailRevealProps = {
   children?: React.ReactNode;
@@ -49,12 +50,14 @@ export default function NoteDetailReveal({
       initial={{
         opacity: 0,
         filter: `blur(${REVEAL_BLUR_PX}px)`,
+        y: REVEAL_OFFSET_Y,
       }}
       animate={
         visible
           ? {
               opacity: 1,
               filter: "blur(0px)",
+              y: 0,
             }
           : undefined
       }

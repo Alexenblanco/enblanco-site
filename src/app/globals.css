@@ -235,6 +235,14 @@ img, video {
   gap: 0;
   box-shadow: none;
 }
+
+body[data-note-transition-dock-hidden="1"] .dock {
+  display: none !important;
+}
+
+body[data-note-transition-dock-hidden="1"] .enblanco-footer {
+  display: none !important;
+}
 .dock-pill {
   position: relative;
   background: transparent;

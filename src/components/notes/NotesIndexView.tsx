@@ -20,8 +20,8 @@ type NotesIndexViewProps = {
   emptyText: string;
 };
 
-const SOURCE_FADE_DURATION = 1.62;
-const SOURCE_HIDE_BUFFER_MS = 140;
+const SOURCE_FADE_DURATION = 0.6;
+const SOURCE_HIDE_BUFFER_MS = 80;
 const SOURCE_FADE_EASE = [0.18, 0.8, 0.28, 1] as const;
 
 function readRect(element: Element | null): RectSnapshot | null {
@@ -162,7 +162,7 @@ export default function NotesIndexView({
         initial={headerInitial}
         animate={
           transitionTarget
-            ? { opacity: 0, y: 0, filter: reduceMotion ? "blur(0px)" : "blur(10px)" }
+            ? { opacity: 0, y: 0, filter: reduceMotion ? "blur(0px)" : "blur(6px)" }
             : { opacity: 1, y: 0, filter: "blur(0px)" }
         }
         transition={
@@ -204,7 +204,7 @@ export default function NotesIndexView({
         initial={sectionInitial}
         animate={
           transitionTarget
-            ? { opacity: 0, y: 0, filter: reduceMotion ? "blur(0px)" : "blur(10px)" }
+            ? { opacity: 0, y: 0, filter: reduceMotion ? "blur(0px)" : "blur(6px)" }
             : { opacity: 1, y: 0, filter: "blur(0px)" }
         }
         transition={{
@@ -246,11 +246,11 @@ export default function NotesIndexView({
                     ? transitionTarget.note.slug === note.slug
                       ? {
                           opacity: 0,
-                          filter: reduceMotion ? "blur(0px)" : "blur(8px)",
+                          filter: reduceMotion ? "blur(0px)" : "blur(6px)",
                         }
                       : {
                           opacity: 0,
-                          filter: reduceMotion ? "blur(0px)" : "blur(10px)",
+                          filter: reduceMotion ? "blur(0px)" : "blur(6px)",
                         }
                     : { opacity: 1, filter: "blur(0px)" }
                 }

@@ -8,13 +8,14 @@ import type {
   RectSnapshot,
 } from "@/contexts/NoteTransitionContext";
 
-const PHASE1_DURATION = 0.72;
-const CARD_DURATION = 1.42;
-const EXIT_FADE_MS = 280;
-const ROUTE_PUSH_DELAY_MS = 180;
-const BLUR_PX = 10;
+const PHASE1_DURATION = 0.32;
+const CARD_DURATION = 0.85;
+const EXIT_FADE_MS = 200;
+const ROUTE_PUSH_DELAY_MS = 80;
+const BLUR_PX = 6;
+const DOCK_REVEAL_DELAY_MS = 1050;
 const EASE = [0.22, 1, 0.36, 1] as const;
-const EXPANSION_EASE = [0.08, 0.9, 0.24, 1] as const;
+const EXPANSION_EASE = [0.16, 1, 0.3, 1] as const;
 
 export const NOTE_DETAIL_READY_EVENT = "note-detail-ready";
 export const NOTE_DETAIL_REVEAL_EVENT = "note-detail-reveal";
@@ -74,6 +75,7 @@ export default function NoteTransitionOverlay({
   const hasNavigated = useRef(false);
   const phase1CompletedRef = useRef(false);
   const readyTimerRef = useRef<number | null>(null);
+  const dockRevealTimerRef = useRef<number | null>(null);
   const [predictedTargetRect, setPredictedTargetRect] = useState<RectSnapshot | null>(null);
   const [detailRects, setDetailRects] = useState<NoteDetailReadyPayload | null>(null);
   const [isExiting, setIsExiting] = useState(false);
@@ -82,6 +84,13 @@ export default function NoteTransitionOverlay({
     if (readyTimerRef.current !== null) {
       window.clearTimeout(readyTimerRef.current);
       readyTimerRef.current = null;
+    }
+  }, []);
+
+  const clearDockRevealTimer = useCallback(() => {
+    if (dockRevealTimerRef.current !== null) {
+      window.clearTimeout(dockRevealTimerRef.current);
+      dockRevealTimerRef.current = null;
     }
   }, []);
 
@@ -97,6 +106,10 @@ export default function NoteTransitionOverlay({
       readyTimerRef.current = window.setTimeout(() => {
         emitNoteDetailReveal();
         setIsExiting(true);
+        clearDockRevealTimer();
+        dockRevealTimerRef.current = window.setTimeout(() => {
+          delete document.body.dataset.noteTransitionDockHidden;
+        }, DOCK_REVEAL_DELAY_MS);
       }, CARD_DURATION * 1000 - 40);
     };
 
@@ -107,8 +120,9 @@ export default function NoteTransitionOverlay({
         handleReady as EventListener
       );
       clearReadyTimer();
+      clearDockRevealTimer();
     };
-  }, [clearReadyTimer]);
+  }, [clearDockRevealTimer, clearReadyTimer]);
 
   useLayoutEffect(() => {
     const raf = window.requestAnimationFrame(() => {
@@ -154,12 +168,12 @@ export default function NoteTransitionOverlay({
         style={{
           backdropFilter: `blur(${BLUR_PX}px)`,
           WebkitBackdropFilter: `blur(${BLUR_PX}px)`,
-          backgroundColor: "rgba(237, 236, 235, 0.96)",
+          backgroundColor: "rgba(237, 236, 235, 1)",
           contain: "paint",
         }}
         initial={{ opacity: 0 }}
         animate={{
-          opacity: isExiting ? 0 : target.phase === "phase1" ? 1 : 0.88,
+          opacity: isExiting ? 0 : 1,
         }}
         transition={{
           duration: isExiting ? 0.18 : target.phase === "phase1" ? PHASE1_DURATION : CARD_DURATION,
@@ -185,7 +199,7 @@ export default function NoteTransitionOverlay({
           ...(target.phase === "phase1"
             ? formatRect(target.originCardRect)
             : formatRect(cardTarget)),
-          scale: target.phase === "phase1" ? 0.92 : 1,
+          scale: target.phase === "phase1" ? 0.94 : 1,
           opacity: 1,
         }}
         transition={{

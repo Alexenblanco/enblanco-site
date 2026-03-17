@@ -55,7 +55,7 @@ export default async function NoteDetailView({
 
   return (
     <article className={styles.page}>
-      <NoteDetailReveal className={styles.topBlock} delay={0.08}>
+      <NoteDetailReveal className={styles.topBlock} delay={0.02}>
         <NoteDetailTopNav
           lang={lang}
           noteBasePath={noteBasePath}
@@ -68,7 +68,7 @@ export default async function NoteDetailView({
       </NoteDetailReveal>
 
       <div className={styles.middleBlock}>
-        <NoteDetailReveal className={styles.ruleMetaRow} delay={0.08}>
+        <NoteDetailReveal className={styles.ruleMetaRow} delay={0.06}>
           <p className={`${styles.meta} ${styles.indexMeta}`} data-note-detail-index>
             [ {note.index} ]
           </p>
@@ -77,7 +77,7 @@ export default async function NoteDetailView({
           </p>
         </NoteDetailReveal>
         <div className={styles.contentGrid}>
-          <NoteDetailReveal className={styles.titleColumn} delay={0.08}>
+          <NoteDetailReveal className={styles.titleColumn} delay={0.1}>
             <h1 className={styles.title} data-note-detail-title>
               {note.title}
             </h1>
@@ -85,7 +85,7 @@ export default async function NoteDetailView({
 
           <section className={styles.bodyColumn} aria-label={lang === "es" ? "contenido de la nota" : "note content"}>
             <div className={styles.bodyCard} data-note-detail-card>
-              <NoteDetailReveal className={styles.bodyInner} delay={0.08}>
+              <NoteDetailReveal className={styles.bodyInner} delay={0.16}>
                 {bodyParagraphs.map((paragraph, index) => (
                   <p key={`${note.slug}-paragraph-${index}`} className={styles.bodyText}>
                     {paragraph}
@@ -95,7 +95,7 @@ export default async function NoteDetailView({
             </div>
           </section>
 
-          <NoteDetailReveal className={styles.metaColumn} delay={0.08}>
+          <NoteDetailReveal className={styles.metaColumn} delay={0.22}>
             <p className={styles.meta}>
               <time dateTime={note.date}>{note.displayDate}</time>
             </p>
@@ -104,9 +104,9 @@ export default async function NoteDetailView({
         </div>
       </div>
 
-      <NoteDetailReveal className={styles.ruleBottom} delay={0.08} aria-hidden />
+      <NoteDetailReveal className={styles.ruleBottom} delay={0.28} aria-hidden />
 
-      <NoteDetailReveal className={styles.bottomBlock} delay={0.08} aria-hidden />
+      <NoteDetailReveal className={styles.bottomBlock} delay={0.28} aria-hidden />
     </article>
   );
 }
