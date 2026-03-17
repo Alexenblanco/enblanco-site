@@ -1,0 +1,28 @@
+[
+  {
+    "translationKey": "sistema-creado",
+    "title": "El sistema ya estaba creado",
+    "slug": "el-sistema-ya-estaba-creado",
+    "language": "es",
+    "type": "reflexión",
+    "author": "alex",
+    "publishedAt": "2026-03-17T10:00:00.000Z",
+    "excerpt": "Una reflexión sobre cómo muchas estructuras ya existen antes de ser vistas.",
+    "body": "Texto completo de la nota en español.\n\nSegundo párrafo de ejemplo para comprobar la conversión a Portable Text.",
+    "cover": "",
+    "translationOf": ""
+  },
+  {
+    "translationKey": "sistema-creado",
+    "title": "The system was already created",
+    "slug": "the-system-was-already-created",
+    "language": "en",
+    "type": "thought",
+    "author": "alex",
+    "publishedAt": "2026-03-17T10:00:00.000Z",
+    "excerpt": "A reflection on how many structures exist before they are seen.",
+    "body": "Full note text in English.\n\nSecond example paragraph to verify the Portable Text conversion.",
+    "cover": "",
+    "translationOf": ""
+  }
+]
