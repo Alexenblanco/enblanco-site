@@ -169,7 +169,12 @@ export default function RandomNoteLink({
       onBlur={handlePointerLeave}
       onClick={handleClick}
     >
-      <span aria-hidden="true">{displayText}</span>
+      <span aria-hidden="true" data-random-note-measure>
+        {label}
+      </span>
+      <span aria-hidden="true" data-random-note-text>
+        {displayText}
+      </span>
     </button>
   );
 }

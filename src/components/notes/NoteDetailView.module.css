@@ -4,10 +4,11 @@
   --note-detail-gap: clamp(36px, 3.6vw, 52px);
   --note-detail-axis: clamp(64px, 7vw, 104px);
   --note-detail-rect-width: min(38vw, 664px);
+  --note-detail-nav-side-width: clamp(126px, 14vw, 156px);
   --note-detail-pad: 32px;
   --note-detail-meta-gap: 38px;
   --note-detail-viewport-pad: 32px;
-  --note-detail-edge-align: 104px;
+  --note-detail-edge-align: clamp(32px, 7vw, 104px);
   --note-detail-top-space: calc((100vh - 4px) * 0.112);
   --note-detail-middle-space: calc((100vh - 4px) * 0.776);
   --note-detail-bottom-space: calc((100vh - 4px) * 0.112);
@@ -42,8 +43,12 @@
   position: relative;
   z-index: 4;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  column-gap: 24px;
+  grid-template-columns:
+    var(--note-detail-nav-side-width)
+    minmax(0, 1fr)
+    minmax(0, var(--note-detail-rect-width))
+    minmax(0, 1fr)
+    var(--note-detail-nav-side-width);
   align-items: end;
   width: 100%;
   padding-left: var(--note-detail-edge-align);
@@ -61,7 +66,22 @@
   border-bottom: 2px solid var(--color-border);
 }
 
-.navTop,
+.navSide {
+  display: flex;
+  align-items: end;
+  min-width: 0;
+}
+
+.navSideStart {
+  grid-column: 1;
+  justify-content: flex-start;
+}
+
+.navSideEnd {
+  grid-column: 5;
+  justify-content: flex-end;
+}
+
 .contentGrid {
   display: grid;
   grid-template-columns:
@@ -72,8 +92,10 @@
 }
 
 .navTop {
-  grid-column: 2;
-  justify-self: center;
+  grid-column: 3;
+  display: block;
+  width: 100%;
+  min-width: 0;
   margin-bottom: 0;
 }
 
@@ -89,47 +111,66 @@
 }
 
 .backLink {
-  grid-column: 1;
-  justify-self: start;
   color: var(--color-link) !important;
 }
 
 .randomLink {
-  grid-column: 3;
-  justify-self: end;
   justify-content: flex-end;
   text-align: right;
   color: var(--color-link) !important;
+  position: relative;
 }
 
-.randomLink span {
+.randomLink [data-random-note-measure] {
   display: block;
+  visibility: hidden;
+}
+
+.randomLink [data-random-note-text] {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   color: var(--color-link) !important;
   line-height: 1;
   transform: translateY(1px);
+  pointer-events: none;
 }
 
 .navCell {
-  grid-column: 2;
-  justify-self: center;
-  width: min(100%, var(--note-detail-rect-width));
+  width: 100%;
+  min-width: 0;
 }
 
 /* Misma anchura que el rectángulo blanco (664px); enlaces a 64px de los lados */
 .navTopInner {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  gap: clamp(16px, 2vw, 24px);
   width: 100%;
-  padding-left: 64px;
-  padding-right: 64px;
+  padding-left: clamp(24px, 5vw, 64px);
+  padding-right: clamp(24px, 5vw, 64px);
   box-sizing: border-box;
+}
+
+.navTopInner > .navLink,
+.navTopInner > .navPlaceholder {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.navTopInner > :first-child {
+  justify-self: start;
+}
+
+.navTopInner > :last-child {
+  justify-self: end;
 }
 
 .navLinkEnd {
   text-align: right;
-  margin-left: auto;
 }
 
 .navLink,
@@ -181,24 +222,26 @@
 .ruleMetaRow {
   position: absolute;
   top: 16px;
-  left: calc(50% - 50vw);
+  left: calc(50% - 50vw + var(--note-detail-viewport-pad));
   z-index: 3;
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  width: 100vw;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  column-gap: 24px;
+  width: calc(100vw - var(--note-detail-viewport-pad) - var(--note-detail-viewport-pad));
   padding-left: var(--note-detail-edge-align);
   padding-right: var(--note-detail-edge-align);
-  align-items: center;
+  align-items: end;
   box-sizing: border-box;
 }
 
 .indexMeta {
+  grid-column: 1;
   justify-self: start;
   padding-left: 0;
 }
 
 .typeMeta {
+  grid-column: 3;
   justify-self: end;
   padding-right: 0;
   text-align: right;
@@ -365,9 +408,8 @@
     align-items: end;
   }
 
-  .backLink {
+  .navSideStart {
     grid-column: 1;
-    display: inline-block;
   }
 
   .navTop {
@@ -375,11 +417,8 @@
     min-width: 0;
   }
 
-  .randomLink {
+  .navSideEnd {
     grid-column: 3;
-    display: inline-flex;
-    justify-self: end;
-    width: auto;
   }
 
   .topBlock::after {
@@ -421,7 +460,6 @@
     padding-bottom: 0;
   }
 
-  .navTop,
   .contentGrid {
     grid-template-columns: minmax(0, 1fr);
     column-gap: 0;

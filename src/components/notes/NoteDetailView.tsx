@@ -57,9 +57,11 @@ export default function NoteDetailView({
     <article className={styles.page}>
       <NoteDetailReveal className={styles.topBlock} delay={0.08}>
         <div className={styles.topNavRow}>
-          <Link href={listHref} className={`${styles.navLink} ${styles.backLink}`}>
-            {copy.backToList}
-          </Link>
+          <div className={`${styles.navSide} ${styles.navSideStart}`}>
+            <Link href={listHref} className={`${styles.navLink} ${styles.backLink}`}>
+              {copy.backToList}
+            </Link>
+          </div>
           <nav className={styles.navTop} aria-label={copy.navigation}>
             <div className={styles.navCell}>
               <div className={styles.navTopInner}>
@@ -92,12 +94,14 @@ export default function NoteDetailView({
               </div>
             </div>
           </nav>
-          <RandomNoteLink
-            hrefs={randomNoteHrefs}
-            label={copy.random}
-            ariaLabel={copy.random}
-            className={`${styles.navLink} ${styles.navButton} ${styles.randomLink}`}
-          />
+          <div className={`${styles.navSide} ${styles.navSideEnd}`}>
+            <RandomNoteLink
+              hrefs={randomNoteHrefs}
+              label={copy.random}
+              ariaLabel={copy.random}
+              className={`${styles.navLink} ${styles.navButton} ${styles.randomLink}`}
+            />
+          </div>
         </div>
       </NoteDetailReveal>
 
