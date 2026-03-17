@@ -116,6 +116,10 @@ const getNoteDetailCached = cache(
     getNoteBySlugFromSanity(lang, slug)
 );
 
+const getNoteOrderSlugsCached = cache(async (lang: Locale): Promise<string[]> =>
+  getNoteSlugsByLangFromSanity(lang)
+);
+
 export function hasNoteBody(note: NoteItem): boolean {
   return !!note.body?.some((paragraph) => paragraph.trim().length > 0);
 }
@@ -162,20 +166,37 @@ export async function getNotesByLang(lang: Locale): Promise<NoteItem[]> {
   return getNotesByLangCached(lang);
 }
 
+export async function getIndexableNotesByLang(lang: Locale): Promise<NoteItem[]> {
+  const notes = await getNotesByLangCached(lang);
+  const details = await Promise.all(
+    notes.map(async (note) => ({
+      slug: note.slug,
+      detail: await getNoteDetailCached(lang, note.slug),
+    }))
+  );
+  const indexableSlugSet = new Set(
+    details
+      .filter(({ detail }) => {
+        const body = portableTextToParagraphs(detail?.body);
+        return !!body?.length;
+      })
+      .map(({ slug }) => slug)
+  );
+  return notes.filter((note) => indexableSlugSet.has(note.slug));
+}
+
 export async function getNoteBySlug(
   lang: Locale,
   slug: string
 ): Promise<NoteItem | null> {
-  const [notes, detail] = await Promise.all([
-    getNotesByLangCached(lang),
+  const [detail, orderedSlugs] = await Promise.all([
     getNoteDetailCached(lang, slug),
+    getNoteOrderSlugsCached(lang),
   ]);
-
   if (!detail) return null;
-
-  const summary = notes.find((note) => note.slug === slug);
-  if (!summary) return null;
-
+  const slugIndex = orderedSlugs.findIndex((itemSlug) => itemSlug === slug);
+  const total = Math.max(orderedSlugs.length, 1);
+  const summary = toNoteItem(detail, lang, slugIndex === -1 ? total : slugIndex, total);
   const body = portableTextToParagraphs(detail.body);
   const description = normalizeText(detail.excerpt) || summary.description;
 
@@ -195,13 +216,22 @@ export async function getAdjacentNotes(
   lang: Locale,
   slug: string
 ): Promise<{ previous: NoteItem | null; next: NoteItem | null }> {
-  const notes = await getNotesByLangCached(lang);
-  const index = notes.findIndex((note) => note.slug === slug);
-  const total = notes.length;
+  const [notes, orderedSlugs] = await Promise.all([
+    getNotesByLangCached(lang),
+    getNoteOrderSlugsCached(lang),
+  ]);
+  const noteBySlug = new Map(notes.map((note) => [note.slug, note]));
+  const orderedNotes = orderedSlugs
+    .map((orderedSlug) => noteBySlug.get(orderedSlug))
+    .filter((note): note is NoteItem => note !== undefined);
+  const total = orderedNotes.length;
 
-  if (index === -1 || total <= 1) {
+  if (!orderedSlugs.includes(slug) || !noteBySlug.has(slug) || total <= 1) {
     return { previous: null, next: null };
   }
+
+  const index = orderedNotes.findIndex((note) => note.slug === slug);
+  if (index === -1) return { previous: null, next: null };
 
   const previousIndex = index === 0 ? total - 1 : index - 1;
   const nextIndex = index === total - 1 ? 0 : index + 1;

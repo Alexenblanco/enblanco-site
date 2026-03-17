@@ -260,7 +260,7 @@ function normalizeCover(value: unknown): SanityImageField | undefined {
 }
 
 function buildDocumentId(language: Locale, slug: string): string {
-  return `note.${language}.${slug}`;
+  return `note-${language}-${slug}`;
 }
 
 function buildSlugField(slug: string) {

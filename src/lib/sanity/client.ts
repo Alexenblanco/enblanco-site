@@ -16,7 +16,7 @@ export function getSanityClient(options: SanityClientOptions = {}) {
     projectId,
     dataset,
     apiVersion,
-    useCdn: !preview,
+    useCdn: false,
     perspective: preview ? "previewDrafts" : "published",
     ...(preview && token ? { token } : {}),
   });

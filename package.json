@@ -12,6 +12,7 @@
     "test:lead": "tsx --test tests/api/lead.test.ts",
     "check:notes-seo": "tsx scripts/check-notes-seo.ts",
     "sanity:import-notes": "node --import tsx scripts/import-notes.ts",
+    "sanity:migrate-note-public-ids": "node --import tsx scripts/migrate-note-public-ids.ts",
     "studio": "node scripts/copy-env-for-studio.js && cd studio && npm run dev",
     "sanity:typegen": "cd studio && npx sanity schema extract --path schema.json && npx sanity typegen generate",
     "check:project-assets": "node scripts/check-project-asset-sizes.js",
