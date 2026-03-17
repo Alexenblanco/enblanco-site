@@ -39,24 +39,6 @@
   box-sizing: border-box;
 }
 
-.topNavRow {
-  position: relative;
-  z-index: 4;
-  display: grid;
-  grid-template-columns:
-    var(--note-detail-nav-side-width)
-    minmax(0, 1fr)
-    minmax(0, var(--note-detail-rect-width))
-    minmax(0, 1fr)
-    var(--note-detail-nav-side-width);
-  align-items: end;
-  width: 100%;
-  padding-left: var(--note-detail-edge-align);
-  padding-right: var(--note-detail-edge-align);
-  box-sizing: border-box;
-  margin-bottom: 32px;
-}
-
 .topBlock::after {
   content: "";
   position: absolute;
@@ -64,22 +46,6 @@
   right: 32px;
   bottom: 0;
   border-bottom: 2px solid var(--color-border);
-}
-
-.navSide {
-  display: flex;
-  align-items: end;
-  min-width: 0;
-}
-
-.navSideStart {
-  grid-column: 1;
-  justify-content: flex-start;
-}
-
-.navSideEnd {
-  grid-column: 5;
-  justify-content: flex-end;
 }
 
 .contentGrid {
@@ -91,132 +57,11 @@
   column-gap: var(--note-detail-gap);
 }
 
-.navTop {
-  grid-column: 3;
-  display: block;
-  width: 100%;
-  min-width: 0;
-  margin-bottom: 0;
-}
-
-.backLink,
-.randomLink {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  font-size: 14px;
-  line-height: 1;
-  letter-spacing: var(--letter-spacing-base);
-  align-self: end;
-}
-
-.backLink {
-  color: var(--color-link) !important;
-}
-
-.randomLink {
-  justify-content: flex-end;
-  text-align: right;
-  color: var(--color-link) !important;
-  position: relative;
-}
-
-.randomLink [data-random-note-measure] {
-  display: block;
-  visibility: hidden;
-}
-
-.randomLink [data-random-note-text] {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  color: var(--color-link) !important;
-  line-height: 1;
-  transform: translateY(1px);
-  pointer-events: none;
-}
-
-.navCell {
-  width: 100%;
-  min-width: 0;
-}
-
-/* Misma anchura que el rectángulo blanco (664px); enlaces a 64px de los lados */
-.navTopInner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(16px, 2vw, 24px);
-  width: 100%;
-  padding-left: clamp(24px, 5vw, 64px);
-  padding-right: clamp(24px, 5vw, 64px);
-  box-sizing: border-box;
-}
-
-.navTopInner > .navLink,
-.navTopInner > .navPlaceholder {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.navTopInner > :first-child {
-  justify-self: start;
-}
-
-.navTopInner > :last-child {
-  justify-self: end;
-}
-
-.navLinkEnd {
-  text-align: right;
-}
-
-.navLink,
-.navPlaceholder,
-.meta,
-.metaLink {
+.meta {
   margin: 0;
   font-size: 14px;
   line-height: 1;
   letter-spacing: var(--letter-spacing-base);
-}
-
-.navLink,
-.metaLink {
-  color: var(--color-link) !important;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.navButton {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  font: inherit;
-  font-size: 14px;
-  font-weight: inherit;
-  font-family: inherit;
-  line-height: inherit;
-  letter-spacing: inherit;
-  color: var(--color-link) !important;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-}
-
-.navLink:hover,
-.navLink:focus-visible,
-.metaLink:hover,
-.metaLink:focus-visible {
-  color: var(--color-link-hover) !important;
-  outline: none;
-}
-
-.navPlaceholder {
-  visibility: hidden;
 }
 
 .ruleMetaRow {
@@ -398,29 +243,6 @@
     justify-content: flex-start;
   }
 
-  .topNavRow {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    column-gap: 16px;
-    row-gap: 0;
-    padding-left: 0;
-    padding-right: 0;
-    margin-bottom: 32px;
-    align-items: end;
-  }
-
-  .navSideStart {
-    grid-column: 1;
-  }
-
-  .navTop {
-    grid-column: 2;
-    min-width: 0;
-  }
-
-  .navSideEnd {
-    grid-column: 3;
-  }
-
   .topBlock::after {
     display: none;
   }
@@ -433,10 +255,6 @@
   .ruleBottom::before {
     margin-left: 0;
     margin-right: 0;
-  }
-
-  .navTop {
-    margin-bottom: 0;
   }
 
   .middleBlock {
@@ -465,24 +283,12 @@
     column-gap: 0;
   }
 
-  .navCell,
   .indexMeta,
   .typeMeta,
   .titleColumn,
   .bodyColumn,
   .metaColumn {
     grid-column: 1;
-  }
-
-  .navCell {
-    justify-self: stretch;
-    width: 100%;
-  }
-
-  .navTopInner {
-    width: 100%;
-    padding-left: 0;
-    padding-right: 0;
   }
 
   .ruleMetaRow {

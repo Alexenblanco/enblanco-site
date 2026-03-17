@@ -1,11 +1,10 @@
-import Link from "next/link";
 import {
   getOtherNotes,
   type NoteItem,
 } from "@/data/notes-index";
 import { withLang, type Locale } from "@/lib/i18n/path";
 import NoteDetailReveal from "./NoteDetailReveal";
-import RandomNoteLink from "./RandomNoteLink";
+import NoteDetailTopNav from "./NoteDetailTopNav";
 import styles from "./NoteDetailView.module.css";
 
 type NoteDetailViewProps = {
@@ -34,7 +33,7 @@ const COPY = {
   },
 } as const;
 
-export default function NoteDetailView({
+export default async function NoteDetailView({
   lang,
   note,
   previousNote,
@@ -43,7 +42,8 @@ export default function NoteDetailView({
   const copy = COPY[lang];
   const noteBasePath = lang === "es" ? "notas" : "notes";
   const listHref = withLang(lang, noteBasePath);
-  const randomNoteHrefs = getOtherNotes(lang, note.slug).map((item) =>
+  const randomNotes = await getOtherNotes(lang, note.slug);
+  const randomNoteHrefs = randomNotes.map((item) =>
     withLang(lang, `${noteBasePath}/${item.slug}`)
   );
   const bodyParagraphs =
@@ -56,53 +56,15 @@ export default function NoteDetailView({
   return (
     <article className={styles.page}>
       <NoteDetailReveal className={styles.topBlock} delay={0.08}>
-        <div className={styles.topNavRow}>
-          <div className={`${styles.navSide} ${styles.navSideStart}`}>
-            <Link href={listHref} className={`${styles.navLink} ${styles.backLink}`}>
-              {copy.backToList}
-            </Link>
-          </div>
-          <nav className={styles.navTop} aria-label={copy.navigation}>
-            <div className={styles.navCell}>
-              <div className={styles.navTopInner}>
-                {previousNote ? (
-                  <Link
-                    href={withLang(lang, `${noteBasePath}/${previousNote.slug}`)}
-                    className={styles.navLink}
-                    aria-label={`${copy.previous}: ${previousNote.title}`}
-                  >
-                    {copy.previous}
-                  </Link>
-                ) : (
-                  <span className={styles.navPlaceholder} aria-hidden>
-                    {copy.previous}
-                  </span>
-                )}
-                {nextNote ? (
-                  <Link
-                    href={withLang(lang, `${noteBasePath}/${nextNote.slug}`)}
-                    className={`${styles.navLink} ${styles.navLinkEnd}`}
-                    aria-label={`${copy.next}: ${nextNote.title}`}
-                  >
-                    {copy.next}
-                  </Link>
-                ) : (
-                  <span className={`${styles.navPlaceholder} ${styles.navLinkEnd}`} aria-hidden>
-                    {copy.next}
-                  </span>
-                )}
-              </div>
-            </div>
-          </nav>
-          <div className={`${styles.navSide} ${styles.navSideEnd}`}>
-            <RandomNoteLink
-              hrefs={randomNoteHrefs}
-              label={copy.random}
-              ariaLabel={copy.random}
-              className={`${styles.navLink} ${styles.navButton} ${styles.randomLink}`}
-            />
-          </div>
-        </div>
+        <NoteDetailTopNav
+          lang={lang}
+          noteBasePath={noteBasePath}
+          listHref={listHref}
+          previousNote={previousNote}
+          nextNote={nextNote}
+          randomNoteHrefs={randomNoteHrefs}
+          copy={copy}
+        />
       </NoteDetailReveal>
 
       <div className={styles.middleBlock}>

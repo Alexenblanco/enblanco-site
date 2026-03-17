@@ -5,8 +5,8 @@ import {
   getProjectDetailSlugsEn,
   projectCollectionSlugsEs,
   projectCollectionSlugsEn,
-  getIndexableNotasSlugsEs,
-  getIndexableNotesSlugsEn,
+  getIndexableNotasSlugsEsStatic,
+  getIndexableNotesSlugsEnStatic,
   areaSlugsEs,
   areaSlugsEn,
   servicePageSlugsEs,
@@ -25,7 +25,7 @@ function url(path: string, lastModified?: Date): MetadataRoute.Sitemap[number] {
   };
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = BASE_PATHS.map((path) => url(path, now));
 
@@ -43,10 +43,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entries.push(url(`/en/projects/${slug}`, now));
   }
 
-  for (const slug of getIndexableNotasSlugsEs()) {
+  for (const slug of await getIndexableNotasSlugsEsStatic()) {
     entries.push(url(`/es/notas/${slug}`, now));
   }
-  for (const slug of getIndexableNotesSlugsEn()) {
+  for (const slug of await getIndexableNotesSlugsEnStatic()) {
     entries.push(url(`/en/notes/${slug}`, now));
   }
 

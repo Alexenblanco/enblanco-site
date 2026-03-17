@@ -1,8 +1,15 @@
-/**
- * Single source for notes (list, slug pages, RSS, sitemap).
- * Add or edit notes here only.
- */
+import { cache } from "react";
+import {
+  getIndexableNoteSlugsByLangFromSanity,
+  getNoteBySlugFromSanity,
+  getNoteSlugsByLangFromSanity,
+  getNotesByLangFromSanity,
+  type SanityNoteDetailItem,
+  type SanityNoteListItem,
+} from "@/lib/sanity/queries";
 import { SITE_NAME } from "@/lib/site-config";
+
+export type Locale = "es" | "en";
 
 export type NoteItem = {
   slug: string;
@@ -16,475 +23,98 @@ export type NoteItem = {
   body?: string[];
 };
 
-export const NOTAS_ES: NoteItem[] = [
-  {
-    slug: "editar-tambien-es-disenar",
-    index: "20",
-    type: "decisión",
-    title: "editar también es diseñar",
-    date: "2026-09-18",
-    displayDate: "sep 2026",
-    author: "clara",
-    description: "nota de enblanco sobre edición, síntesis y criterio en sistemas de marca.",
-  },
-  {
-    slug: "la-primera-version-siempre-sobra",
-    index: "19",
-    type: "pensamiento",
-    title: "la primera versión siempre sobra",
-    date: "2026-09-04",
-    displayDate: "sep 2026",
-    author: "alex",
-    description: "nota de enblanco sobre iteración, descarte y precisión antes de publicar.",
-  },
-  {
-    slug: "si-todo-destaca-nada-guia",
-    index: "18",
-    type: "criterio",
-    title: "si todo destaca, nada guía",
-    date: "2026-08-22",
-    displayDate: "ago 2026",
-    author: "clara",
-    description: "nota de enblanco sobre jerarquía visual y foco en piezas editoriales.",
-  },
-  {
-    slug: "el-silencio-en-una-interfaz",
-    index: "17",
-    type: "observación",
-    title: "el silencio en una interfaz",
-    date: "2026-08-07",
-    displayDate: "ago 2026",
-    author: "alex",
-    description: "nota de enblanco sobre ritmo, aire y pausas en experiencias digitales.",
-  },
-  {
-    slug: "una-marca-tambien-se-corrige",
-    index: "16",
-    type: "reflexión",
-    title: "una marca también se corrige",
-    date: "2026-07-26",
-    displayDate: "jul 2026",
-    author: "clara",
-    description: "nota de enblanco sobre mejora continua y aprendizaje dentro del sistema de marca.",
-  },
-  {
-    slug: "menos-recursos-mas-intencion",
-    index: "15",
-    type: "decisión",
-    title: "menos recursos, más intención",
-    date: "2026-07-11",
-    displayDate: "jul 2026",
-    author: "alex",
-    description: "nota de enblanco sobre decisiones de producción y dirección creativa con límites reales.",
-  },
-  {
-    slug: "no-todo-problema-es-de-diseno",
-    index: "14",
-    type: "criterio",
-    title: "no todo problema es de diseño",
-    date: "2026-06-27",
-    displayDate: "jun 2026",
-    author: "clara",
-    description: "nota de enblanco sobre diagnóstico estratégico antes de ejecutar soluciones visuales.",
-  },
-  {
-    slug: "el-tono-se-prueba-en-contexto",
-    index: "13",
-    type: "pensamiento",
-    title: "el tono se prueba en contexto",
-    date: "2026-06-12",
-    displayDate: "jun 2026",
-    author: "clara",
-    description: "nota de enblanco sobre lenguaje, canal y adecuación editorial de la marca.",
-  },
-  {
-    slug: "lo-urgente-no-siempre-es-lo-importante",
-    index: "12",
-    type: "observación",
-    title: "lo urgente no siempre es lo importante",
-    date: "2026-05-29",
-    displayDate: "may 2026",
-    author: "alex",
-    description: "nota de enblanco sobre prioridades, calendario y decisiones de impacto real.",
-  },
-  {
-    slug: "la-consistencia-tambien-emociona",
-    index: "11",
-    type: "reflexión",
-    title: "la consistencia también emociona",
-    date: "2026-05-15",
-    displayDate: "may 2026",
-    author: "clara",
-    description: "nota de enblanco sobre coherencia, memoria de marca y vínculo a largo plazo.",
-  },
-  {
-    slug: "nada-de-mayusculas",
-    index: "10",
-    type: "decisión",
-    title: "nada de mayúsculas",
-    date: "2025-12-10",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre decisiones de identidad verbal y criterio tipográfico.",
-  },
-  {
-    slug: "el-momento-previo",
-    index: "09",
-    type: "pensamiento",
-    title: "el momento previo",
-    date: "2025-12-09",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre procesos previos, criterio y preparación.",
-  },
-  {
-    slug: "el-contexto-tambien-disena",
-    index: "08",
-    type: "criterio",
-    title: "el contexto también diseña",
-    date: "2025-12-08",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre cómo el contexto condiciona las decisiones de diseño.",
-  },
-  {
-    slug: "forzar-una-identidad-no-la-vuelve-real",
-    index: "07",
-    type: "reflexión",
-    title: "forzar una identidad no la vuelve real",
-    date: "2025-12-07",
-    displayDate: "dic 2025",
-    author: "alex",
-    description: "nota de enblanco sobre autenticidad, posicionamiento y sistema de marca.",
-  },
-  {
-    slug: "los-galgos",
-    index: "06",
-    type: "observación",
-    title: "los galgos",
-    date: "2025-12-06",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre observación y referencias aplicadas al trabajo de marca.",
-  },
-  {
-    slug: "no-tocamos-el-simbolo",
-    index: "05",
-    type: "decisión",
-    title: "no tocamos el símbolo",
-    date: "2025-12-05",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre decisiones de identidad y preservación del sistema visual.",
-  },
-  {
-    slug: "todas-las-marcas-necesitan-algo-nuevo",
-    index: "04",
-    type: "criterio",
-    title: "¿todas las marcas necesitan algo nuevo?",
-    date: "2025-12-04",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre revisión crítica, continuidad y cambio en branding.",
-  },
-  {
-    slug: "el-sistema-ya-estaba-creado",
-    index: "03",
-    type: "reflexión",
-    title: "el sistema ya estaba creado",
-    date: "2026-03-12",
-    displayDate: "mar 2026",
-    author: "alex",
-    description: "nota de enblanco sobre sistemas preexistentes y lectura estratégica de marca.",
-    body: [
-      "Antes incluso de empezar, había una duda sobre la mesa:",
-      "La diéresis en Mernë.",
-      "Nos preguntábamos si prescindir de ella. Visualmente podía simplificar el nombre, hacerlo más neutro, incluso acercarlo a un imaginario más nórdico. La decisión parecía casi técnica, y durante un momento dimos por hecho que acabaríamos eliminándola.",
-      "Antes de recibir el briefing, esa era nuestra intuición.",
-      "Habíamos preparado una serie de preguntas para entender el origen del estudio, cómo había nacido la marca, qué significaba para él, qué quería proyectar. Y fue ahí donde todo cambió.",
-      "Al leer el briefing entendimos que la diéresis no era un adorno ni una rareza tipográfica. Era parte del origen del nombre, de su construcción y de su sentido. No estaba ahí para destacar, sino para ser fiel a una historia concreta.",
-      "La decisión dejó de ser si eliminarla o no.",
-      "Pasó a ser cómo trabajar con ella.",
-      "En lugar de esconderla, la convertimos en el centro del sistema. Dos puntos que empezaron a ordenar la identidad gráfica, a generar ritmo, estructura y lenguaje propio. Lo que en un principio parecía un problema se convirtió en el elemento más reconocible del conjunto.",
-      "A partir de ahí, el resto acompañó: una paleta cálida, un tono cercano, una identidad que ya no buscaba parecer otra cosa, sino expresar lo que siempre había estado ahí.",
-      "La marca empezó a encajar.",
-      "A veces creemos que una identidad necesita simplificarse eliminando elementos.",
-      "Y otras veces, lo que necesita es ser leída con más atención.",
-      "Porque entender bien el origen suele cambiar por completo las decisiones que parecían evidentes al principio.",
-    ],
-  },
-  {
-    slug: "ni-bien-ni-mal-se-trata-de-una-decision",
-    index: "02",
-    type: "pensamiento",
-    title: "ni bien ni mal, se trata de una decisión",
-    date: "2026-01-15",
-    displayDate: "ene 2026",
-    author: "alex",
-    description: "nota de enblanco sobre criterio, elecciones de diseño y consecuencias.",
-  },
-  {
-    slug: "dos-blancos",
-    index: "01",
-    type: "observación",
-    title: "dos blancos",
-    date: "2025-12-01",
-    displayDate: "dic 2025",
-    author: "clara",
-    description: "nota de enblanco sobre contraste, matiz y decisiones visuales mínimas.",
-    body: [
-      "Antes incluso de empezar, había una duda sobre la mesa:",
-      "La diéresis en Mernë.",
-      "Nos preguntábamos si prescindir de ella. Visualmente podía simplificar el nombre, hacerlo más neutro, incluso acercarlo a un imaginario más nórdico. La decisión parecía casi técnica, y durante un momento dimos por hecho que acabaríamos eliminándola.",
-      "Antes de recibir el briefing, esa era nuestra intuición.",
-      "Habíamos preparado una serie de preguntas para entender el origen del estudio, cómo había nacido la marca, qué significaba para él, qué quería proyectar. Y fue ahí donde todo cambió.",
-      "Al leer el briefing entendimos que la diéresis no era un adorno ni una rareza tipográfica. Era parte del origen del nombre, de su construcción y de su sentido. No estaba ahí para destacar, sino para ser fiel a una historia concreta.",
-      "La decisión dejó de ser si eliminarla o no.",
-      "Pasó a ser cómo trabajar con ella.",
-      "En lugar de esconderla, la convertimos en el centro del sistema. Dos puntos que empezaron a ordenar la identidad gráfica, a generar ritmo, estructura y lenguaje propio. Lo que en un principio parecía un problema se convirtió en el elemento más reconocible del conjunto.",
-      "A partir de ahí, el resto acompañó: una paleta cálida, un tono cercano, una identidad que ya no buscaba parecer otra cosa, sino expresar lo que siempre había estado ahí.",
-      "La marca empezó a encajar.",
-      "A veces creemos que una identidad necesita simplificarse eliminando elementos.",
-      "Y otras veces, lo que necesita es ser leída con más atención.",
-      "Porque entender bien el origen suele cambiar por completo las decisiones que parecían evidentes al principio.",
-    ],
-  },
-];
-
-export const NOTES_EN: NoteItem[] = [
-  {
-    slug: "editar-tambien-es-disenar",
-    index: "20",
-    type: "decision",
-    title: "editing is also designing",
-    date: "2026-09-18",
-    displayDate: "sep 2026",
-    author: "clara",
-    description: "enblanco note on editing, synthesis, and criteria in brand systems.",
-  },
-  {
-    slug: "la-primera-version-siempre-sobra",
-    index: "19",
-    type: "thought",
-    title: "the first version is always too much",
-    date: "2026-09-04",
-    displayDate: "sep 2026",
-    author: "alex",
-    description: "enblanco note on iteration, elimination, and precision before release.",
-  },
-  {
-    slug: "si-todo-destaca-nada-guia",
-    index: "18",
-    type: "criteria",
-    title: "if everything stands out, nothing guides",
-    date: "2026-08-22",
-    displayDate: "aug 2026",
-    author: "clara",
-    description: "enblanco note on hierarchy and focus in editorial design pieces.",
-  },
-  {
-    slug: "el-silencio-en-una-interfaz",
-    index: "17",
-    type: "observation",
-    title: "silence in an interface",
-    date: "2026-08-07",
-    displayDate: "aug 2026",
-    author: "alex",
-    description: "enblanco note on rhythm, spacing, and pauses in digital experiences.",
-  },
-  {
-    slug: "una-marca-tambien-se-corrige",
-    index: "16",
-    type: "reflection",
-    title: "a brand is also corrected",
-    date: "2026-07-26",
-    displayDate: "jul 2026",
-    author: "clara",
-    description: "enblanco note on continuous improvement and learning inside a brand system.",
-  },
-  {
-    slug: "menos-recursos-mas-intencion",
-    index: "15",
-    type: "decision",
-    title: "fewer resources, more intention",
-    date: "2026-07-11",
-    displayDate: "jul 2026",
-    author: "alex",
-    description: "enblanco note on production decisions and creative direction under real constraints.",
-  },
-  {
-    slug: "no-todo-problema-es-de-diseno",
-    index: "14",
-    type: "criteria",
-    title: "not every problem is design",
-    date: "2026-06-27",
-    displayDate: "jun 2026",
-    author: "clara",
-    description: "enblanco note on strategic diagnosis before visual execution.",
-  },
-  {
-    slug: "el-tono-se-prueba-en-contexto",
-    index: "13",
-    type: "thought",
-    title: "tone is tested in context",
-    date: "2026-06-12",
-    displayDate: "jun 2026",
-    author: "clara",
-    description: "enblanco note on language, channel, and editorial fit.",
-  },
-  {
-    slug: "lo-urgente-no-siempre-es-lo-importante",
-    index: "12",
-    type: "observation",
-    title: "urgent is not always important",
-    date: "2026-05-29",
-    displayDate: "may 2026",
-    author: "alex",
-    description: "enblanco note on priorities, timing, and real impact decisions.",
-  },
-  {
-    slug: "la-consistencia-tambien-emociona",
-    index: "11",
-    type: "reflection",
-    title: "consistency can also be emotional",
-    date: "2026-05-15",
-    displayDate: "may 2026",
-    author: "clara",
-    description: "enblanco note on coherence, brand memory, and long-term connection.",
-  },
-  {
-    slug: "nada-de-mayusculas",
-    index: "10",
-    type: "decision",
-    title: "no uppercase",
-    date: "2025-12-10",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on verbal identity decisions and typographic criteria.",
-  },
-  {
-    slug: "el-momento-previo",
-    index: "09",
-    type: "thought",
-    title: "the moment before",
-    date: "2025-12-09",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on preparation, process, and criteria.",
-  },
-  {
-    slug: "el-contexto-tambien-disena",
-    index: "08",
-    type: "criteria",
-    title: "context designs too",
-    date: "2025-12-08",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on how context shapes design decisions.",
-  },
-  {
-    slug: "forzar-una-identidad-no-la-vuelve-real",
-    index: "07",
-    type: "reflection",
-    title: "forcing an identity does not make it real",
-    date: "2025-12-07",
-    displayDate: "dec 2025",
-    author: "alex",
-    description: "enblanco note on authenticity, positioning, and brand systems.",
-  },
-  {
-    slug: "los-galgos",
-    index: "06",
-    type: "observation",
-    title: "the greyhounds",
-    date: "2025-12-06",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on observation and references applied to brand work.",
-  },
-  {
-    slug: "no-tocamos-el-simbolo",
-    index: "05",
-    type: "decision",
-    title: "we are not touching the symbol",
-    date: "2025-12-05",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on identity decisions and preserving an existing visual system.",
-  },
-  {
-    slug: "todas-las-marcas-necesitan-algo-nuevo",
-    index: "04",
-    type: "criteria",
-    title: "does every brand need something new?",
-    date: "2025-12-04",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on continuity, revision, and change in branding.",
-  },
-  {
-    slug: "el-sistema-ya-estaba-creado",
-    index: "03",
-    type: "reflection",
-    title: "the system was already there",
-    date: "2026-03-12",
-    displayDate: "mar 2026",
-    author: "alex",
-    description: "enblanco note on pre-existing systems and strategic reading of a brand.",
-  },
-  {
-    slug: "ni-bien-ni-mal-se-trata-de-una-decision",
-    index: "02",
-    type: "thought",
-    title: "neither right nor wrong, it is a decision",
-    date: "2026-01-15",
-    displayDate: "jan 2026",
-    author: "alex",
-    description: "enblanco note on criteria, design choices, and consequences.",
-  },
-  {
-    slug: "dos-blancos",
-    index: "01",
-    type: "observation",
-    title: "two whites",
-    date: "2025-12-01",
-    displayDate: "dec 2025",
-    author: "clara",
-    description: "enblanco note on contrast, nuance, and minimal visual decisions.",
-    body: [
-      "Before we even started, there was a question on the table:",
-      "The diaeresis in Mernë.",
-      "We wondered whether to drop it. Visually it could simplify the name, make it more neutral, even bring it closer to a more Nordic feel. The decision seemed almost technical, and for a moment we assumed we would end up removing it.",
-      "Before we received the briefing, that was our intuition.",
-      "We had prepared a set of questions to understand the origin of the studio, how the brand had been born, what it meant to them, what they wanted to project. And that was where everything changed.",
-      "When we read the briefing we understood that the diaeresis was not an ornament or a typographic oddity. It was part of the origin of the name, of its construction and meaning. It was not there to stand out, but to be faithful to a specific story.",
-      "The decision was no longer whether to remove it or not.",
-      "It became how to work with it.",
-      "Instead of hiding it, we made it the centre of the system. Two dots that began to organise the visual identity, to create rhythm, structure and a language of its own. What had at first seemed like a problem became the most recognisable element of the whole.",
-      "From there, the rest followed: a warm palette, a close tone, an identity that no longer sought to look like something else, but to express what had always been there.",
-      "The brand began to fit.",
-      "Sometimes we think an identity needs to be simplified by removing elements.",
-      "And other times, what it needs is to be read with more attention.",
-      "Because understanding the origin well often changes completely the decisions that seemed obvious at the start.",
-    ],
-  },
-];
-
-/** For RSS and sitemap (same data, alias). */
-export const NOTES_INDEX_ES = NOTAS_ES;
-export const NOTES_INDEX_EN = NOTES_EN;
-
-export type Locale = "es" | "en";
+type NoteAlternatePaths = Partial<Record<"es" | "en" | "x-default", string>>;
 
 const AUTHOR_NAMES: Record<string, string> = {
-  clara: "Clara",
-  alex: "Alex",
+  clara: "clara",
+  alex: "alex",
+};
+
+const MONTHS: Record<Locale, string[]> = {
+  es: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+  en: ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"],
 };
 
 function truncate(value: string, maxLength: number): string {
   if (value.length <= maxLength) return value;
   return value.slice(0, maxLength).trimEnd() + "…";
 }
+
+function normalizeText(value: string | null | undefined): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function padIndex(position: number, total: number): string {
+  const width = Math.max(2, String(total).length);
+  return String(Math.max(total - position, 1)).padStart(width, "0");
+}
+
+function formatDisplayDate(date: string, lang: Locale): string {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return date;
+
+  const month = MONTHS[lang][parsed.getUTCMonth()] ?? MONTHS[lang][0];
+  return `${month} ${parsed.getUTCFullYear()}`;
+}
+
+function portableTextToParagraphs(
+  body: SanityNoteDetailItem["body"]
+): string[] | undefined {
+  if (!Array.isArray(body)) return undefined;
+
+  const paragraphs = body
+    .map((block) => {
+      if (!block || block._type !== "block" || !Array.isArray(block.children)) return "";
+      return block.children
+        .map((child) => normalizeText(child?.text))
+        .filter(Boolean)
+        .join("");
+    })
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  return paragraphs.length > 0 ? paragraphs : undefined;
+}
+
+function getNotePath(lang: Locale, slug: string): string {
+  return lang === "es" ? `/es/notas/${slug}` : `/en/notes/${slug}`;
+}
+
+function toNoteItem(
+  note: SanityNoteListItem,
+  lang: Locale,
+  position: number,
+  total: number
+): NoteItem {
+  const slug = normalizeText(note.slug);
+  const title = normalizeText(note.title);
+  const type = normalizeText(note.type);
+  const author = getAuthorDisplayName(normalizeText(note.author));
+  const date = normalizeText(note.publishedAt);
+
+  return {
+    slug,
+    index: padIndex(position, total),
+    type,
+    title,
+    date,
+    displayDate: formatDisplayDate(date, lang),
+    author,
+    description: normalizeText(note.excerpt) || undefined,
+  };
+}
+
+const getNotesByLangCached = cache(async (lang: Locale): Promise<NoteItem[]> => {
+  const notes = await getNotesByLangFromSanity(lang);
+  const total = notes.length;
+
+  return notes.map((note, index) => toNoteItem(note, lang, index, total));
+});
+
+const getNoteDetailCached = cache(
+  async (lang: Locale, slug: string): Promise<SanityNoteDetailItem | null> =>
+    getNoteBySlugFromSanity(lang, slug)
+);
 
 export function hasNoteBody(note: NoteItem): boolean {
   return !!note.body?.some((paragraph) => paragraph.trim().length > 0);
@@ -528,26 +158,46 @@ export function getAuthorDisplayName(author: string): string {
   return AUTHOR_NAMES[author] ?? author;
 }
 
-export function getNoteBySlug(
-  lang: Locale,
-  slug: string
-): NoteItem | null {
-  const list = lang === "es" ? NOTAS_ES : NOTES_EN;
-  return list.find((n) => n.slug === slug) ?? null;
+export async function getNotesByLang(lang: Locale): Promise<NoteItem[]> {
+  return getNotesByLangCached(lang);
 }
 
-export function getOtherNotes(lang: Locale, slug: string): NoteItem[] {
-  const list = lang === "es" ? NOTAS_ES : NOTES_EN;
-  return list.filter((note) => note.slug !== slug);
-}
-
-export function getAdjacentNotes(
+export async function getNoteBySlug(
   lang: Locale,
   slug: string
-): { previous: NoteItem | null; next: NoteItem | null } {
-  const list = lang === "es" ? NOTAS_ES : NOTES_EN;
-  const index = list.findIndex((note) => note.slug === slug);
-  const total = list.length;
+): Promise<NoteItem | null> {
+  const [notes, detail] = await Promise.all([
+    getNotesByLangCached(lang),
+    getNoteDetailCached(lang, slug),
+  ]);
+
+  if (!detail) return null;
+
+  const summary = notes.find((note) => note.slug === slug);
+  if (!summary) return null;
+
+  const body = portableTextToParagraphs(detail.body);
+  const description = normalizeText(detail.excerpt) || summary.description;
+
+  return {
+    ...summary,
+    ...(description ? { description } : {}),
+    ...(body ? { body } : {}),
+  };
+}
+
+export async function getOtherNotes(lang: Locale, slug: string): Promise<NoteItem[]> {
+  const notes = await getNotesByLangCached(lang);
+  return notes.filter((note) => note.slug !== slug);
+}
+
+export async function getAdjacentNotes(
+  lang: Locale,
+  slug: string
+): Promise<{ previous: NoteItem | null; next: NoteItem | null }> {
+  const notes = await getNotesByLangCached(lang);
+  const index = notes.findIndex((note) => note.slug === slug);
+  const total = notes.length;
 
   if (index === -1 || total <= 1) {
     return { previous: null, next: null };
@@ -557,7 +207,78 @@ export function getAdjacentNotes(
   const nextIndex = index === total - 1 ? 0 : index + 1;
 
   return {
-    previous: list[previousIndex] ?? null,
-    next: list[nextIndex] ?? null,
+    previous: notes[previousIndex] ?? null,
+    next: notes[nextIndex] ?? null,
   };
+}
+
+export async function getNoteAlternatePaths(
+  lang: Locale,
+  slug: string
+): Promise<NoteAlternatePaths> {
+  const detail = await getNoteDetailCached(lang, slug);
+  if (!detail) return {};
+
+  const languages: NoteAlternatePaths = {};
+  const currentBody = portableTextToParagraphs(detail.body);
+
+  if (currentBody && currentBody.length > 0) {
+    languages[lang] = getNotePath(lang, slug);
+    if (lang === "es") languages["x-default"] = languages.es;
+  }
+
+  const translation = detail.translation;
+  if (
+    translation?.language &&
+    translation?.slug &&
+    translation.hasBody
+  ) {
+    const translationPath = getNotePath(translation.language, translation.slug);
+    languages[translation.language] = translationPath;
+    if (translation.language === "es") languages["x-default"] = translationPath;
+  }
+
+  if (!languages["x-default"]) {
+    if (languages.es) languages["x-default"] = languages.es;
+    else if (languages.en) languages["x-default"] = languages.en;
+  }
+
+  return languages;
+}
+
+export async function getTranslatedNoteHref(
+  sourceLang: Locale,
+  slug: string,
+  targetLang: Locale
+): Promise<string | null> {
+  const detail = await getNoteDetailCached(sourceLang, slug);
+  if (!detail?.translation?.language || !detail.translation.slug) return null;
+  if (detail.translation.language !== targetLang) return null;
+
+  return getNotePath(targetLang, detail.translation.slug);
+}
+
+export async function getNoteSlugs(): Promise<string[]> {
+  const [es, en] = await Promise.all([
+    getNoteSlugsByLangFromSanity("es"),
+    getNoteSlugsByLangFromSanity("en"),
+  ]);
+
+  return [...new Set([...es, ...en])];
+}
+
+export async function getIndexableNotasSlugsEs(): Promise<string[]> {
+  return getIndexableNoteSlugsByLangFromSanity("es");
+}
+
+export async function getIndexableNotesSlugsEn(): Promise<string[]> {
+  return getIndexableNoteSlugsByLangFromSanity("en");
+}
+
+export async function getNotasSlugsEs(): Promise<string[]> {
+  return getNoteSlugsByLangFromSanity("es");
+}
+
+export async function getNotesSlugsEn(): Promise<string[]> {
+  return getNoteSlugsByLangFromSanity("en");
 }

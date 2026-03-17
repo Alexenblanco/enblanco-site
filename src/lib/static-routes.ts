@@ -6,7 +6,13 @@
 
 import { PROJECT_DETAILS } from "@/data/project-details";
 import type { EsProyectosCollectionSlug } from "@/lib/proyectos-collections";
-import { NOTAS_ES, NOTES_EN, hasNoteBody } from "@/data/notes-index";
+import {
+  getIndexableNotesSlugsEn,
+  getIndexableNotasSlugsEs,
+  getNoteSlugs,
+  getNotesSlugsEn,
+  getNotasSlugsEs,
+} from "@/data/notes-index";
 import {
   ES_SERVICE_SLUGS,
   EN_SERVICE_SLUGS,
@@ -79,28 +85,24 @@ export { EN_SERVICE_SLUGS as projectCollectionSlugsEn };
 
 // —— Note slugs ——
 
-const NOTE_SLUGS_SET = new Set([
-  ...NOTAS_ES.map((n) => n.slug),
-  ...NOTES_EN.map((n) => n.slug),
-]);
-export function getNoteSlugs(): string[] {
-  return [...NOTE_SLUGS_SET];
+export async function getNoteSlugsStatic(): Promise<string[]> {
+  return getNoteSlugs();
 }
 
-export function getIndexableNotasSlugsEs(): string[] {
-  return NOTAS_ES.filter(hasNoteBody).map((n) => n.slug);
+export async function getIndexableNotasSlugsEsStatic(): Promise<string[]> {
+  return getIndexableNotasSlugsEs();
 }
 
-export function getIndexableNotesSlugsEn(): string[] {
-  return NOTES_EN.filter(hasNoteBody).map((n) => n.slug);
+export async function getIndexableNotesSlugsEnStatic(): Promise<string[]> {
+  return getIndexableNotesSlugsEn();
 }
 
-export function getNotasSlugsEs(): string[] {
-  return NOTAS_ES.map((n) => n.slug);
+export async function getNotasSlugsEsStatic(): Promise<string[]> {
+  return getNotasSlugsEs();
 }
 
-export function getNotesSlugsEn(): string[] {
-  return NOTES_EN.map((n) => n.slug);
+export async function getNotesSlugsEnStatic(): Promise<string[]> {
+  return getNotesSlugsEn();
 }
 
 // —— Area slugs ——

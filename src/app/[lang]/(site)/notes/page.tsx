@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import JsonLd from "@/components/Seo/JsonLd";
 import NotesIndexView from "@/components/notes/NotesIndexView";
 import { withLang, isValidLang } from "@/lib/i18n/path";
-import { NOTES_EN } from "@/data/notes-index";
+import { getNotesByLang } from "@/data/notes-index";
 import { getSiteUrl } from "@/lib/seo";
 
 const siteUrl = getSiteUrl();
@@ -42,23 +42,23 @@ const breadcrumbJsonLd = {
   ],
 };
 
-const itemListJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  itemListOrder: "https://schema.org/ItemListOrderDescending",
-  numberOfItems: NOTES_EN.length,
-  itemListElement: NOTES_EN.map((note, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    url: `${siteUrl}/en/notes/${note.slug}`,
-    name: note.title,
-  })),
-};
-
 export default async function NotesPage({ params }: Props) {
   const { lang } = await params;
   if (!isValidLang(lang)) notFound();
   if (lang === "es") redirect(withLang("es", "notas"));
+  const notes = await getNotesByLang("en");
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    numberOfItems: notes.length,
+    itemListElement: notes.map((note, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${siteUrl}/en/notes/${note.slug}`,
+      name: note.title,
+    })),
+  };
 
   return (
     <main className="mx-auto max-w-[1440px] px-6 py-10">
@@ -66,7 +66,7 @@ export default async function NotesPage({ params }: Props) {
       <JsonLd data={itemListJsonLd} />
       <NotesIndexView
         lang="en"
-        notes={NOTES_EN}
+        notes={notes}
         headingLead="notes"
         headingFirstLineRemainder="on creativity,"
         headingLines={["design, and brand process", "at enblanco"]}

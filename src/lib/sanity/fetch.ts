@@ -9,7 +9,15 @@ export type SanityFetchOptions = {
 
 export async function sanityFetch<T>(query: string, params: Record<string, unknown> = {}, options: SanityFetchOptions = {}): Promise<T> {
   const { preview: optionPreview, revalidate, tags } = options;
-  const { isEnabled: draftEnabled } = await draftMode();
+  let draftEnabled = false;
+
+  try {
+    const draft = await draftMode();
+    draftEnabled = draft.isEnabled;
+  } catch {
+    draftEnabled = false;
+  }
+
   const preview = optionPreview ?? draftEnabled;
 
   const client = getSanityClient({ preview });

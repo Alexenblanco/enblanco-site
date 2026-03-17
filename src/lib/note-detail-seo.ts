@@ -3,13 +3,14 @@ import {
   type Locale,
   type NoteItem,
   getAuthorDisplayName,
+  getNoteAlternatePaths,
   getNoteBodyText,
   getNoteSeoDescription,
   getNoteWordCount,
   hasNoteBody,
 } from "@/data/notes-index";
 import { SITE_NAME } from "@/lib/site-config";
-import { absoluteUrl, alternatesLanguages } from "@/lib/seo";
+import { absoluteUrl } from "@/lib/seo";
 
 type NoteDetailSeoParams = {
   lang: Locale;
@@ -21,7 +22,7 @@ function getListPath(lang: Locale): string {
   return lang === "es" ? "/es/notas" : "/en/notes";
 }
 
-function getDetailPath(lang: Locale, slug: string): string {
+export function getNoteDetailPath(lang: Locale, slug: string): string {
   return lang === "es" ? `/es/notas/${slug}` : `/en/notes/${slug}`;
 }
 
@@ -29,21 +30,22 @@ function getLanguageTag(lang: Locale): string {
   return lang === "es" ? "es-ES" : "en";
 }
 
-export function getNoteDetailMetadata({
+export async function getNoteDetailMetadata({
   lang,
   slug,
   note,
-}: NoteDetailSeoParams): Metadata {
+}: NoteDetailSeoParams): Promise<Metadata> {
   const description = getNoteSeoDescription(note, lang);
-  const canonicalPath = getDetailPath(lang, slug);
+  const canonicalPath = getNoteDetailPath(lang, slug);
   const canonicalUrl = absoluteUrl(canonicalPath);
+  const alternatePaths = await getNoteAlternatePaths(lang, slug);
 
   return {
     title: note.title,
     description,
     alternates: {
       canonical: canonicalUrl,
-      languages: alternatesLanguages(`/es/notas/${slug}`, `/en/notes/${slug}`),
+      languages: alternatePaths,
     },
     openGraph: {
       type: "article",
@@ -75,7 +77,7 @@ export function buildNoteArticleJsonLd({
   slug,
   note,
 }: NoteDetailSeoParams): Record<string, unknown> {
-  const canonicalUrl = absoluteUrl(getDetailPath(lang, slug));
+  const canonicalUrl = absoluteUrl(getNoteDetailPath(lang, slug));
   const bodyText = getNoteBodyText(note);
   const wordCount = getNoteWordCount(note);
   const listUrl = absoluteUrl(getListPath(lang));
@@ -125,7 +127,7 @@ export function buildNoteBreadcrumbJsonLd({
 }: NoteDetailSeoParams): Record<string, unknown> {
   const homeUrl = absoluteUrl(`/${lang}`);
   const listUrl = absoluteUrl(getListPath(lang));
-  const detailUrl = absoluteUrl(getDetailPath(lang, slug));
+  const detailUrl = absoluteUrl(getNoteDetailPath(lang, slug));
 
   return {
     "@context": "https://schema.org",

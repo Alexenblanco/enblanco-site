@@ -25,7 +25,18 @@ export default defineConfig({
                   .filter('_type == "project"')
                   .defaultOrdering([{ field: "order", direction: "asc" }, { field: "_createdAt", direction: "desc" }])
               ),
-            ...S.documentTypeListItems().filter((item) => item.getId() !== "project"),
+            S.listItem()
+              .title("Notes")
+              .child(
+                S.documentList()
+                  .title("Notes")
+                  .filter('_type == "note"')
+                  .defaultOrdering([
+                    { field: "publishedAt", direction: "desc" },
+                    { field: "_createdAt", direction: "desc" },
+                  ])
+              ),
+            ...S.documentTypeListItems().filter((item) => !["project", "note"].includes(item.getId() ?? "")),
           ]),
     }),
   ],

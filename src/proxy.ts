@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getLangFromPathname } from "@/lib/i18n/path";
 
 /**
  * CANDIDATE FOR REMOVAL — Not used by any middleware.
@@ -10,12 +11,20 @@ import type { NextRequest } from "next/server";
  * All locale routes are under app/[lang]/.
  */
 export function proxy(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-locale", getLangFromPathname(request.nextUrl.pathname));
+
   if (request.nextUrl.pathname === "/") {
     return NextResponse.redirect(new URL("/es", request.url));
   }
-  return NextResponse.next();
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
-  matcher: "/",
+  matcher: ["/((?!_next|.*\\..*).*)"],
 };

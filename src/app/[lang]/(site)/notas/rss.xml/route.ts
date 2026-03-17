@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { NOTES_INDEX_ES } from "@/data/notes-index";
+import { getNotesByLang } from "@/data/notes-index";
 import { getSiteUrl } from "@/lib/seo";
 
 const siteUrl = getSiteUrl();
@@ -48,7 +48,7 @@ export async function GET(_request: Request, context: Context) {
     return NextResponse.redirect(`${siteUrl}/en/notes/rss.xml`, 302);
   }
 
-  const items = NOTES_INDEX_ES;
+  const items = await getNotesByLang("es");
   const xml = buildRssXml(items);
 
   return new NextResponse(xml, {

@@ -139,3 +139,133 @@ export async function getProjectBySlug(
     revalidate: 60,
   });
 }
+
+// —— Notes ——
+
+type NoteLang = "es" | "en";
+
+type NotePortableTextBlock = {
+  _type?: string | null;
+  children?: { text?: string | null }[] | null;
+}[];
+
+type NoteTranslationReference = {
+  language?: NoteLang | null;
+  slug?: string | null;
+  hasBody?: boolean | null;
+} | null;
+
+export type SanityNoteListItem = {
+  _id: string;
+  title?: string | null;
+  slug?: string | null;
+  language?: NoteLang | null;
+  type?: string | null;
+  author?: string | null;
+  excerpt?: string | null;
+  publishedAt?: string | null;
+};
+
+export type SanityNoteDetailItem = SanityNoteListItem & {
+  body?: NotePortableTextBlock | null;
+  translation?: NoteTranslationReference;
+};
+
+const noteListFields = groq`
+  _id,
+  title,
+  "slug": slug.current,
+  language,
+  type,
+  author,
+  excerpt,
+  publishedAt
+`;
+
+export const notesByLangQuery = groq`
+  *[_type == "note" && language == $lang && defined(slug.current)] | order(publishedAt desc, _createdAt desc) {
+    ${noteListFields}
+  }
+`;
+
+const noteTranslationProjection = `
+  language,
+  "slug": slug.current,
+  "hasBody": defined(body[0])
+`;
+
+export const noteBySlugQuery = groq`
+  *[_type == "note" && language == $lang && slug.current == $slug][0] {
+    ${noteListFields},
+    body,
+    "translation": select(
+      defined(translationOf->_id) => translationOf->{${noteTranslationProjection}},
+      *[_type == "note" && references(^._id)][0]{${noteTranslationProjection}}
+    )
+  }
+`;
+
+export const noteSlugsByLangQuery = groq`
+  *[_type == "note" && language == $lang && defined(slug.current)] | order(publishedAt desc, _createdAt desc) {
+    "slug": slug.current
+  }
+`;
+
+export const indexableNoteSlugsByLangQuery = groq`
+  *[_type == "note" && language == $lang && defined(slug.current) && defined(body[0])] | order(publishedAt desc, _createdAt desc) {
+    "slug": slug.current
+  }
+`;
+
+export async function getNotesByLangFromSanity(
+  lang: NoteLang
+): Promise<SanityNoteListItem[]> {
+  return sanityFetch<SanityNoteListItem[]>(notesByLangQuery, { lang }, {
+    tags: [`notes-index-${lang}`],
+    revalidate: 60,
+  });
+}
+
+export async function getNoteBySlugFromSanity(
+  lang: NoteLang,
+  slug: string
+): Promise<SanityNoteDetailItem | null> {
+  return sanityFetch<SanityNoteDetailItem | null>(noteBySlugQuery, { lang, slug }, {
+    tags: [`note-${lang}-${slug}`],
+    revalidate: 60,
+  });
+}
+
+export async function getNoteSlugsByLangFromSanity(
+  lang: NoteLang
+): Promise<string[]> {
+  const rows = await sanityFetch<{ slug?: string | null }[]>(
+    noteSlugsByLangQuery,
+    { lang },
+    {
+      tags: [`note-slugs-${lang}`],
+      revalidate: 60,
+    }
+  );
+
+  return rows
+    .map((row) => row.slug)
+    .filter((slug): slug is string => typeof slug === "string" && slug.length > 0);
+}
+
+export async function getIndexableNoteSlugsByLangFromSanity(
+  lang: NoteLang
+): Promise<string[]> {
+  const rows = await sanityFetch<{ slug?: string | null }[]>(
+    indexableNoteSlugsByLangQuery,
+    { lang },
+    {
+      tags: [`indexable-note-slugs-${lang}`],
+      revalidate: 60,
+    }
+  );
+
+  return rows
+    .map((row) => row.slug)
+    .filter((slug): slug is string => typeof slug === "string" && slug.length > 0);
+}
