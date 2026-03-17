@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import FloatingDock from "@/components/Dock/FloatingDock";
@@ -61,16 +60,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const locale = headersList.get("x-locale") === "en" ? "en" : "es";
-
   return (
-    <html lang={locale} className={objectSans.variable} suppressHydrationWarning>
+    <html lang="es" className={objectSans.variable} suppressHydrationWarning>
       <body className={`${geistMono.variable} antialiased`}>
         <SetLocaleLang />
         <div className="page">
