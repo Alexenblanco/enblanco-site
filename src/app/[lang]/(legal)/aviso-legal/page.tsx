@@ -1,22 +1,27 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CONTACT_EMAIL } from "@/lib/site-config";
+import LegalPageLayout from "@/components/legal/LegalPageLayout";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import {
+  CONTACT_EMAIL,
+  LEGAL_ENTITY_ADDRESS,
+  LEGAL_ENTITY_NAME,
+  LEGAL_ENTITY_NIF,
+} from "@/lib/site-config";
+import { buildLegalMetadata } from "@/lib/legal-metadata";
 
 type Props = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   if (!isValidLang(lang) || lang === "en") return {};
-  return {
-    title: "Aviso legal — enblanco",
-    description: "Aviso legal y condiciones de uso del sitio web de enblanco.",
-    alternates: {
-      canonical: "/es/aviso-legal",
-      languages: { es: "/es/aviso-legal", en: "/en/legal-notice", "x-default": "/es/aviso-legal" },
-    },
-  };
+  return buildLegalMetadata({
+    title: "Aviso legal",
+    description: "Aviso legal del sitio web de enblanco y condiciones generales de uso.",
+    canonicalPath: "/es/aviso-legal",
+    esPath: "/es/aviso-legal",
+    enPath: "/en/legal-notice",
+  });
 }
 
 export default async function AvisoLegalPage({ params }: Props) {
@@ -25,48 +30,104 @@ export default async function AvisoLegalPage({ params }: Props) {
   if (lang === "en") redirect(withLang("en", "legal-notice"));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Aviso legal</h1>
-      <div className="prose prose-zinc prose-sm mt-6 max-w-none text-zinc-700">
-        <p>
-          De acuerdo con lo establecido en el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que respecta al tratamiento de datos personales y a la libre circulación de estos datos (RGPD) y LO 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD), les informamos sobre el tratamiento de los datos personales que nos facilitan a través de esta Web.
-        </p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Quién es el responsable del tratamiento de sus datos personales?</h2>
-        <p>
-          Razón Social: ENBLANCO OEAR<br />
-          CIF: E42886374<br />
-          Dirección Postal: Avenida Juan Carlos I 53 4ª, 30800 Lorca, Murcia<br />
-          Email de contacto: <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>
-        </p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Con qué finalidad trataremos sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web</strong> (formulario de contacto / mails remitidos a las direcciones de correo que aparecen en la página): Tus datos serán utilizados para dar respuestas a tus solicitudes de información, comentarios o sugerencias, a través del apartado de contacto o de las direcciones de correo que aparezcan en nuestra página y mantener la comunicación con el interesado.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Los datos que hayas facilitado a la red social serán usados para mantener un seguimiento mutuo de nuestras cuentas y poder contactar contigo siempre a través de la red social elegida. Gestionaremos las comunicaciones mediante las mismas de acuerdo con los términos y condiciones de cada red social. La información siempre la recibirá a través de la red social en cuestión y mientras sea seguidor del responsable en la misma. Cada una de esas redes sociales cuenta con unos términos y condiciones propios y son entidades ajenas a nosotros.</p>
-        <p><strong>Como cliente o proveedor:</strong> Sus datos personales serán conservados mientras dure la relación establecida con la persona jurídica en la que presta sus servicios y una vez finalizada ésta, se conservarán en base a los plazos legales de conservación y en base a la prescripción de las responsabilidades nacidas del tratamiento de sus datos.</p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Cuál es la legitimación para el tratamiento de sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web:</strong> Consentimiento/solicitud de medidas precontractuales (solicitud de presupuesto o de información concreta sobre un producto o servicio) conforme a los Art. 6.1.a) y Art. 6.1.b) del RGPD respectivamente.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Consentimiento del interesado Art. 6.1.a) del RGPD.</p>
-        <p><strong>Como cliente o proveedor:</strong> Los datos identificativos y de contacto necesarios para el desarrollo de la actividad contractual establecida con clientes y proveedores y cuya finalidad sea establecer relaciones de cualquier índole con ellos a fin de dar contenido a esa relación y en especial a las obligaciones de facturación, cobros y pagos, contabilidad y fiscalidad se basan en el interés legítimo del responsable conforme al art. 6.1 f) del RGPD y al art. 19 de la LOPD-GDD.</p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Por cuánto tiempo conservaremos sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web:</strong> Conservados hasta cumplir su finalidad o hasta que nos revoque el consentimiento prestado.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Serán conservados hasta que nos revoque el consentimiento prestado o dejes de seguirnos o marques ya no me gusta.</p>
-        <p><strong>Como cliente o proveedor:</strong> Sus datos personales serán conservados mientras dure la relación establecida con la persona jurídica en la que presta sus servicios y una vez finalizada ésta, se conservarán en base a los plazos legales de conservación y en base a la prescripción de las responsabilidades nacidas del tratamiento de sus datos.</p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Cederemos sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web:</strong> Sus datos personales no serán cedidos salvo por obligación legal.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Sus datos personales no serán cedidos salvo por obligación legal.</p>
-        <p><strong>Como cliente o proveedor:</strong> Sus datos personales no serán cedidos salvo por obligación legal.</p>
-      </div>
-      <p className="mt-8 text-sm text-zinc-600">
-        <Link href={withLang("es", "privacidad")} className="underline">privacidad</Link>
-        {" · "}
-        <Link href={withLang("es", "cookies")} className="underline">cookies</Link>
-        {" · "}
-        <Link href={withLang("es", "")} className="underline">inicio</Link>
+    <LegalPageLayout lang="es" title="Aviso legal">
+      <h2>1. Titular del sitio web</h2>
+      <p>
+        En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la
+        Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se
+        informa de los siguientes datos identificativos del titular de este
+        sitio web:
       </p>
-    </main>
+      <ul>
+        <li>
+          <strong>Titular:</strong> {LEGAL_ENTITY_NAME}.
+        </li>
+        <li>
+          <strong>NIF:</strong> {LEGAL_ENTITY_NIF}.
+        </li>
+        <li>
+          <strong>Domicilio:</strong> {LEGAL_ENTITY_ADDRESS}.
+        </li>
+        <li>
+          <strong>Correo electrónico:</strong>{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+        </li>
+      </ul>
+      <p>
+        Este sitio web tiene por objeto la presentación de los servicios
+        profesionales de enblanco en el ámbito del branding, el diseño y la
+        publicidad, así como facilitar el contacto con personas, marcas y
+        organizaciones interesadas en sus servicios.
+      </p>
+
+      <h2>2. Condiciones de uso</h2>
+      <p>
+        El acceso y uso de este sitio web atribuye la condición de usuario e
+        implica la aceptación de las condiciones aquí recogidas.
+      </p>
+      <p>
+        La persona usuaria se compromete a utilizar este sitio web, sus
+        contenidos y sus servicios de conformidad con la ley, la buena fe, el
+        orden público y las presentes condiciones. Queda prohibido el uso del
+        sitio web con fines ilícitos, lesivos o que puedan perjudicar, dañar o
+        impedir el normal funcionamiento del sitio.
+      </p>
+
+      <h2>3. Propiedad intelectual e industrial</h2>
+      <p>
+        Todos los contenidos del sitio web, incluyendo, entre otros, textos,
+        imágenes, diseños, elementos gráficos, logotipos, vídeos, estructura,
+        código fuente y demás elementos creativos o técnicos, son titularidad
+        de enblanco o se utilizan con autorización suficiente, y están
+        protegidos por la normativa vigente en materia de propiedad intelectual
+        e industrial.
+      </p>
+      <p>
+        Queda prohibida su reproducción, distribución, transformación,
+        comunicación pública, puesta a disposición o cualquier otra forma de
+        explotación, total o parcial, sin autorización previa y expresa del
+        titular, salvo en los supuestos legalmente permitidos.
+      </p>
+
+      <h2>4. Responsabilidad</h2>
+      <p>
+        enblanco no garantiza la disponibilidad permanente del sitio web ni la
+        inexistencia de errores en el acceso o en sus contenidos, aunque
+        adoptará medidas razonables para evitarlos o corregirlos cuando
+        proceda.
+      </p>
+      <p>
+        enblanco no se responsabiliza de los daños o perjuicios que pudieran
+        derivarse del uso del sitio web, de interrupciones del servicio, de la
+        presencia de virus u otros elementos lesivos, ni del uso que las
+        personas usuarias hagan de la información contenida en el mismo.
+      </p>
+
+      <h2>5. Enlaces a terceros</h2>
+      <p>
+        Este sitio web puede incluir enlaces a páginas o recursos de terceros
+        con la finalidad de ampliar información o facilitar el acceso a otros
+        contenidos. enblanco no controla ni asume responsabilidad alguna sobre
+        dichos sitios externos, sus políticas, sus contenidos o su
+        disponibilidad.
+      </p>
+
+      <h2>6. Modificaciones</h2>
+      <p>
+        enblanco se reserva el derecho a modificar, actualizar o eliminar, en
+        cualquier momento y sin previo aviso, los contenidos de este sitio web,
+        así como el presente aviso legal, para adaptarlo a cambios normativos,
+        técnicos o de funcionamiento.
+      </p>
+
+      <h2>7. Legislación aplicable y jurisdicción</h2>
+      <p>
+        La relación entre la persona usuaria y el titular del sitio web se
+        regirá por la legislación española vigente. En caso de conflicto o
+        controversia que deba resolverse judicialmente, ambas partes se
+        someterán a los juzgados y tribunales que resulten competentes conforme
+        a la normativa aplicable.
+      </p>
+    </LegalPageLayout>
   );
 }

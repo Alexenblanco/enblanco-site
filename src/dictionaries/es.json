@@ -23,7 +23,7 @@
     },
     "labels": { "name": "Nombre", "email": "Email", "phone": "Teléfono (opcional)", "services": "Servicios de interés", "message": "Mensaje" },
     "placeholders": { "name": "Tu nombre", "email": "tu@email.com", "phone": "+34 600 000 000", "message": "Cuéntanos en qué podemos ayudarte..." },
-    "legal": "Acepto la <privacyLink>política de privacidad</privacyLink>.",
+    "legal": "He leído y acepto la <privacyLink>Política de privacidad</privacyLink>.",
     "success": "Gracias. Hemos recibido tu mensaje y te responderemos lo antes posible.",
     "errorSend": "No hemos podido enviar tu mensaje. Inténtalo de nuevo en unos minutos.",
     "errorRateLimit": "Has enviado demasiados mensajes. Espera unos minutos antes de intentar de nuevo.",

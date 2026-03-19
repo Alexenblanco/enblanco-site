@@ -1,22 +1,27 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CONTACT_EMAIL } from "@/lib/site-config";
+import LegalPageLayout from "@/components/legal/LegalPageLayout";
 import { withLang, isValidLang } from "@/lib/i18n/path";
+import {
+  CONTACT_EMAIL,
+  LEGAL_ENTITY_ADDRESS,
+  LEGAL_ENTITY_NAME,
+  LEGAL_ENTITY_NIF,
+} from "@/lib/site-config";
+import { buildLegalMetadata } from "@/lib/legal-metadata";
 
 type Props = { params: Promise<{ lang: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   if (!isValidLang(lang) || lang === "es") return {};
-  return {
-    title: "Legal notice — enblanco",
-    description: "Legal notice and terms of use for the enblanco website.",
-    alternates: {
-      canonical: "/en/legal-notice",
-      languages: { es: "/es/aviso-legal", en: "/en/legal-notice", "x-default": "/es/aviso-legal" },
-    },
-  };
+  return buildLegalMetadata({
+    title: "Legal notice",
+    description: "Legal notice for the enblanco website and general terms of use.",
+    canonicalPath: "/en/legal-notice",
+    esPath: "/es/aviso-legal",
+    enPath: "/en/legal-notice",
+  });
 }
 
 export default async function LegalNoticePage({ params }: Props) {
@@ -25,48 +30,99 @@ export default async function LegalNoticePage({ params }: Props) {
   if (lang === "es") redirect(withLang("es", "aviso-legal"));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Legal notice</h1>
-      <div className="prose prose-zinc prose-sm mt-6 max-w-none text-zinc-700">
-        <p>
-          De acuerdo con lo establecido en el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo, de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que respecta al tratamiento de datos personales y a la libre circulación de estos datos (RGPD) y LO 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD), les informamos sobre el tratamiento de los datos personales que nos facilitan a través de esta Web.
-        </p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Quién es el responsable del tratamiento de sus datos personales?</h2>
-        <p>
-          Razón Social: ENBLANCO OEAR<br />
-          CIF: E42886374<br />
-          Dirección Postal: Avenida Juan Carlos I 53 4ª, 30800 Lorca, Murcia<br />
-          Email de contacto: <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>
-        </p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Con qué finalidad trataremos sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web</strong> (formulario de contacto / mails remitidos a las direcciones de correo que aparecen en la página): Tus datos serán utilizados para dar respuestas a tus solicitudes de información, comentarios o sugerencias, a través del apartado de contacto o de las direcciones de correo que aparezcan en nuestra página y mantener la comunicación con el interesado.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Los datos que hayas facilitado a la red social serán usados para mantener un seguimiento mutuo de nuestras cuentas y poder contactar contigo siempre a través de la red social elegida. Gestionaremos las comunicaciones mediante las mismas de acuerdo con los términos y condiciones de cada red social. La información siempre la recibirá a través de la red social en cuestión y mientras sea seguidor del responsable en la misma. Cada una de esas redes sociales cuenta con unos términos y condiciones propios y son entidades ajenas a nosotros.</p>
-        <p><strong>Como cliente o proveedor:</strong> Sus datos personales serán conservados mientras dure la relación establecida con la persona jurídica en la que presta sus servicios y una vez finalizada ésta, se conservarán en base a los plazos legales de conservación y en base a la prescripción de las responsabilidades nacidas del tratamiento de sus datos.</p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Cuál es la legitimación para el tratamiento de sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web:</strong> Consentimiento/solicitud de medidas precontractuales (solicitud de presupuesto o de información concreta sobre un producto o servicio) conforme a los Art. 6.1.a) y Art. 6.1.b) del RGPD respectivamente.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Consentimiento del interesado Art. 6.1.a) del RGPD.</p>
-        <p><strong>Como cliente o proveedor:</strong> Los datos identificativos y de contacto necesarios para el desarrollo de la actividad contractual establecida con clientes y proveedores y cuya finalidad sea establecer relaciones de cualquier índole con ellos a fin de dar contenido a esa relación y en especial a las obligaciones de facturación, cobros y pagos, contabilidad y fiscalidad se basan en el interés legítimo del responsable conforme al art. 6.1 f) del RGPD y al art. 19 de la LOPD-GDD.</p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Por cuánto tiempo conservaremos sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web:</strong> Conservados hasta cumplir su finalidad o hasta que nos revoque el consentimiento prestado.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Serán conservados hasta que nos revoque el consentimiento prestado o dejes de seguirnos o marques ya no me gusta.</p>
-        <p><strong>Como cliente o proveedor:</strong> Sus datos personales serán conservados mientras dure la relación establecida con la persona jurídica en la que presta sus servicios y una vez finalizada ésta, se conservarán en base a los plazos legales de conservación y en base a la prescripción de las responsabilidades nacidas del tratamiento de sus datos.</p>
-
-        <h2 className="mt-8 text-lg font-semibold text-zinc-900">¿Cederemos sus datos personales?</h2>
-        <p><strong>Como Usuario de la Web:</strong> Sus datos personales no serán cedidos salvo por obligación legal.</p>
-        <p><strong>Como seguidor en RRSS:</strong> Sus datos personales no serán cedidos salvo por obligación legal.</p>
-        <p><strong>Como cliente o proveedor:</strong> Sus datos personales no serán cedidos salvo por obligación legal.</p>
-      </div>
-      <p className="mt-8 text-sm text-zinc-600">
-        <Link href={withLang("en", "privacy")} className="underline">privacy</Link>
-        {" · "}
-        <Link href={withLang("en", "cookies")} className="underline">cookies</Link>
-        {" · "}
-        <Link href={withLang("en", "")} className="underline">home</Link>
+    <LegalPageLayout lang="en" title="Legal notice">
+      <h2>1. Website owner</h2>
+      <p>
+        In compliance with Law 34/2002, of 11 July, on Information Society
+        Services and Electronic Commerce (LSSI-CE), the following identifying
+        details of the owner of this website are provided:
       </p>
-    </main>
+      <ul>
+        <li>
+          <strong>Owner:</strong> {LEGAL_ENTITY_NAME}.
+        </li>
+        <li>
+          <strong>Tax ID:</strong> {LEGAL_ENTITY_NIF}.
+        </li>
+        <li>
+          <strong>Address:</strong> {LEGAL_ENTITY_ADDRESS}.
+        </li>
+        <li>
+          <strong>Email:</strong> <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+        </li>
+      </ul>
+      <p>
+        This website is intended to present enblanco&apos;s professional
+        services in branding, design and advertising, as well as to facilitate
+        contact with individuals, brands and organisations interested in its
+        services.
+      </p>
+
+      <h2>2. Terms of use</h2>
+      <p>
+        Access to and use of this website grants the status of user and implies
+        acceptance of the conditions set out herein.
+      </p>
+      <p>
+        Users undertake to use this website, its contents and its services in
+        accordance with the law, good faith, public order and these conditions.
+        Use of the website for unlawful purposes, harmful purposes or purposes
+        that may prejudice, damage or hinder the normal operation of the site
+        is prohibited.
+      </p>
+
+      <h2>3. Intellectual and industrial property</h2>
+      <p>
+        All website content, including but not limited to texts, images,
+        designs, graphic elements, logos, videos, structure, source code and
+        other creative or technical elements, is owned by enblanco or used with
+        sufficient authorisation, and is protected by current intellectual and
+        industrial property regulations.
+      </p>
+      <p>
+        Reproduction, distribution, transformation, public communication,
+        making available or any other form of exploitation, in whole or in
+        part, is prohibited without the prior express authorisation of the
+        owner, except where legally permitted.
+      </p>
+
+      <h2>4. Liability</h2>
+      <p>
+        enblanco does not guarantee the permanent availability of the website
+        or the absence of errors in access or content, although it will adopt
+        reasonable measures to avoid or correct them where appropriate.
+      </p>
+      <p>
+        enblanco shall not be liable for any damages that may arise from the
+        use of the website, service interruptions, the presence of viruses or
+        other harmful elements, or the use that users make of the information
+        contained therein.
+      </p>
+
+      <h2>5. Third-party links</h2>
+      <p>
+        This website may include links to third-party pages or resources in
+        order to expand information or facilitate access to other content.
+        enblanco does not control and assumes no responsibility for such
+        external sites, their policies, content or availability.
+      </p>
+
+      <h2>6. Modifications</h2>
+      <p>
+        enblanco reserves the right to modify, update or delete, at any time
+        and without prior notice, the contents of this website, as well as this
+        legal notice, in order to adapt it to legal, technical or operational
+        changes.
+      </p>
+
+      <h2>7. Applicable law and jurisdiction</h2>
+      <p>
+        The relationship between the user and the owner of the website shall be
+        governed by current Spanish law. In the event of any conflict or
+        dispute that must be resolved in court, both parties shall submit to
+        the courts and tribunals that are competent in accordance with the
+        applicable regulations.
+      </p>
+    </LegalPageLayout>
   );
 }

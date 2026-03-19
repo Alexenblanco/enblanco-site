@@ -393,6 +393,10 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
   color: #1A1C1F !important;
 }
 
+.footer-link-reveal:active .footer-link-reveal__text {
+  color: #FFFFFF !important;
+}
+
 .footer-link-pill:focus-visible {
   outline: none;
 }
@@ -419,8 +423,7 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
   }
 
   .footer-link-reveal:hover .footer-link-reveal__text,
-  .footer-link-reveal:focus-visible .footer-link-reveal__text,
-  .footer-link-reveal:active .footer-link-reveal__text {
+  .footer-link-reveal:focus-visible .footer-link-reveal__text {
     background-image: linear-gradient(
       90deg,
       #1A1C1F 0%,
@@ -433,6 +436,12 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
       #1A1C1F calc(var(--footer-reveal-x) + 12%),
       #1A1C1F 100%
     );
+  }
+
+  .footer-link-reveal:active .footer-link-reveal__text {
+    background-image: linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 100%);
+    color: transparent !important;
+    -webkit-text-fill-color: transparent;
   }
 }
 

@@ -5,7 +5,11 @@ import { withLang, isValidLang } from "@/lib/i18n/path";
 import { getDictionary } from "@/dictionaries";
 import ContactGuidedFlow from "@/components/contact/ContactGuidedFlow";
 import { getSiteUrl } from "@/lib/seo";
-import { CONTACT_EMAIL } from "@/lib/site-config";
+import {
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  LEGAL_ENTITY_ADDRESS,
+} from "@/lib/site-config";
 
 type Props = { params: Promise<{ lang: string }> };
 
@@ -54,19 +58,12 @@ export default async function ContactPage({ params }: Props) {
         <p className="mt-2 text-sm text-zinc-700">
           <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>
           {" · "}
-          <a href="tel:+349681234567" className="underline">+34 968 12 34 56</a>
+          <a href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`} className="underline">{CONTACT_PHONE}</a>
         </p>
       </section>
       <section id="offices" aria-labelledby="offices-heading" className="mb-10">
-        <h2 id="offices-heading" className="text-base font-semibold tracking-tight">Offices</h2>
-        <div className="mt-3 grid gap-6 text-sm text-zinc-700 sm:grid-cols-2">
-          <address className="not-italic">
-            <strong className="text-zinc-900">Murcia</strong><br />Example street, 1<br />30001 Murcia
-          </address>
-          <address className="not-italic">
-            <strong className="text-zinc-900">Madrid</strong><br />Example street, 2<br />28001 Madrid
-          </address>
-        </div>
+        <h2 id="offices-heading" className="text-base font-semibold tracking-tight">Address</h2>
+        <address className="mt-3 not-italic text-sm text-zinc-700">{LEGAL_ENTITY_ADDRESS}</address>
       </section>
       <ContactGuidedFlow
         dict={dict.contact}

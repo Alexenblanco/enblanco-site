@@ -3,12 +3,20 @@ import { notFound } from "next/navigation";
 import { Geist_Mono } from "next/font/google";
 import "../globals.css";
 import FloatingDock from "@/components/Dock/FloatingDock";
+import CookieConsentManager from "@/components/cookies/CookieConsentManager";
 import FooterSlot from "@/components/footer/FooterSlot";
 import { NoteTransitionProvider } from "@/contexts/NoteTransitionContext";
 import { ProjectTransitionProvider } from "@/contexts/ProjectTransitionContext";
 import { objectSans } from "../fonts";
 import { getSiteUrl } from "@/lib/seo";
-import { CONTACT_EMAIL, SITE_NAME } from "@/lib/site-config";
+import {
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  LEGAL_ENTITY_ADDRESS,
+  LEGAL_ENTITY_NAME,
+  LEGAL_ENTITY_NIF,
+  SITE_NAME,
+} from "@/lib/site-config";
 import { isValidLang } from "@/lib/i18n/path";
 
 type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };
@@ -82,18 +90,20 @@ export default async function LangLayout({ children, params }: Props) {
                   {
                     "@type": "Organization",
                     "@id": `${siteUrl}/#organization`,
-                    name: SITE_NAME,
+                    name: LEGAL_ENTITY_NAME,
+                    alternateName: SITE_NAME,
                     url: siteUrl,
+                    taxID: LEGAL_ENTITY_NIF,
                     logo: {
                       "@type": "ImageObject",
                       url: logoUrl,
                     },
                     address: {
                       "@type": "PostalAddress",
-                      streetAddress:
-                        "Calle Ortega y Gasset, 9, Edificio Iberdrola 6ª 7ª",
+                      streetAddress: "Plaza Santa Catalina 4, Escalera 3, 3ºH",
                       addressLocality: "Murcia",
-                      postalCode: "30009",
+                      postalCode: "30004",
+                      addressRegion: "Murcia",
                       addressCountry: "ES",
                     },
                     areaServed: "ES",
@@ -106,10 +116,11 @@ export default async function LangLayout({ children, params }: Props) {
                       "@type": "ContactPoint",
                       contactType: "customer support",
                       email: CONTACT_EMAIL,
-                      telephone: "+34619526784",
+                      telephone: CONTACT_PHONE.replace(/\s+/g, ""),
                       areaServed: "ES",
                       availableLanguage: ["Spanish", "English"],
                     },
+                    description: LEGAL_ENTITY_ADDRESS,
                   },
                   {
                     "@type": "WebSite",
@@ -129,6 +140,7 @@ export default async function LangLayout({ children, params }: Props) {
           </ProjectTransitionProvider>
           <FooterSlot />
           <FloatingDock />
+          <CookieConsentManager />
         </div>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import { withLang, type Locale } from "@/lib/i18n/path";
+import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/site-config";
 import FooterInteractiveLogo from "./FooterInteractiveLogo";
 import FooterRevealLink from "./FooterRevealLink";
 
@@ -10,8 +11,8 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
   const currentYear = new Date().getFullYear();
   const copyrightText =
     lang === "es"
-      ? `©${currentYear} enblanco. Murcia y Madrid`
-      : `©${currentYear} enblanco. Murcia & Madrid`;
+      ? `©${currentYear} enblanco. Murcia | Madrid`
+      : `©${currentYear} enblanco. Murcia | Madrid`;
 
   const copy =
     lang === "es"
@@ -31,7 +32,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           ],
           legalLinks: [
             { label: "política de privacidad", href: withLang("es", "privacidad") },
-            { label: "términos y condiciones", href: withLang("es", "aviso-legal") },
+            { label: "aviso legal", href: withLang("es", "aviso-legal") },
             { label: "política de cookies", href: withLang("es", "cookies") },
           ],
         }
@@ -51,7 +52,7 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           ],
           legalLinks: [
             { label: "privacy policy", href: withLang("en", "privacy") },
-            { label: "terms and conditions", href: withLang("en", "legal-notice") },
+            { label: "legal notice", href: withLang("en", "legal-notice") },
             { label: "cookie policy", href: withLang("en", "cookies") },
           ],
         };
@@ -102,13 +103,13 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
             <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.contact}</p>
             <ul className="space-y-0.5">
               <li>
-                <FooterRevealLink href="mailto:hola@agenciaenblanco.com" external>
-                  hola@agenciaenblanco.com
+                <FooterRevealLink href={`mailto:${CONTACT_EMAIL}`} external>
+                  {CONTACT_EMAIL}
                 </FooterRevealLink>
               </li>
               <li>
-                <FooterRevealLink href="tel:+34619526784" external>
-                  +34 619 52 67 84
+                <FooterRevealLink href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`} external>
+                  {CONTACT_PHONE}
                 </FooterRevealLink>
               </li>
             </ul>

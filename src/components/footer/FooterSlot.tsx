@@ -26,6 +26,11 @@ function shouldShowFooter(pathname: string): boolean {
     `${root}/notes`,
     `${root}/contacto`,
     `${root}/contact`,
+    `${root}/aviso-legal`,
+    `${root}/legal-notice`,
+    `${root}/privacidad`,
+    `${root}/privacy`,
+    `${root}/cookies`,
   ]);
 
   return paths.has(normalizedPathname);
