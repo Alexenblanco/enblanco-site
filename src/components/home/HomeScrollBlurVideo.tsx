@@ -35,6 +35,7 @@ export default function HomeScrollBlurVideo({
         borderRadius: "7px",
         filter: reduceMotion ? "none" : wrapperFilter,
         willChange: "filter",
+        height: "auto",
       }}
     >
       <motion.video
@@ -44,7 +45,7 @@ export default function HomeScrollBlurVideo({
         playsInline
         preload="metadata"
         poster={poster}
-        className="block h-auto w-full"
+        className="block h-auto w-full md:h-[calc(100svh-64px)] md:w-full md:object-cover"
         style={{
           filter: reduceMotion ? "none" : filter,
           willChange: "filter",

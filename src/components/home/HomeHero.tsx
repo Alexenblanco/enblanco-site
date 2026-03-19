@@ -12,21 +12,24 @@ const COPY = {
   es: {
     languageLabel: "EN",
     languageHref: withLang("en", ""),
-    h1: "branding, publicidad y dirección creativa\npara marcas con ambición",
-    claim: "business-minded\ncreativity",
+    h1Line1: "Branding, publicidad y dirección creativa",
+    h1Line2: "para marcas con ambición",
+    claim: "Business-minded\ncreativity",
   },
   en: {
     languageLabel: "ES",
     languageHref: withLang("es", ""),
-    h1: "branding, advertising and creative direction\nfor ambitious brands",
-    claim: "business-minded\ncreativity",
+    h1Line1: "branding, advertising and creative direction",
+    h1Line2: "for ambitious brands",
+    claim: "Business-minded\ncreativity",
   },
 } satisfies Record<
   Locale,
   {
     languageLabel: string;
     languageHref: string;
-    h1: string;
+    h1Line1: string;
+    h1Line2: string;
     claim: string;
   }
 >;
@@ -82,7 +85,7 @@ export default function HomeHero({ lang }: HomeHeroProps) {
               <Link
                 href={copy.languageHref}
                 className="absolute top-[2px] whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
-                style={{ left: "calc(var(--footer-logo-width) * 0.307042)" }}
+                style={{ left: "calc(var(--footer-logo-width) * 0.307042 - 30px)" }}
               >
                 {copy.languageLabel}
               </Link>
@@ -101,13 +104,14 @@ export default function HomeHero({ lang }: HomeHeroProps) {
           <FooterInteractiveLogo />
 
           <div className="relative z-10 grid gap-6 pt-[calc(var(--footer-logo-top)+var(--footer-logo-height)+var(--home-logo-copy-gap))] md:grid-cols-[minmax(0,1fr)_minmax(180px,240px)] md:items-end">
-            <div className="max-w-[340px]">
-              <h1 className="whitespace-pre-line !text-[16px] !leading-[1.2] !text-[var(--color-text)]">
-                {copy.h1}
+            <div className="max-w-[620px]">
+              <h1 className="!text-[20px] !leading-[1.2] !text-[var(--color-text)]">
+                <span className="block md:whitespace-nowrap">{copy.h1Line1}</span>
+                <span className="block">{copy.h1Line2}</span>
               </h1>
             </div>
 
-            <p className="max-w-[180px] whitespace-pre-line text-left !text-[16px] !leading-[1.2] !text-[var(--color-text)] md:justify-self-end md:text-right">
+            <p className="max-w-[180px] whitespace-pre-line text-left !text-[20px] !leading-[1.2] !text-[var(--color-text)] md:justify-self-end md:text-right">
               {copy.claim}
             </p>
           </div>

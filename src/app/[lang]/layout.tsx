@@ -5,6 +5,7 @@ import "../globals.css";
 import FloatingDock from "@/components/Dock/FloatingDock";
 import CookieConsentManager from "@/components/cookies/CookieConsentManager";
 import FooterSlot from "@/components/footer/FooterSlot";
+import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { NoteTransitionProvider } from "@/contexts/NoteTransitionContext";
 import { ProjectTransitionProvider } from "@/contexts/ProjectTransitionContext";
 import { objectSans } from "../fonts";
@@ -81,6 +82,7 @@ export default async function LangLayout({ children, params }: Props) {
     <html lang={lang} className={objectSans.variable}>
       <body className={`${geistMono.variable} antialiased`}>
         <div className="page">
+          <SmoothScrollProvider />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
