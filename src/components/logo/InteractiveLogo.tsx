@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { type CSSProperties, useEffect, useId, useRef } from "react";
 
-type FooterInteractiveLogoProps = {
+/**
+ * Wordmark "enblanco" con interacción hover (blur radial).
+ * Mismo bloque en home (hero) y footer; el layout usa tokens CSS `--interactive-logo-*`.
+ *
+ * Posición y ancho van en `style` (no solo utilidades Tailwind) para evitar fallos de
+ * generación con `var()` / ratios decimales en Tailwind v4.
+ */
+type InteractiveLogoProps = {
   className?: string;
+  style?: CSSProperties;
 };
 
 const VIEWBOX_WIDTH = 99.4;
@@ -12,9 +20,7 @@ const MASK_RADIUS = 6;
 const BASE_LERP = 0.14;
 const BASE_OPACITY_LERP = 0.16;
 
-export default function FooterInteractiveLogo({
-  className = "",
-}: FooterInteractiveLogoProps) {
+export default function InteractiveLogo({ className = "", style }: InteractiveLogoProps) {
   const id = useId().replace(/:/g, "");
   const rootRef = useRef<HTMLDivElement | null>(null);
   const maskRef = useRef<SVGCircleElement | null>(null);
@@ -139,10 +145,19 @@ export default function FooterInteractiveLogo({
     };
   }, []);
 
+  const layoutStyle: CSSProperties = {
+    top: "var(--interactive-logo-top, 0px)",
+    width: "var(--interactive-logo-width)",
+    maxWidth: "var(--interactive-logo-width)",
+    aspectRatio: `${VIEWBOX_WIDTH} / ${VIEWBOX_HEIGHT}`,
+  };
+
   return (
     <div
       ref={rootRef}
-      className={`pointer-events-none absolute left-1/2 top-[var(--footer-logo-top)] z-0 aspect-[99.4/18.3] w-[var(--footer-logo-width)] max-w-[var(--footer-logo-width)] -translate-x-1/2 overflow-visible ${className}`}
+      data-enblanco-wordmark
+      style={{ ...layoutStyle, ...style }}
+      className={`pointer-events-none absolute left-1/2 -translate-x-1/2 overflow-visible ${className}`}
       aria-hidden
     >
       <svg
@@ -152,7 +167,7 @@ export default function FooterInteractiveLogo({
       >
         <defs>
           <filter
-            id={`footer-logo-blur-${id}`}
+            id={`interactive-logo-blur-${id}`}
             x="-12%"
             y="-60%"
             width="124%"
@@ -162,19 +177,19 @@ export default function FooterInteractiveLogo({
             <feMorphology in="SourceGraphic" operator="dilate" radius="0.3" result="expanded" />
             <feGaussianBlur in="expanded" stdDeviation="0.2" />
           </filter>
-          <radialGradient id={`footer-logo-gradient-${id}`}>
+          <radialGradient id={`interactive-logo-gradient-${id}`}>
             <stop offset="0%" stopColor="#fff" stopOpacity="1" />
             <stop offset="65%" stopColor="#fff" stopOpacity="1" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </radialGradient>
-          <mask id={`footer-logo-mask-${id}`} maskUnits="userSpaceOnUse">
+          <mask id={`interactive-logo-mask-${id}`} maskUnits="userSpaceOnUse">
             <rect width={VIEWBOX_WIDTH} height={VIEWBOX_HEIGHT} fill="black" />
             <circle
               ref={maskRef}
               cx={VIEWBOX_WIDTH / 2}
               cy={VIEWBOX_HEIGHT / 2}
               r={MASK_RADIUS}
-              fill={`url(#footer-logo-gradient-${id})`}
+              fill={`url(#interactive-logo-gradient-${id})`}
             />
           </mask>
         </defs>
@@ -192,8 +207,8 @@ export default function FooterInteractiveLogo({
 
         <g
           ref={blurGroupRef}
-          mask={`url(#footer-logo-mask-${id})`}
-          filter={`url(#footer-logo-blur-${id})`}
+          mask={`url(#interactive-logo-mask-${id})`}
+          filter={`url(#interactive-logo-blur-${id})`}
           opacity="0"
           fill="#F9F9F9"
         >

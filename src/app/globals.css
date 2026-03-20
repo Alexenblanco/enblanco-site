@@ -257,6 +257,12 @@ img, video {
   box-shadow: none;
 }
 
+@media (min-width: 768px) {
+  .dock {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+  }
+}
+
 body[data-note-transition-dock-hidden="1"] .dock {
   display: none !important;
 }
@@ -323,14 +329,23 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
 
 /* ========== FOOTER ========== */
 .enblanco-footer {
-  --footer-logo-top: 24px;
-  --footer-logo-width: calc(100vw - 64px);
-  --footer-logo-height: calc(var(--footer-logo-width) * 18.3 / 99.4);
-  --footer-logo-gap: 24px;
+  /* Wordmark hero + footer: mismo componente InteractiveLogo */
+  --interactive-logo-top: 24px;
+  --interactive-logo-width: calc(100vw - 64px);
+  --interactive-logo-height: calc(var(--interactive-logo-width) * 18.3 / 99.4);
+  --interactive-logo-gap: 24px;
+}
+
+/*
+ * Wordmark: forzar fill del SVG por encima de `.page * { color: … !important }`
+ * (en algunos navegadores el color heredado puede afectar cómo se pintan los paths).
+ */
+[data-enblanco-wordmark] svg > g {
+  fill: #f9f9f9 !important;
 }
 
 .enblanco-footer-content {
-  padding-top: calc(var(--footer-logo-top) + var(--footer-logo-height) + var(--footer-logo-gap));
+  padding-top: calc(var(--interactive-logo-top) + var(--interactive-logo-height) + var(--interactive-logo-gap));
 }
 
 .enblanco-footer-grid {

@@ -1,6 +1,6 @@
 import { withLang, type Locale } from "@/lib/i18n/path";
 import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/site-config";
-import FooterInteractiveLogo from "./FooterInteractiveLogo";
+import InteractiveLogo from "@/components/logo/InteractiveLogo";
 import FooterRevealLink from "./FooterRevealLink";
 
 type SiteFooterProps = {
@@ -65,7 +65,8 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
 
   return (
     <footer className="enblanco-footer relative w-full overflow-hidden bg-[var(--color-bg)] pb-14 md:pb-16 lg:pb-20">
-      <FooterInteractiveLogo />
+      {/* Por encima de .enblanco-footer-content (z-10); pointer-events-none en el logo permite clics en enlaces */}
+      <InteractiveLogo className="z-20" />
 
       <div className="enblanco-footer-content relative z-10 mx-auto w-full">
         <div className="enblanco-footer-grid text-[14px] leading-[1.45]">
