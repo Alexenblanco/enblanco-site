@@ -10,24 +10,21 @@ type HomeHeroProps = {
 
 const COPY = {
   es: {
-    languageLabel: "EN",
-    languageHref: withLang("en", ""),
+    otherLangHref: withLang("en", ""),
     h1Line1: "Branding, publicidad y dirección creativa",
     h1Line2: "para marcas con ambición",
-    claim: "Business-minded\ncreativity",
+    claim: "Creatividad enfocada\nen negocio",
   },
   en: {
-    languageLabel: "ES",
-    languageHref: withLang("es", ""),
-    h1Line1: "branding, advertising and creative direction",
+    otherLangHref: withLang("es", ""),
+    h1Line1: "Branding, advertising and creative direction",
     h1Line2: "for ambitious brands",
     claim: "Business-minded\ncreativity",
   },
 } satisfies Record<
   Locale,
   {
-    languageLabel: string;
-    languageHref: string;
+    otherLangHref: string;
     h1Line1: string;
     h1Line2: string;
     claim: string;
@@ -49,55 +46,91 @@ export default function HomeHero({ lang }: HomeHeroProps) {
       <main id="main" className="overflow-x-hidden bg-[var(--color-bg)]">
         <section
           aria-label={lang === "en" ? "Home introduction" : "Introducción principal"}
-          className="relative min-h-[100svh] px-8 pb-0 pt-6 [--footer-logo-top:42px] [--footer-logo-width:calc(100vw-64px)] [--footer-logo-height:calc(var(--footer-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--footer-logo-top:52px] md:[--home-logo-copy-gap:clamp(260px,calc(85svh-var(--footer-logo-top)-var(--footer-logo-height)-102px),500px)] xl:[--footer-logo-top:56px]"
+          className="relative min-h-[100svh] px-8 pb-0 pt-6 [--footer-logo-top:44px] [--footer-logo-width:calc(100vw-64px)] [--footer-logo-height:calc(var(--footer-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--footer-logo-top:54px] md:[--home-logo-copy-gap:clamp(260px,calc(85svh-var(--footer-logo-top)-var(--footer-logo-height)-102px),500px)] xl:[--footer-logo-top:58px]"
         >
           <header className="absolute inset-x-8 top-6 z-20 text-[13px] leading-[1.15] md:text-[14px]">
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 md:hidden">
+              <div className="flex justify-start gap-6 whitespace-nowrap !text-[var(--color-text)]">
+                {lang === "es" ? (
+                  <>
+                    <span aria-current="true">es</span>
+                    <Link
+                      href={copy.otherLangHref}
+                      className="no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
+                    >
+                      en
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={copy.otherLangHref}
+                      className="no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
+                    >
+                      es
+                    </Link>
+                    <span aria-current="true">en</span>
+                  </>
+                )}
+              </div>
+
+              <p className="justify-self-end whitespace-nowrap !text-[var(--color-text)]">Murcia | Madrid</p>
+
+              <p className="justify-self-start whitespace-nowrap !text-[var(--color-text)]">©2026</p>
+
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="justify-self-start whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-text)] focus-visible:!text-[var(--color-link-hover)]"
+                className="justify-self-end whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-text)] focus-visible:!text-[var(--color-link-hover)]"
               >
                 {CONTACT_EMAIL}
               </a>
-
-              <Link
-                href={copy.languageHref}
-                className="justify-self-end whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
-              >
-                {copy.languageLabel}
-              </Link>
-
-              <p className="justify-self-start whitespace-nowrap !text-[var(--color-text)]">
-                Murcia | Madrid
-              </p>
-
-              <p className="justify-self-end whitespace-nowrap !text-[var(--color-text)]">©2026</p>
             </div>
 
-            <div className="relative hidden h-[18px] md:block">
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="absolute left-0 top-0 whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-text)] focus-visible:!text-[var(--color-link-hover)]"
-              >
-                {CONTACT_EMAIL}
-              </a>
+            <div className="relative hidden h-[20px] md:block">
+              <div className="absolute left-0 top-[2px] flex items-baseline gap-6 whitespace-nowrap !text-[var(--color-text)]">
+                {lang === "es" ? (
+                  <>
+                    <span aria-current="true">es</span>
+                    <Link
+                      href={copy.otherLangHref}
+                      className="no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
+                    >
+                      en
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={copy.otherLangHref}
+                      className="no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
+                    >
+                      es
+                    </Link>
+                    <span aria-current="true">en</span>
+                  </>
+                )}
+              </div>
 
-              <Link
-                href={copy.languageHref}
-                className="absolute top-[2px] whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-link-hover)] focus-visible:!text-[var(--color-link-hover)]"
-                style={{ left: "calc(var(--footer-logo-width) * 0.307042 - 30px)" }}
+              <p
+                className="absolute top-0 whitespace-nowrap !text-[var(--color-text)]"
+                style={{ left: "calc(var(--footer-logo-width) * 0.307042 - 30px - 24px)" }}
               >
-                {copy.languageLabel}
-              </Link>
+                Murcia | Madrid
+              </p>
 
               <p
                 className="absolute top-0 whitespace-nowrap !text-[var(--color-text)]"
                 style={{ left: "calc(var(--footer-logo-width) * 0.568511)" }}
               >
-                Murcia | Madrid
+                ©2026
               </p>
 
-              <p className="absolute right-0 top-0 whitespace-nowrap !text-[var(--color-text)]">©2026</p>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="absolute right-0 top-0 whitespace-nowrap no-underline !text-[var(--color-text)] transition-colors hover:!text-[var(--color-text)] focus-visible:!text-[var(--color-link-hover)]"
+              >
+                {CONTACT_EMAIL}
+              </a>
             </div>
           </header>
 
