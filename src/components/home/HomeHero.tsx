@@ -13,13 +13,13 @@ const COPY = {
     otherLangHref: withLang("en", ""),
     h1Line1: "Branding, publicidad y dirección creativa",
     h1Line2: "para marcas con ambición",
-    claim: "Creatividad enfocada\nen negocio",
+    claim: "Creatividad enfocada en negocio",
   },
   en: {
     otherLangHref: withLang("es", ""),
     h1Line1: "Branding, advertising and creative direction",
     h1Line2: "for ambitious brands",
-    claim: "Business-minded\ncreativity",
+    claim: "Business-minded creativity",
   },
 } satisfies Record<
   Locale,
@@ -46,7 +46,7 @@ export default function HomeHero({ lang }: HomeHeroProps) {
       <main id="main" className="overflow-x-hidden bg-[var(--color-bg)]">
         <section
           aria-label={lang === "en" ? "Home introduction" : "Introducción principal"}
-          className="relative min-h-[100svh] px-8 pb-0 pt-6 [--interactive-logo-top:44px] [--interactive-logo-width:calc(100vw-64px)] [--interactive-logo-height:calc(var(--interactive-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--interactive-logo-top:54px] md:[--home-logo-copy-gap:clamp(260px,calc(85svh-var(--interactive-logo-top)-var(--interactive-logo-height)-102px),500px)] xl:[--interactive-logo-top:58px]"
+          className="relative min-h-[100svh] px-8 pb-0 pt-6 [--interactive-logo-top:44px] [--interactive-logo-width:calc(100vw-64px)] [--interactive-logo-height:calc(var(--interactive-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] [--home-video-gap:28px] md:[--interactive-logo-top:54px] md:[--home-logo-copy-gap:clamp(260px,calc(90svh-var(--interactive-logo-top)-var(--interactive-logo-height)-72px),520px)] xl:[--interactive-logo-top:58px]"
         >
           <header className="absolute inset-x-8 top-6 z-20 text-[13px] leading-[1.15] md:text-[14px]">
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 md:hidden">
@@ -144,12 +144,15 @@ export default function HomeHero({ lang }: HomeHeroProps) {
               </h1>
             </div>
 
-            <p className="max-w-[180px] whitespace-pre-line text-left !text-[18px] !leading-[1.2] !text-[var(--color-text)] md:justify-self-end md:text-right">
+            <p className="max-w-[220px] text-left !text-[14px] !leading-[1.2] !text-[var(--color-text)] md:max-w-none md:justify-self-end md:whitespace-nowrap md:text-right">
               {copy.claim}
             </p>
           </div>
 
-          <div className="relative z-10 mt-11">
+          <div
+            className="relative z-10"
+            style={{ marginTop: "var(--home-video-gap)" }}
+          >
             <HomeScrollBlurVideo
               src="/home/video-home.mp4"
               className="w-full"

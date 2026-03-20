@@ -45,7 +45,7 @@ export default function HomeScrollBlurVideo({
         playsInline
         preload="metadata"
         poster={poster}
-        className="block h-auto w-full md:h-[calc(95svh-64px)] md:w-full md:object-cover"
+        className="block h-auto w-full md:h-[calc(90svh-64px)] md:w-full md:object-cover"
         style={{
           filter: reduceMotion ? "none" : filter,
           willChange: "filter",
