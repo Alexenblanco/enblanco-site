@@ -49,7 +49,7 @@ export default function HomeHero({ lang }: HomeHeroProps) {
       <main id="main" className="overflow-x-hidden bg-[var(--color-bg)]">
         <section
           aria-label={lang === "en" ? "Home introduction" : "Introducción principal"}
-          className="relative min-h-[100svh] px-8 pb-0 pt-6 [--footer-logo-top:42px] [--footer-logo-width:calc(100vw-64px)] [--footer-logo-height:calc(var(--footer-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--footer-logo-top:52px] md:[--home-logo-copy-gap:clamp(235px,min(27svh,24vw),480px)] xl:[--footer-logo-top:56px]"
+          className="relative min-h-[100svh] px-8 pb-0 pt-6 [--footer-logo-top:42px] [--footer-logo-width:calc(100vw-64px)] [--footer-logo-height:calc(var(--footer-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--footer-logo-top:52px] md:[--home-logo-copy-gap:clamp(260px,calc(90svh-var(--footer-logo-top)-var(--footer-logo-height)-102px),500px)] xl:[--footer-logo-top:56px]"
         >
           <header className="absolute inset-x-8 top-6 z-20 text-[13px] leading-[1.15] md:text-[14px]">
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 md:hidden">
