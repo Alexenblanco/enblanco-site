@@ -29,7 +29,7 @@ export default function HomeScrollBlurVideo({
   return (
     <motion.div
       ref={ref}
-      className={`relative overflow-hidden rounded-[7px] ${className}`.trim()}
+      className={`relative overflow-hidden rounded-[7px] md:h-[calc(92svh-64px)] ${className}`.trim()}
       aria-hidden="true"
       style={{
         borderRadius: "7px",
@@ -45,7 +45,7 @@ export default function HomeScrollBlurVideo({
         playsInline
         preload="metadata"
         poster={poster}
-        className="block h-auto w-full md:h-[calc(90svh-64px)] md:w-full md:object-cover"
+        className="block h-auto w-full md:h-full md:w-full md:object-cover"
         style={{
           filter: reduceMotion ? "none" : filter,
           willChange: "filter",
