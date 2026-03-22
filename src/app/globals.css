@@ -301,8 +301,8 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
   background: #EDECEB;
 }
 .dock-pill--central {
-  padding-left: 32px;
-  padding-right: 32px;
+  padding-left: 22px;
+  padding-right: 22px;
 }
 .dock-pill:hover {
   color: #767676;

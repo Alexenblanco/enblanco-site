@@ -138,7 +138,7 @@ export default function HomeHero({ lang }: HomeHeroProps) {
 
           <div className="relative z-10 grid gap-6 pt-[calc(var(--interactive-logo-top)+var(--interactive-logo-height)+var(--home-logo-copy-gap))] md:grid-cols-[minmax(0,1fr)_minmax(180px,240px)] md:items-end">
             <div className="max-w-[620px]">
-              <h1 className="!text-[18px] !leading-[1.2] !text-[var(--color-text)]">
+              <h1 className="!text-[20px] !leading-[1.2] !text-[var(--color-text)]">
                 <span className="block md:whitespace-nowrap">{copy.h1Line1}</span>
                 <span className="block">{copy.h1Line2}</span>
               </h1>
