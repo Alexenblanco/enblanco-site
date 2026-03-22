@@ -107,7 +107,7 @@ export default function ProjectTransitionOverlay({
         style={{
           backdropFilter: `blur(${BLUR_PX}px)`,
           WebkitBackdropFilter: `blur(${BLUR_PX}px)`,
-          backgroundColor: "rgba(237, 236, 235, 0.4)",
+          backgroundColor: "rgba(242, 241, 241, 0.4)",
           contain: "paint",
         }}
         initial={{ opacity: 0 }}

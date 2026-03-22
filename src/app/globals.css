@@ -3,7 +3,7 @@
 /* ========== DESIGN TOKENS (enblanco) ========== */
 :root {
   /* Colors */
-  --color-bg: #EDECEB;
+  --color-bg: #F2F1F1;
   --color-surface: #FFFFFF;
   --color-border: #FFFFFF;
   --color-text: #8A8A8A;
@@ -14,12 +14,12 @@
   /* Buttons */
   --btn-bg: #FFFFFF;
   --btn-bg-hover: #DDDDDD;
-  --btn-bg-active: #EDECEB;
+  --btn-bg-active: #E8E7E7;
   --btn-text: #1A1C1F;
   --btn-text-hover: #5D5D5D;
 
-  /* Overlay (modals) – rgba derived from #EDECEB */
-  --overlay-bg: rgba(237, 236, 235, 0.85);
+  /* Overlay (modals) – rgba derived from --color-bg (#F2F1F1) */
+  --overlay-bg: rgba(242, 241, 241, 0.85);
   --overlay-blur: 8px;
 
   /* Typography (--font-sans is set on <html> by next/font/local) */
@@ -36,6 +36,30 @@
 
   /* Global layout (sin padding general para evitar recortes) */
   --page-padding: 0;
+
+  /* Editorial layout shell */
+  --editorial-frame-max: 1728px;
+  --editorial-frame-padding-base: 32px;
+  --editorial-frame-padding: clamp(24px, 2.6vw, var(--editorial-frame-padding-base));
+  --editorial-mobile-padding: clamp(16px, 5vw, 24px);
+  --editorial-guide-ratio-1: 0;
+  --editorial-guide-ratio-2: 0.2704326923;
+  --editorial-guide-ratio-3: 0.4459134615;
+  --editorial-guide-ratio-4: 0.5685096154;
+  --editorial-guide-ratio-5: 0.9567307692;
+  --editorial-guide-ratio-6: 1;
+  --editorial-guide-span-1: 0.2704326923;
+  --editorial-guide-span-2: 0.1754807692;
+  --editorial-guide-span-3: 0.1225961539;
+  --editorial-guide-span-4: 0.3882211538;
+  --editorial-guide-span-5: 0.0432692308;
+  --editorial-guides-color: rgba(138, 138, 138, 0.52);
+  --editorial-guides-fill: rgba(138, 138, 138, 0.12);
+
+  /* Home hero: espacio logo → copy para que ~10% del viewport muestre el vídeo (desktop) */
+  --home-hero-visible-video-svh: 10svh;
+  --home-hero-text-row-estimate: 4.25rem;
+  --home-video-gap: 28px;
 
   /* Spacing scale (px) */
   --space-6: 6px;
@@ -152,6 +176,121 @@ img, video {
   padding: 0;
   min-height: 100vh;
   box-sizing: border-box;
+}
+
+.editorial-shell {
+  --editorial-frame-width: calc(100% - (var(--editorial-mobile-padding) * 2));
+  --editorial-inner-width: var(--editorial-frame-width);
+  --editorial-overlay-frame-start: var(--editorial-mobile-padding);
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  padding-inline: var(--editorial-mobile-padding);
+}
+
+.editorial-block,
+.editorial-subgrid {
+  min-width: 0;
+}
+
+.editorial-block--breakout {
+  inline-size: calc(
+    100% + var(--editorial-overflow-inline-start, 0px) + var(--editorial-overflow-inline-end, 0px)
+  );
+  margin-inline-start: calc(var(--editorial-overflow-inline-start, 0px) * -1);
+}
+
+.editorial-subgrid {
+  display: block;
+}
+
+.editorial-span-g1-g2 {
+  grid-column: guide-1 / guide-2;
+}
+
+.editorial-span-g2-g3 {
+  grid-column: guide-2 / guide-3;
+}
+
+.editorial-span-g3-g5 {
+  grid-column: guide-3 / guide-5;
+}
+
+.editorial-align-guide-3 {
+  grid-column-start: guide-3;
+}
+
+.editorial-full-bleed {
+  grid-column: bleed-start / bleed-end;
+}
+
+.editorial-guides-overlay {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .editorial-shell {
+    --editorial-frame-width: min(
+      calc(100% - (var(--editorial-frame-padding) * 2)),
+      calc(var(--editorial-frame-max) - (var(--editorial-frame-padding-base) * 2))
+    );
+    --editorial-inner-width: var(--editorial-frame-width);
+    --editorial-overlay-frame-start: calc((100% - var(--editorial-frame-width)) / 2);
+    display: grid;
+    grid-template-columns:
+      [bleed-start] minmax(0, 1fr)
+      [frame-start guide-1] calc(var(--editorial-inner-width) * var(--editorial-guide-span-1))
+      [guide-2] calc(var(--editorial-inner-width) * var(--editorial-guide-span-2))
+      [guide-3] calc(var(--editorial-inner-width) * var(--editorial-guide-span-3))
+      [guide-4] calc(var(--editorial-inner-width) * var(--editorial-guide-span-4))
+      [guide-5] calc(var(--editorial-inner-width) * var(--editorial-guide-span-5))
+      [guide-6 frame-end] minmax(0, 1fr)
+      [bleed-end];
+    padding-inline: 0;
+  }
+
+  .editorial-subgrid {
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  .editorial-guides-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    display: none;
+  }
+
+  html[data-editorial-guides="1"] .editorial-guides-overlay {
+    display: block;
+  }
+
+  .editorial-guides-overlay__line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 1px solid var(--editorial-guides-color);
+  }
+
+  .editorial-guides-overlay__line::before {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 12px,
+      var(--editorial-guides-fill) 12px,
+      var(--editorial-guides-fill) calc(100% - 12px),
+      transparent calc(100% - 12px),
+      transparent 100%
+    );
+  }
 }
 
 /* Card / container surface */
@@ -298,7 +437,7 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
   background: #F3F3F3;
 }
 .dock-pill:active::before {
-  background: #EDECEB;
+  background: var(--color-bg);
 }
 .dock-pill--central {
   padding-left: 22px;

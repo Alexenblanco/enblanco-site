@@ -62,7 +62,7 @@
   pointer-events: none;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  background: rgba(237, 236, 235, 0.34);
+  background: rgba(242, 241, 241, 0.34);
 }
 
 .list {

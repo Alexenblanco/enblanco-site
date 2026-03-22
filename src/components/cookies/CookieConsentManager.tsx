@@ -217,7 +217,7 @@ export default function CookieConsentManager() {
 
       {!consent ? (
         <div className="fixed inset-x-0 bottom-5 z-[120] px-4">
-          <div className="mx-auto max-w-3xl rounded-2xl border border-white/70 bg-[rgba(237,236,235,0.96)] p-5 shadow-sm backdrop-blur">
+          <div className="mx-auto max-w-3xl rounded-2xl border border-white/70 bg-[rgba(242,241,241,0.96)] p-5 shadow-sm backdrop-blur">
             <p className="text-sm font-medium text-zinc-900">{copy.title}</p>
             <p className="mt-2 text-sm text-zinc-700">{copy.body}</p>
             <div className="mt-4 flex flex-wrap gap-2">

@@ -168,7 +168,7 @@ export default function NoteTransitionOverlay({
         style={{
           backdropFilter: `blur(${BLUR_PX}px)`,
           WebkitBackdropFilter: `blur(${BLUR_PX}px)`,
-          backgroundColor: "rgba(237, 236, 235, 1)",
+          backgroundColor: "rgba(242, 241, 241, 1)",
           contain: "paint",
         }}
         initial={{ opacity: 0 }}
