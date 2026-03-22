@@ -57,7 +57,7 @@ export default function HomeHero({ lang }: HomeHeroProps) {
         <EditorialShell
           as="section"
           aria-label={lang === "en" ? "Home introduction" : "Introducción principal"}
-          className="relative min-h-[100svh] pb-0 pt-0 [--interactive-logo-top:44px] [--interactive-logo-width:var(--editorial-frame-width)] [--interactive-logo-height:calc(var(--interactive-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--interactive-logo-top:54px] md:[--home-logo-copy-gap:clamp(200px,calc(100svh-var(--home-hero-visible-video-svh)-var(--interactive-logo-top)-var(--interactive-logo-height)-var(--home-hero-text-row-estimate)-var(--home-video-gap)),680px)] xl:[--interactive-logo-top:58px]"
+          className="relative min-h-[100svh] pb-0 pt-0 [--interactive-logo-top:44px] [--interactive-logo-width:var(--editorial-frame-width)] [--interactive-logo-height:calc(var(--interactive-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--interactive-logo-top:54px] md:[--home-logo-copy-gap:clamp(200px,calc(100svh-var(--home-hero-visible-video-svh)-var(--interactive-logo-top)-var(--interactive-logo-height)-var(--home-hero-text-row-estimate)-var(--home-video-gap)),600px)] xl:[--interactive-logo-top:58px]"
         >
           <InteractiveLogo className="z-10" />
 
