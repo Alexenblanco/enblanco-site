@@ -56,8 +56,8 @@
   --editorial-guides-color: rgba(138, 138, 138, 0.52);
   --editorial-guides-fill: rgba(138, 138, 138, 0.12);
 
-  /* Home hero: fracción del viewport que “asoma” del vídeo antes de scroll (desktop). Era 10svh; −⅓ → ⅔·10 */
-  --home-hero-visible-video-svh: calc(10svh * 2 / 3);
+  /* Home hero: fracción del viewport que “asoma” del vídeo antes de scroll (desktop). Un poco menos que ⅔·10 (~6.67svh) */
+  --home-hero-visible-video-svh: 5svh;
   --home-hero-text-row-estimate: 4.25rem;
   --home-video-gap: 28px;
 
