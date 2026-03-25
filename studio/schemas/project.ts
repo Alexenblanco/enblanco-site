@@ -85,6 +85,31 @@ export const project = defineType({
       title: "Featured",
       initialValue: false,
     }),
+    defineField({
+      name: "featuredOnHome",
+      type: "boolean",
+      title: "Destacado en la home",
+      description:
+        "Incluye este proyecto en el bloque «Trabajos destacados / Selected works» de la página de inicio. Como máximo pueden mostrarse 6 proyectos; usa el campo de orden para priorizar.",
+      initialValue: false,
+    }),
+    defineField({
+      name: "featuredHomeOrder",
+      type: "number",
+      title: "Orden en el bloque de home",
+      description:
+        "Número más bajo = aparece antes en el bloque de destacados de la home. Solo se usa cuando «Destacado en la home» está activo.",
+      hidden: ({ parent }) => !parent?.featuredOnHome,
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent as { featuredOnHome?: boolean | null } | undefined;
+          if (!parent?.featuredOnHome) return true;
+          if (value === undefined || value === null || Number.isNaN(Number(value))) {
+            return "Indica un orden numérico cuando el proyecto está destacado en home (p. ej. 1, 2, 3…)";
+          }
+          return true;
+        }),
+    }),
     defineField({ name: "year", type: "number", title: "Year" }),
     defineField({ name: "clientName", type: "string", title: "Client name" }),
     defineField({ name: "location", type: "string", title: "Location" }),

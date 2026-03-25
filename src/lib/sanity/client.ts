@@ -18,6 +18,7 @@ export function getSanityClient(options: SanityClientOptions = {}) {
     apiVersion,
     useCdn: false,
     perspective: preview ? "previewDrafts" : "published",
-    ...(preview && token ? { token } : {}),
+    // Server-side reads may require the read token even outside preview.
+    ...(token ? { token } : {}),
   });
 }

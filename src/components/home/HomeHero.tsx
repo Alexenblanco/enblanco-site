@@ -45,20 +45,11 @@ export default function HomeHero({ lang }: HomeHeroProps) {
   const copyrightYearLabel = `© ${new Date().getFullYear()}`;
 
   return (
-    <>
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:text-zinc-900"
-      >
-        {lang === "en" ? "Skip to main content" : "Saltar al contenido principal"}
-      </a>
-
-      <main id="main" className="overflow-x-hidden bg-[var(--color-bg)]">
-        <EditorialShell
-          as="section"
-          aria-label={lang === "en" ? "Home introduction" : "Introducción principal"}
-          className="relative min-h-[100svh] pb-0 pt-0 [--interactive-logo-top:44px] [--interactive-logo-width:var(--editorial-frame-width)] [--interactive-logo-height:calc(var(--interactive-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--interactive-logo-top:54px] md:[--home-logo-copy-gap:clamp(200px,calc(100svh-var(--home-hero-visible-video-svh)-var(--interactive-logo-top)-var(--interactive-logo-height)-var(--home-hero-text-row-estimate)-var(--home-video-gap)),600px)] xl:[--interactive-logo-top:58px]"
-        >
+    <EditorialShell
+      as="section"
+      aria-label={lang === "en" ? "Home introduction" : "Introducción principal"}
+      className="relative min-h-[100svh] pb-0 pt-0 [--interactive-logo-top:44px] [--interactive-logo-width:var(--editorial-frame-width)] [--interactive-logo-height:calc(var(--interactive-logo-width)*18.3/99.4)] [--home-logo-copy-gap:clamp(180px,26vw,500px)] md:[--interactive-logo-top:54px] md:[--home-logo-copy-gap:clamp(200px,calc(100svh-var(--home-hero-visible-video-svh)-var(--interactive-logo-top)-var(--interactive-logo-height)-var(--home-hero-text-row-estimate)-var(--home-video-gap)),600px)] xl:[--interactive-logo-top:58px]"
+    >
           <InteractiveLogo className="z-10" />
 
           <EditorialBlock
@@ -190,8 +181,6 @@ export default function HomeHero({ lang }: HomeHeroProps) {
           >
             <HomeScrollBlurVideo src="/home/video-home.mp4" className="w-full" />
           </EditorialBlock>
-        </EditorialShell>
-      </main>
-    </>
+    </EditorialShell>
   );
 }

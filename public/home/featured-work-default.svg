@@ -1,0 +1,13 @@
+<svg width="1200" height="1500" viewBox="0 0 1200 1500" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1200" height="1500" fill="#F3F1EC"/>
+<rect x="74" y="74" width="1052" height="1352" rx="28" fill="#E9E4DA"/>
+<path d="M177 1128C332.438 935.128 470.159 838.692 590.165 838.692C710.171 838.692 834.783 929.294 964 1110.5" stroke="#1A1A1A" stroke-width="3"/>
+<circle cx="414" cy="593" r="112" stroke="#1A1A1A" stroke-width="3"/>
+<path d="M177 220H1023" stroke="#1A1A1A" stroke-width="3"/>
+<path d="M177 1280H1023" stroke="#1A1A1A" stroke-width="3"/>
+<path d="M285 220V1280" stroke="#1A1A1A" stroke-width="1.5" stroke-dasharray="10 10"/>
+<path d="M915 220V1280" stroke="#1A1A1A" stroke-width="1.5" stroke-dasharray="10 10"/>
+<text x="177" y="318" fill="#1A1A1A" font-family="Arial, Helvetica, sans-serif" font-size="52" letter-spacing="0.18em">ENBLANCO</text>
+<text x="177" y="375" fill="#1A1A1A" font-family="Arial, Helvetica, sans-serif" font-size="26" letter-spacing="0.12em">SELECTED WORKS</text>
+<text x="177" y="1192" fill="#1A1A1A" font-family="Arial, Helvetica, sans-serif" font-size="28" letter-spacing="0.08em">PLACEHOLDER IMAGE</text>
+</svg>

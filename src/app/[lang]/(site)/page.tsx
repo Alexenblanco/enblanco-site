@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import HomeFeaturedWorks from "@/components/home/HomeFeaturedWorks";
 import HomeHero from "@/components/home/HomeHero";
 import { isValidLang } from "@/lib/i18n/path";
+import { getHomeFeaturedProjects } from "@/lib/sanity/queries";
 
 type Props = { params: Promise<{ lang: string }> };
 
@@ -35,5 +37,20 @@ export default async function LangHomePage({ params }: Props) {
   const { lang } = await params;
   if (!isValidLang(lang)) notFound();
 
-  return <HomeHero lang={lang} />;
+  const featuredProjects = await getHomeFeaturedProjects(lang);
+
+  return (
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:text-zinc-900"
+      >
+        {lang === "en" ? "Skip to main content" : "Saltar al contenido principal"}
+      </a>
+      <main id="main" className="overflow-x-hidden bg-[var(--color-bg)]">
+        <HomeHero lang={lang} />
+        <HomeFeaturedWorks lang={lang} projects={featuredProjects} />
+      </main>
+    </>
+  );
 }

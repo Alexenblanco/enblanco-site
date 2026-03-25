@@ -1,5 +1,6 @@
 import { groq } from "next-sanity";
 import { sanityFetch } from "./fetch";
+import { buildImageUrl } from "./image";
 
 // —— Existing (unchanged) ——
 
@@ -67,6 +68,117 @@ export async function getProjectsIndex(lang: "es" | "en"): Promise<ProjectsIndex
     tags: [`projects-index-${lang}`],
     revalidate: 60,
   });
+}
+
+// —— Home featured works (max 6; CMS flags) ——
+
+export const homeFeaturedProjectsQuery = groq`
+  *[
+    _type == "project"
+    && language == $lang
+    && featuredOnHome == true
+    && defined(slug.current)
+  ] | order(coalesce(featuredHomeOrder, 999) asc, _createdAt desc)[0...6] {
+    title,
+    "slug": slug.current,
+    tagline,
+    excerpt,
+    coverVertical,
+    heroDesktop,
+    heroMobile,
+    coverDesktop,
+    coverMobile,
+    featuredHomeOrder,
+    "services": services[]->{ title, "slug": slug.current, order },
+    "industries": industries[]->{ title, "slug": slug.current, order }
+  }
+`;
+
+export type HomeFeaturedProjectRaw = {
+  title: string | null;
+  slug: string | null;
+  tagline?: string | null;
+  excerpt?: string | null;
+  coverVertical?: { _type: string; asset?: { _ref: string } } | null;
+  heroDesktop?: { _type: string; asset?: { _ref: string } } | null;
+  heroMobile?: { _type: string; asset?: { _ref: string } } | null;
+  coverDesktop?: { _type: string; asset?: { _ref: string } } | null;
+  coverMobile?: { _type: string; asset?: { _ref: string } } | null;
+  featuredHomeOrder?: number | null;
+  services?: { title: string | null; slug: string | null; order?: number | null }[] | null;
+  industries?: { title: string | null; slug: string | null; order?: number | null }[] | null;
+};
+
+/** Tarjeta lista para la home (imagen resuelta a URL en el servidor). */
+export type HomeFeaturedProjectCard = {
+  slug: string;
+  title: string;
+  label: string;
+  imageUrl: string | null;
+  imageAlt: string;
+  href?: string;
+};
+
+export async function getHomeFeaturedProjects(
+  lang: "es" | "en",
+): Promise<HomeFeaturedProjectCard[]> {
+  const rows = await sanityFetch<HomeFeaturedProjectRaw[]>(
+    homeFeaturedProjectsQuery,
+    { lang },
+    {
+      tags: [`home-featured-${lang}`, `projects-index-${lang}`],
+      // Home featured needs to reflect CMS edits immediately while shaping the block.
+      revalidate: 0,
+    },
+  );
+
+  const cards: HomeFeaturedProjectCard[] = [];
+
+  for (const row of rows) {
+    const slug = typeof row.slug === "string" && row.slug.length > 0 ? row.slug : null;
+    if (!slug) continue;
+
+    const title =
+      typeof row.title === "string" && row.title.trim().length > 0 ? row.title.trim() : slug;
+
+    const serviceTitles = (row.services ?? [])
+      .filter((s): s is NonNullable<typeof s> => s != null && typeof s.title === "string")
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((s) => s.title as string);
+
+    const industryTitles = (row.industries ?? [])
+      .filter((s): s is NonNullable<typeof s> => s != null && typeof s.title === "string")
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((s) => s.title as string);
+
+    let label = serviceTitles.join(" · ");
+    if (!label) label = industryTitles.join(" · ");
+    if (!label && typeof row.tagline === "string" && row.tagline.trim()) {
+      label = row.tagline.trim();
+    }
+    if (!label && typeof row.excerpt === "string" && row.excerpt.trim()) {
+      label = row.excerpt.trim().split(/\s+/).slice(0, 6).join(" ");
+      if (row.excerpt.length > label.length) label = `${label}…`;
+    }
+    if (!label) label = lang === "en" ? "Project" : "Proyecto";
+
+    const cover =
+      row.coverVertical ??
+      row.heroDesktop ??
+      row.coverDesktop ??
+      row.heroMobile ??
+      row.coverMobile ??
+      null;
+
+    const imageUrl =
+      cover?.asset?._ref != null ? buildImageUrl(cover, { width: 960, height: 1200, fit: "max" }) : null;
+
+    const imageAlt = `${title} — ${label}`;
+
+    cards.push({ slug, title, label, imageUrl, imageAlt });
+  }
+
+  return cards;
 }
 
 // —— Single project by slug (full; legacy + new) ——
