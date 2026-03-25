@@ -20,16 +20,36 @@ const COPY = {
     title: "Proyectos destacados",
     cta: "Ver todos los proyectos",
     sectionAria: "Trabajos destacados en la home",
+    ctaAria: "Ver todos los proyectos destacados",
+    featuredCardTargetAria: (title: string) => `Ver el proyecto ${title}`,
+    cardVerVisible: "Ver",
   },
   en: {
     title: "Selected works",
     cta: "See all projects",
     sectionAria: "Featured work on the home page",
+    ctaAria: "See all featured projects",
+    featuredCardTargetAria: (title: string) => `View project ${title}`,
+    cardVerVisible: "View",
   },
-} satisfies Record<Locale, { title: string; cta: string; sectionAria: string }>;
+} satisfies Record<
+  Locale,
+  {
+    title: string;
+    cta: string;
+    sectionAria: string;
+    ctaAria: string;
+    featuredCardTargetAria: (title: string) => string;
+    cardVerVisible: string;
+  }
+>;
 
 const HEADING_ID_MOBILE = "home-featured-heading";
+const HEADING_ID_DESKTOP = "home-featured-heading-desktop";
 const STACKED_CARD_OFFSET = 328;
+
+/** Flecha junto al texto del enlace (sin <span>: así hereda color/hover/active del <a> pese a `.page * { color: … !important }`). */
+const LINK_ARROW = " →";
 
 function projectHref(lang: Locale, slug: string): string {
   return lang === "es"
@@ -79,8 +99,49 @@ function FeaturedProjectCard({
   metaPosition?: "above" | "below";
   articleOffsetTop?: number;
 }) {
+  const copy = COPY[lang];
   const href = card.href ?? projectHref(lang, card.slug);
   const tags = getProjectTags(card.label);
+  const targetAria = copy.featuredCardTargetAria(card.title);
+
+  const coverLink = (
+    <Link
+      href={href}
+      aria-label={targetAria}
+      className="block no-underline decoration-transparent outline-none hover:no-underline focus-visible:no-underline focus-visible:ring-2 focus-visible:ring-[var(--color-text)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]"
+    >
+      <div
+        className="relative h-[407px] w-[328px] overflow-hidden bg-[var(--color-bg)]"
+        style={{ borderRadius: "7px", clipPath: "inset(0 round 7px)" }}
+      >
+        {card.imageUrl ? (
+          <Image
+            src={card.imageUrl}
+            alt=""
+            width={328}
+            height={407}
+            priority={imagePriority}
+            sizes="328px"
+            unoptimized
+            aria-hidden
+            className="block rounded-none object-cover"
+            style={{
+              borderRadius: 0,
+              width: "330px",
+              height: "409px",
+              maxWidth: "none",
+              marginLeft: "-1px",
+              marginTop: "-1px",
+            }}
+          />
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-zinc-500">
+            {card.title}
+          </span>
+        )}
+      </div>
+    </Link>
+  );
 
   const meta = (
     <div className="w-[328px] max-w-full min-w-0">
@@ -113,10 +174,12 @@ function FeaturedProjectCard({
 
         <Link
           href={href}
-          className="shrink-0 justify-self-end text-[var(--color-text)] underline decoration-transparent underline-offset-4 transition-colors hover:text-[var(--color-link-hover)]"
+          aria-label={targetAria}
+          className="inline-flex shrink-0 items-baseline justify-self-end text-[var(--color-link)] no-underline decoration-transparent transition-colors hover:text-[var(--color-link-hover)] hover:no-underline active:text-[var(--color-link-active)] focus-visible:text-[var(--color-link-hover)] focus-visible:no-underline"
           style={{ fontSize: "16px", lineHeight: "1.2" }}
         >
-          Ver-&gt;
+          {copy.cardVerVisible}
+          {LINK_ARROW}
         </Link>
       </div>
     </div>
@@ -135,39 +198,7 @@ function FeaturedProjectCard({
         <div style={{ marginBottom: "24px" }}>{meta}</div>
       ) : null}
 
-      <Link
-        href={href}
-        className="group block no-underline outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]"
-      >
-        <div
-          className="relative h-[407px] w-[328px] overflow-hidden bg-[var(--color-bg)]"
-          style={{ borderRadius: "7px", clipPath: "inset(0 round 7px)" }}
-        >
-          {card.imageUrl ? (
-            <Image
-              src={card.imageUrl}
-              alt={card.imageAlt}
-              width={328}
-              height={407}
-              priority={imagePriority}
-              unoptimized
-              className="block rounded-none object-cover"
-              style={{
-                borderRadius: 0,
-                width: "330px",
-                height: "409px",
-                maxWidth: "none",
-                marginLeft: "-1px",
-                marginTop: "-1px",
-              }}
-            />
-          ) : (
-            <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-zinc-500">
-              {card.title}
-            </span>
-          )}
-        </div>
-      </Link>
+      {coverLink}
 
       {metaPosition === "below" ? (
         <div style={{ marginTop: "32px" }}>{meta}</div>
@@ -181,15 +212,15 @@ function IntroTitle({ lang, headingId }: { lang: Locale; headingId?: string }) {
   return headingId ? (
     <h2
       id={headingId}
-      className="font-normal text-[var(--color-text)]"
-      style={{ fontSize: "20px", lineHeight: "1.2" }}
+      className="select-text font-normal text-[var(--color-text)]"
+      style={{ fontSize: "20px", lineHeight: "1.2", userSelect: "text" }}
     >
       {copy.title}
     </h2>
   ) : (
     <h2
-      className="font-normal text-[var(--color-text)]"
-      style={{ fontSize: "20px", lineHeight: "1.2" }}
+      className="select-text font-normal text-[var(--color-text)]"
+      style={{ fontSize: "20px", lineHeight: "1.2", userSelect: "text" }}
     >
       {copy.title}
     </h2>
@@ -201,7 +232,7 @@ function IntroDescriptionLines({ lang }: { lang: Locale }) {
 
   if (lang === "es") {
     return (
-      <p className="font-normal text-zinc-600" style={fixedStyle}>
+      <p className="select-text font-normal text-zinc-600" style={{ ...fixedStyle, userSelect: "text" }}>
         <span className="block">Mediante creatividad, estrategia y dirección</span>
         <span className="block">re-de-construimos el universo visual, verbal</span>
         <span className="block">y conceptual de marcas.</span>
@@ -209,7 +240,7 @@ function IntroDescriptionLines({ lang }: { lang: Locale }) {
     );
   }
   return (
-    <p className="font-normal text-zinc-600" style={fixedStyle}>
+    <p className="select-text font-normal text-zinc-600" style={{ ...fixedStyle, userSelect: "text" }}>
       <span className="block">Through creativity, strategy, and direction,</span>
       <span className="block">we re-de-construct the visual, verbal,</span>
       <span className="block">and conceptual universe of brands.</span>
@@ -222,14 +253,55 @@ function IntroCtaLink({ lang, className }: { lang: Locale; className?: string })
   return (
     <Link
       href={projectsIndexHref(lang)}
+      aria-label={copy.ctaAria}
       className={
         className ??
-        "inline-flex items-center justify-center gap-1 text-[14px] leading-snug text-[var(--color-text)] underline decoration-zinc-400 underline-offset-4 transition-colors hover:text-[var(--color-link-hover)] hover:decoration-[var(--color-link-hover)] focus-visible:text-[var(--color-link-hover)]"
+        "inline-flex items-center justify-center gap-0 text-[14px] leading-snug text-[var(--color-link)] no-underline decoration-transparent transition-colors hover:text-[var(--color-link-hover)] hover:no-underline active:text-[var(--color-link-active)] focus-visible:text-[var(--color-link-hover)] focus-visible:no-underline"
       }
     >
       {copy.cta}
-      <span aria-hidden="true">→</span>
+      {LINK_ARROW}
     </Link>
+  );
+}
+
+function FeaturedWorksIntro({
+  lang,
+  headingId,
+}: {
+  lang: Locale;
+  headingId?: string;
+}) {
+  return (
+    <header
+      className="relative z-[20] max-w-none min-w-0 self-start"
+      style={{
+        gridColumn: "guide-1 / guide-3",
+        gridRow: "1 / 4",
+        display: "grid",
+        gridTemplateColumns: "subgrid",
+        pointerEvents: "auto",
+      }}
+    >
+      <div style={{ gridColumn: "1 / 3" }}>
+        <IntroTitle lang={lang} headingId={headingId} />
+      </div>
+      <div style={{ gridColumn: "1 / 3", marginTop: "24px" }}>
+        <IntroDescriptionLines lang={lang} />
+      </div>
+      <div
+        className="relative z-[21] min-w-0"
+        style={{
+          gridColumn: "1 / 2",
+          marginTop: "64px",
+          display: "flex",
+          justifyContent: "center",
+          pointerEvents: "auto",
+        }}
+      >
+        <IntroCtaLink lang={lang} />
+      </div>
+    </header>
   );
 }
 
@@ -265,51 +337,32 @@ export default function HomeFeaturedWorksClient({ lang, projects }: Props) {
 
       <EditorialShell
         as="section"
-        aria-label={copy.sectionAria}
+        aria-labelledby={HEADING_ID_DESKTOP}
         className="hidden overflow-x-clip py-16 xl:py-24 md:grid"
         style={{ paddingBottom: `${STACKED_CARD_OFFSET}px` }}
       >
-        <EditorialSubgrid start="frame-start" end="frame-end" className="items-start">
-          <div
-            className="max-w-none min-w-0 self-start"
-            style={{
-              gridColumn: "guide-1 / guide-3",
-              gridRow: "1 / 4",
-              display: "grid",
-              gridTemplateColumns: "subgrid",
-            }}
-          >
-            <div style={{ gridColumn: "1 / 3" }}>
-              <IntroTitle lang={lang} />
-            </div>
-            <div style={{ gridColumn: "1 / 3", marginTop: "24px" }}>
-              <IntroDescriptionLines lang={lang} />
-            </div>
-            <div
-              className="min-w-0"
-              style={{
-                gridColumn: "1 / 2",
-                marginTop: "64px",
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <IntroCtaLink lang={lang} />
-            </div>
-          </div>
+        <EditorialSubgrid
+          start="frame-start"
+          end="frame-end"
+          className="items-start"
+          style={{ isolation: "isolate" }}
+        >
+          <FeaturedWorksIntro lang={lang} headingId={HEADING_ID_DESKTOP} />
 
           <div
-            className="min-w-0 self-start"
+            className="pointer-events-none relative z-[1] min-w-0 self-start"
             style={{ gridColumn: "guide-1 / guide-3", gridRow: "1 / 4" }}
           >
-            <div className="flex justify-end">
+            <div className="pointer-events-none flex justify-end">
               {tertiaryProject ? (
-                <FeaturedProjectCard
-                  card={tertiaryProject}
-                  lang={lang}
-                  metaPosition="above"
-                  articleOffsetTop={STACKED_CARD_OFFSET}
-                />
+                <div className="pointer-events-auto w-fit">
+                  <FeaturedProjectCard
+                    card={tertiaryProject}
+                    lang={lang}
+                    metaPosition="above"
+                    articleOffsetTop={STACKED_CARD_OFFSET}
+                  />
+                </div>
               ) : null}
             </div>
           </div>

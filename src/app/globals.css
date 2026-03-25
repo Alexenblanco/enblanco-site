@@ -38,7 +38,8 @@
   --page-padding: 0;
 
   /* Editorial layout shell */
-  --editorial-frame-max: 1728px;
+  /* Permitimos que el shell editorial siga creciendo en pantallas 4K antes de fijarse. */
+  --editorial-frame-max: 3200px;
   --editorial-frame-padding-base: 32px;
   --editorial-frame-padding: clamp(24px, 2.6vw, var(--editorial-frame-padding-base));
   --editorial-mobile-padding: clamp(16px, 5vw, 24px);
