@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import EditorialShell, {
   EditorialBlock,
   EditorialSubgrid,
@@ -227,7 +227,7 @@ function HoverIndustryPreview({
           className="absolute inset-0"
           style={{
             display: "grid",
-            gridTemplateColumns: "auto minmax(260px, 1fr) auto",
+            gridTemplateColumns: "auto minmax(0, 1fr) auto",
             alignItems: "center",
             columnGap: "20px",
           }}
@@ -247,12 +247,11 @@ function HoverIndustryPreview({
           </motion.span>
 
           <div
-            className="pointer-events-none relative flex min-h-[320px] items-center justify-center"
+            className="pointer-events-none relative flex min-h-[380px] items-center justify-center"
             style={{
               width: "100%",
               justifySelf: "center",
               background: "transparent",
-              mixBlendMode: "darken",
             }}
           >
             <video
@@ -262,10 +261,14 @@ function HoverIndustryPreview({
               loop
               playsInline
               preload="metadata"
-              className="block h-[320px] w-auto max-w-full object-contain"
+              className="block w-full object-contain"
               style={{
                 display: "block",
                 background: "transparent",
+                width: "100%",
+                height: "auto",
+                maxHeight: "380px",
+                mixBlendMode: "darken",
               }}
             >
               <source src={activeVideoSrc} type="video/mp4" />
