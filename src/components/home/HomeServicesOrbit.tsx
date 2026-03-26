@@ -46,7 +46,7 @@ const COPY = {
 
 const SECTION_ID = "home-services-orbit-heading";
 const LINK_ARROW = " →";
-const ORBIT_DURATION_S = 56;
+const ORBIT_DURATION_S = 112;
 const REVEAL_EASE = [0.16, 1, 0.3, 1] as const;
 const ORBIT_PATH = "ellipse(42% 32% at 50% 50%)";
 const ORBIT_ITEMS = [

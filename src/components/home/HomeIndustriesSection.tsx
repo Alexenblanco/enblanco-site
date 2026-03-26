@@ -51,6 +51,7 @@ const BRACKET_GAP_HOVER = "1.35em";
 const SECTION_ID = "home-industries-heading";
 const LINK_TEXT_COLOR = "var(--color-text)";
 const BRACKET_COLOR = "#FFFFFF";
+const PREVIEW_REVEAL_EASE = [0.16, 1, 0.3, 1] as const;
 
 function capitalizeFirst(value: string) {
   if (!value) return value;
@@ -218,46 +219,74 @@ function HoverIndustryPreview({
       className="relative self-center"
       style={{
         gridColumn: "guide-4 / guide-5",
-        minHeight: "520px",
-        display: "grid",
-        gridTemplateColumns: "auto minmax(260px, 1fr) auto",
-        alignItems: "center",
-        columnGap: "20px",
+        minHeight: "420px",
       }}
     >
-      <span style={{ justifySelf: "start" }}>
-        <BracketGlyph glyph="[" size={110} className="home-industries-preview-bracket" />
-      </span>
+      {activeVideoSrc ? (
+        <div
+          className="absolute inset-0"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "auto minmax(260px, 1fr) auto",
+            alignItems: "center",
+            columnGap: "20px",
+          }}
+        >
+          <motion.span
+            style={{ justifySelf: "start" }}
+            initial={reduceMotion ? false : { opacity: 0, x: -12, scale: 1.04 }}
+            animate={reduceMotion ? undefined : { opacity: 1, x: 0, scale: 1 }}
+            exit={reduceMotion ? undefined : { opacity: 0, x: -6, scale: 1.01 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.34, ease: PREVIEW_REVEAL_EASE, delay: 0.03 }
+            }
+          >
+            <BracketGlyph glyph="[" size={110} className="home-industries-preview-bracket" />
+          </motion.span>
 
-      <div
-        className="relative flex min-h-[360px] items-center justify-center"
-        style={{ width: "100%", justifySelf: "center" }}
-      >
-        <AnimatePresence mode="wait">
-          {activeVideoSrc ? (
-            <motion.video
+          <div
+            className="pointer-events-none relative flex min-h-[320px] items-center justify-center"
+            style={{
+              width: "100%",
+              justifySelf: "center",
+              background: "transparent",
+              mixBlendMode: "darken",
+            }}
+          >
+            <video
               key={activeVideoSrc}
               autoPlay
               muted
               loop
               playsInline
               preload="metadata"
-              className="pointer-events-none h-[360px] w-auto max-w-full object-contain"
-              style={{ mixBlendMode: "darken" }}
-              initial={reduceMotion ? false : { opacity: 0, y: 6, filter: "blur(6px)" }}
-              animate={reduceMotion ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={reduceMotion ? undefined : { opacity: 0, y: -6, filter: "blur(6px)" }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="block h-[320px] w-auto max-w-full object-contain"
+              style={{
+                display: "block",
+                background: "transparent",
+              }}
             >
               <source src={activeVideoSrc} type="video/mp4" />
-            </motion.video>
-          ) : null}
-        </AnimatePresence>
-      </div>
+            </video>
+          </div>
 
-      <span style={{ justifySelf: "end" }}>
-        <BracketGlyph glyph="]" size={110} className="home-industries-preview-bracket" />
-      </span>
+          <motion.span
+            style={{ justifySelf: "end" }}
+            initial={reduceMotion ? false : { opacity: 0, x: 12, scale: 1.04 }}
+            animate={reduceMotion ? undefined : { opacity: 1, x: 0, scale: 1 }}
+            exit={reduceMotion ? undefined : { opacity: 0, x: 6, scale: 1.01 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.34, ease: PREVIEW_REVEAL_EASE, delay: 0.03 }
+            }
+          >
+            <BracketGlyph glyph="]" size={110} className="home-industries-preview-bracket" />
+          </motion.span>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -294,7 +323,7 @@ export default function HomeIndustriesSection({ lang }: Props) {
           start="frame-start"
           end="frame-end"
           className="items-start"
-          style={{ minHeight: "760px" }}
+          style={{ minHeight: "620px" }}
         >
           <div style={{ gridColumn: "guide-1 / guide-2" }}>
             <h2

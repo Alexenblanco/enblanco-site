@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import HomeApproachSection from "@/components/home/HomeApproachSection";
+import HomeContactCtaSection from "@/components/home/HomeContactCtaSection";
 import { notFound } from "next/navigation";
 import HomeFeaturedWorks from "@/components/home/HomeFeaturedWorks";
 import HomeHero from "@/components/home/HomeHero";
@@ -58,6 +59,7 @@ export default async function LangHomePage({ params }: Props) {
         <HomeApproachSection lang={lang} />
         <HomeOfficeVideoBand />
         <HomeIndustriesSection lang={lang} />
+        <HomeContactCtaSection lang={lang} />
       </main>
     </>
   );
