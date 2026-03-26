@@ -188,6 +188,14 @@ a {
   text-decoration: none !important;
 }
 
+.page .home-industries-link-text,
+.page a.home-industries-link .home-industries-link-text,
+.page a.home-industries-link.no-underline .home-industries-link-text {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  text-decoration: none !important;
+}
+
 a:hover {
   color: var(--color-link-hover);
 }

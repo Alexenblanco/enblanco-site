@@ -49,6 +49,8 @@ const LIST_ITEM_GAP = "28px";
 const BRACKET_GAP_IDLE = "0.55em";
 const BRACKET_GAP_HOVER = "1.35em";
 const SECTION_ID = "home-industries-heading";
+const LINK_TEXT_COLOR = "var(--color-text)";
+const BRACKET_COLOR = "#FFFFFF";
 
 function capitalizeFirst(value: string) {
   if (!value) return value;
@@ -71,6 +73,60 @@ function getIndustryEntries(lang: Locale) {
     href: withLang("en", `areas/${slug}`),
     videoSrc: HOVER_VIDEO_BY_SLUG.en[slug],
   }));
+}
+
+function BracketGlyph({
+  glyph,
+  size,
+  className,
+}: {
+  glyph: "[" | "]";
+  size: number;
+  className: string;
+}) {
+  const width = Math.max(18, Math.round(size * 0.34));
+  const height = Math.max(28, Math.round(size * 1.16));
+
+  return (
+    <span
+      aria-hidden="true"
+      className={className}
+      style={{
+        display: "inline-flex",
+        width: `${width}px`,
+        height: `${height}px`,
+        alignItems: "center",
+        justifyContent: "center",
+        lineHeight: 0,
+      }}
+    >
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ overflow: "visible", display: "block" }}
+      >
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill={BRACKET_COLOR}
+          stroke={BRACKET_COLOR}
+          strokeWidth="0.7"
+          paintOrder="stroke fill"
+          style={{
+            fontFamily: objectSansThin.style.fontFamily,
+            fontSize: `${size}px`,
+            fontWeight: 400,
+          }}
+        >
+          {glyph}
+        </text>
+      </svg>
+    </span>
+  );
 }
 
 function IndustriesList({
@@ -98,37 +154,46 @@ function IndustriesList({
             onFocusCapture={() => setActiveSlug(item.videoSrc ? item.slug : null)}
             onBlurCapture={() => setActiveSlug(null)}
           >
+            <BracketGlyph
+              glyph="["
+              size={32}
+              className="home-industries-bracket"
+            />
             <span
               aria-hidden="true"
-              className="home-industries-bracket"
               style={{
-                fontSize: "32px",
-                lineHeight: "1.08",
                 marginRight: isActive ? BRACKET_GAP_HOVER : BRACKET_GAP_IDLE,
                 transition: "margin 180ms ease",
               }}
-            >
-              [
-            </span>
+            />
             <Link
               href={item.href}
               className="home-industries-link no-underline"
-              style={{ fontSize: "32px", lineHeight: "1.08" }}
+              style={{ fontSize: "32px", lineHeight: "1.08", textDecoration: "none" }}
             >
-              {item.label}
+              <span
+                className="home-industries-link-text"
+                style={{
+                  color: LINK_TEXT_COLOR,
+                  WebkitTextFillColor: LINK_TEXT_COLOR,
+                  textDecoration: "none",
+                }}
+              >
+                {item.label}
+              </span>
             </Link>
             <span
               aria-hidden="true"
-              className="home-industries-bracket"
               style={{
-                fontSize: "32px",
-                lineHeight: "1.08",
                 marginLeft: isActive ? BRACKET_GAP_HOVER : BRACKET_GAP_IDLE,
                 transition: "margin 180ms ease",
               }}
-            >
-              ]
-            </span>
+            />
+            <BracketGlyph
+              glyph="]"
+              size={32}
+              className="home-industries-bracket"
+            />
           </div>
         );
       })}
@@ -160,16 +225,8 @@ function HoverIndustryPreview({
         columnGap: "20px",
       }}
     >
-      <span
-        aria-hidden="true"
-        className={`${objectSansThin.className} home-industries-preview-bracket`}
-        style={{
-          fontSize: "110px",
-          lineHeight: "0.8",
-          justifySelf: "start",
-        }}
-      >
-        [
+      <span style={{ justifySelf: "start" }}>
+        <BracketGlyph glyph="[" size={110} className="home-industries-preview-bracket" />
       </span>
 
       <div
@@ -198,16 +255,8 @@ function HoverIndustryPreview({
         </AnimatePresence>
       </div>
 
-      <span
-        aria-hidden="true"
-        className={`${objectSansThin.className} home-industries-preview-bracket`}
-        style={{
-          fontSize: "110px",
-          lineHeight: "0.8",
-          justifySelf: "end",
-        }}
-      >
-        ]
+      <span style={{ justifySelf: "end" }}>
+        <BracketGlyph glyph="]" size={110} className="home-industries-preview-bracket" />
       </span>
     </div>
   );
