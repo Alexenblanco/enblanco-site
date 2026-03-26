@@ -70,7 +70,9 @@ export async function getProjectsIndex(lang: "es" | "en"): Promise<ProjectsIndex
   });
 }
 
-// —— Home featured works (max 6; CMS flags) ——
+const HOME_FEATURED_PROJECTS_LIMIT = 9;
+
+// —— Home featured works (max 9; CMS flags) ——
 
 export const homeFeaturedProjectsQuery = groq`
   *[
@@ -78,7 +80,7 @@ export const homeFeaturedProjectsQuery = groq`
     && language == $lang
     && featuredOnHome == true
     && defined(slug.current)
-  ] | order(coalesce(featuredHomeOrder, 999) asc, _createdAt desc)[0...6] {
+  ] | order(coalesce(featuredHomeOrder, 999) asc, _createdAt desc)[0...${HOME_FEATURED_PROJECTS_LIMIT}] {
     title,
     "slug": slug.current,
     tagline,

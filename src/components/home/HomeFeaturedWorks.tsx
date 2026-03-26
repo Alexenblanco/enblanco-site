@@ -6,6 +6,8 @@ import { absoluteUrl } from "@/lib/seo";
 import type { HomeFeaturedProjectCard } from "@/lib/sanity/queries";
 import HomeFeaturedWorksClient from "./HomeFeaturedWorksClient";
 
+const HOME_FEATURED_PROJECTS_LIMIT = 9;
+
 function projectDetailPath(lang: Locale, slug: string): string {
   return lang === "es"
     ? withLang("es", `proyectos/${slug}`)
@@ -18,27 +20,29 @@ function projectsIndexPath(lang: Locale): string {
 
 function buildFallbackProjects(lang: Locale): HomeFeaturedProjectCard[] {
   const listingProjects = getListingProjects();
-  const cards: HomeFeaturedProjectCard[] = listingProjects.slice(0, 6).map((project) => {
-    const slug = project.detailSlug ?? project.slug;
-    const label =
-      project.categories.length > 0
-        ? project.categories.join(" | ")
-        : project.services.length > 0
-          ? project.services.join(" | ")
-          : lang === "es"
-            ? "Proyecto"
-            : "Project";
+  const cards: HomeFeaturedProjectCard[] = listingProjects
+    .slice(0, HOME_FEATURED_PROJECTS_LIMIT)
+    .map((project) => {
+      const slug = project.detailSlug ?? project.slug;
+      const label =
+        project.categories.length > 0
+          ? project.categories.join(" | ")
+          : project.services.length > 0
+            ? project.services.join(" | ")
+            : lang === "es"
+              ? "Proyecto"
+              : "Project";
 
-    return {
-      slug,
-      title: project.title,
-      label,
-      imageUrl: project.coverImage || "/home/featured-work-default.svg",
-      imageAlt: project.coverAlt || project.title,
-    };
-  });
+      return {
+        slug,
+        title: project.title,
+        label,
+        imageUrl: project.coverImage || "/home/featured-work-default.svg",
+        imageAlt: project.coverAlt || project.title,
+      };
+    });
 
-  while (cards.length < 6) {
+  while (cards.length < HOME_FEATURED_PROJECTS_LIMIT) {
     const index = cards.length + 1;
     cards.push({
       slug: `placeholder-${index}`,
@@ -61,7 +65,7 @@ function mergeProjects(
   const seen = new Set<string>();
 
   for (const project of projects) {
-    if (merged.length >= 6) break;
+    if (merged.length >= HOME_FEATURED_PROJECTS_LIMIT) break;
     if (seen.has(project.slug)) continue;
     seen.add(project.slug);
     merged.push({
@@ -71,7 +75,7 @@ function mergeProjects(
   }
 
   for (const project of buildFallbackProjects(lang)) {
-    if (merged.length >= 6) break;
+    if (merged.length >= HOME_FEATURED_PROJECTS_LIMIT) break;
     if (seen.has(project.slug)) continue;
     seen.add(project.slug);
     merged.push(project);

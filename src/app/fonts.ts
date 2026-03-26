@@ -8,3 +8,8 @@ export const objectSans = localFont({
   variable: "--font-sans",
   display: "swap",
 });
+
+export const objectSansThin = localFont({
+  src: "./fonts/ObjectSans-Thin.otf",
+  display: "swap",
+});

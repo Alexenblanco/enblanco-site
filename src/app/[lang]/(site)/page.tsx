@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import HomeApproachSection from "@/components/home/HomeApproachSection";
 import { notFound } from "next/navigation";
 import HomeFeaturedWorks from "@/components/home/HomeFeaturedWorks";
 import HomeHero from "@/components/home/HomeHero";
+import HomeIndustriesSection from "@/components/home/HomeIndustriesSection";
+import HomeOfficeVideoBand from "@/components/home/HomeOfficeVideoBand";
+import HomeServicesOrbit from "@/components/home/HomeServicesOrbit";
 import { isValidLang } from "@/lib/i18n/path";
 import { getHomeFeaturedProjects } from "@/lib/sanity/queries";
 
@@ -50,6 +54,10 @@ export default async function LangHomePage({ params }: Props) {
       <main id="main" className="overflow-x-hidden bg-[var(--color-bg)]">
         <HomeHero lang={lang} />
         <HomeFeaturedWorks lang={lang} projects={featuredProjects} />
+        <HomeServicesOrbit lang={lang} />
+        <HomeApproachSection lang={lang} />
+        <HomeOfficeVideoBand />
+        <HomeIndustriesSection lang={lang} />
       </main>
     </>
   );

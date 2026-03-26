@@ -155,6 +155,39 @@ a {
 .page a:active {
   color: var(--color-link-active) !important;
 }
+
+.page .home-industries-bracket,
+.page .home-industries-preview-bracket,
+.page span.home-industries-bracket,
+.page span.home-industries-preview-bracket,
+.page .objectsansthin_5c3cae5f-module__GsUNbq__className {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  -webkit-text-stroke: 0.35px #FFFFFF !important;
+  paint-order: stroke fill !important;
+  text-shadow: 0 0 0.8px #FFFFFF, 0 0 0.8px #FFFFFF !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.page a.home-industries-link,
+.page a.home-industries-link.no-underline,
+.page a.home-industries-link:link,
+.page a.home-industries-link:visited,
+.page a.home-industries-link:hover,
+.page a.home-industries-link:focus-visible,
+.page a.home-industries-link:active,
+.page a.home-industries-link.no-underline:link,
+.page a.home-industries-link.no-underline:visited,
+.page a.home-industries-link.no-underline:hover,
+.page a.home-industries-link.no-underline:focus-visible,
+.page a.home-industries-link.no-underline:active {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  text-decoration: none !important;
+}
+
 a:hover {
   color: var(--color-link-hover);
 }
