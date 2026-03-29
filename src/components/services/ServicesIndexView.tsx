@@ -14,6 +14,10 @@ import ServiceCapabilityRow from "./ServiceCapabilityRow";
 import ServicesFaqPills from "./ServicesFaqPills";
 
 const REVEAL_EASE = [0.16, 1, 0.3, 1] as const;
+const HERO_STAGE_HEIGHT = "60svh";
+const HERO_STAGE_MIN_HEIGHT = "560px";
+const HERO_COPY_BOTTOM_OFFSET = "48px";
+const HERO_FADE_HEIGHT = "240px";
 
 type ServicesIndexViewProps = {
   lang: Locale;
@@ -30,9 +34,31 @@ export default function ServicesIndexView({ lang }: ServicesIndexViewProps) {
 
       <section aria-label={lang === "es" ? "Introducción de servicios" : "Services introduction"}>
         <EditorialShell
-          className="relative overflow-hidden pb-0 pt-0"
-          style={{ minHeight: "clamp(460px, 44vw, 670px)" }}
+          className="relative overflow-visible pb-0 pt-0"
+          style={{ minHeight: `max(${HERO_STAGE_HEIGHT}, ${HERO_STAGE_MIN_HEIGHT})` }}
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0"
+            style={{
+              height: `max(${HERO_STAGE_HEIGHT}, ${HERO_STAGE_MIN_HEIGHT})`,
+              background: "#FFFFFF",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 -translate-x-1/2"
+            style={{
+              top: `calc(max(${HERO_STAGE_HEIGHT}, ${HERO_STAGE_MIN_HEIGHT}) - 24px)`,
+              width: "140vw",
+              height: HERO_FADE_HEIGHT,
+              background: "#FFFFFF",
+              borderRadius: "9999px",
+              filter: "blur(78px)",
+              opacity: 0.95,
+            }}
+          />
+
           <EditorialBlock
             start="frame-start"
             end="frame-end"
@@ -78,18 +104,6 @@ export default function ServicesIndexView({ lang }: ServicesIndexViewProps) {
             </span>
           </EditorialSubgrid>
 
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2"
-            style={{
-              width: "min(100vw, 1728px)",
-              height: "670px",
-              background: "#FFFFFF",
-              filter: "blur(50px)",
-              opacity: 0.92,
-            }}
-          />
-
           <motion.div
             aria-hidden="true"
             className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2"
@@ -114,10 +128,10 @@ export default function ServicesIndexView({ lang }: ServicesIndexViewProps) {
           <EditorialBlock
             start="frame-start"
             end="guide-3"
-            className="relative z-10 md:pl-24"
+            className="relative z-10 flex items-end md:pl-24"
             style={{
-              paddingTop: "clamp(220px, 21vw, 360px)",
-              paddingBottom: "clamp(84px, 8vw, 146px)",
+              minHeight: `max(${HERO_STAGE_HEIGHT}, ${HERO_STAGE_MIN_HEIGHT})`,
+              paddingBottom: HERO_COPY_BOTTOM_OFFSET,
             }}
           >
             <motion.p
@@ -144,12 +158,47 @@ export default function ServicesIndexView({ lang }: ServicesIndexViewProps) {
         <EditorialShell className="py-0">
           {content.capabilities.map((capability, index) => (
             <ServiceCapabilityRow
-              key={capability.number}
+              key={`mobile-${capability.number}`}
               capability={capability}
               eyebrow={content.capabilitiesEyebrow}
               showEyebrow={index === 0}
               isLast={index === content.capabilities.length - 1}
               reduceMotion={!!reduceMotion}
+              renderDesktop={false}
+            />
+          ))}
+
+          <EditorialSubgrid
+            start="frame-start"
+            end="frame-end"
+            className="hidden items-start md:grid"
+          >
+            <div
+              style={{
+                gridColumn: "frame-start / guide-2",
+                position: "sticky",
+                top: "24px",
+                alignSelf: "start",
+              }}
+            >
+              <p
+                className="font-normal text-[var(--color-text)]"
+                style={{ fontSize: "20px", lineHeight: "1.1" }}
+              >
+                {content.capabilitiesEyebrow}
+              </p>
+            </div>
+
+            <div style={{ gridColumn: "frame-start / frame-end" }} />
+          </EditorialSubgrid>
+
+          {content.capabilities.map((capability, index) => (
+            <ServiceCapabilityRow
+              key={`desktop-${capability.number}`}
+              capability={capability}
+              isLast={index === content.capabilities.length - 1}
+              reduceMotion={!!reduceMotion}
+              renderMobile={false}
             />
           ))}
         </EditorialShell>

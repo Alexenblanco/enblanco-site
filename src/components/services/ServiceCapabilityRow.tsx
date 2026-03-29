@@ -19,6 +19,8 @@ type ServiceCapabilityRowProps = {
   showEyebrow?: boolean;
   isLast?: boolean;
   reduceMotion: boolean;
+  renderMobile?: boolean;
+  renderDesktop?: boolean;
 };
 
 function CapabilityTitle({ lines }: { lines: string[] }) {
@@ -123,6 +125,8 @@ export default function ServiceCapabilityRow({
   showEyebrow = false,
   isLast = false,
   reduceMotion,
+  renderMobile = true,
+  renderDesktop = true,
 }: ServiceCapabilityRowProps) {
   const animation = reduceMotion
     ? undefined
@@ -135,118 +139,112 @@ export default function ServiceCapabilityRow({
 
   return (
     <>
-      <motion.article
-        className="border-t border-white/70 px-[var(--editorial-mobile-padding)] py-7 md:hidden"
-        {...animation}
-      >
-        {showEyebrow ? (
-          <p
-            className="mb-8 font-normal text-[var(--color-text)]"
-            style={{ fontSize: "20px", lineHeight: "1.1" }}
-          >
-            {eyebrow}
-          </p>
-        ) : null}
-
-        <p
-          className="mb-4 font-normal !text-[#FFFFFF]"
-          style={{
-            fontSize: "20px",
-            lineHeight: "1.1",
-            color: "#FFFFFF",
-            WebkitTextFillColor: "#FFFFFF",
-            textShadow: "0 0 0.8px #FFFFFF",
-          }}
+      {renderMobile ? (
+        <motion.article
+          className="border-t border-white/70 px-[var(--editorial-mobile-padding)] py-7 md:hidden"
+          style={{ borderTopWidth: "2px" }}
+          {...animation}
         >
-          {capability.number}
-        </p>
-        <CapabilityTitle lines={capability.titleLines} />
-        <p
-          className="mt-5 max-w-[42rem] text-[var(--color-text)]"
-          style={{ fontSize: "20px", lineHeight: "1.1" }}
-        >
-          {capability.description}
-        </p>
-        <CapabilityGroupsMobile groups={capability.groups} />
-        <CapabilityActions
-          interestLink={capability.interestLink}
-          examplesLink={capability.examplesLink}
-        />
-      </motion.article>
-
-      <EditorialSubgrid
-        as={motion.article}
-        start="frame-start"
-        end="frame-end"
-        className="hidden items-start py-10 md:grid"
-        {...animation}
-      >
-        <div style={{ gridColumn: "frame-start / guide-2" }}>
           {showEyebrow ? (
             <p
-              className="font-normal text-[var(--color-text)]"
+              className="mb-8 font-normal text-[var(--color-text)]"
               style={{ fontSize: "20px", lineHeight: "1.1" }}
             >
               {eyebrow}
             </p>
           ) : null}
-        </div>
 
-        <div
-          style={{
-            gridColumn: "frame-start / guide-3",
-            width: `${TITLE_BLOCK_WIDTH}px`,
-            justifySelf: "end",
-          }}
-        >
-          <div className="flex items-start justify-between">
-            <p
-              className="font-normal !text-[#FFFFFF]"
-              style={{
-                fontSize: "20px",
-                lineHeight: "1.1",
-                color: "#FFFFFF",
-                WebkitTextFillColor: "#FFFFFF",
-                textShadow: "0 0 0.8px #FFFFFF",
-              }}
-            >
-              {capability.number}
-            </p>
-
-            <div className="w-[138px]">
-              <CapabilityTitle lines={capability.titleLines} />
-            </div>
-          </div>
-        </div>
-
-        <div style={{ gridColumn: "guide-4 / guide-5" }}>
           <p
-            className="text-[var(--color-text)]"
-            style={{ fontSize: "20px", lineHeight: "1.1", maxWidth: "646px" }}
+            className="mb-4 font-normal !text-[#FFFFFF]"
+            style={{
+              fontSize: "20px",
+              lineHeight: "1.1",
+              color: "#FFFFFF",
+              WebkitTextFillColor: "#FFFFFF",
+              textShadow: "0 0 0.8px #FFFFFF",
+            }}
+          >
+            {capability.number}
+          </p>
+          <CapabilityTitle lines={capability.titleLines} />
+          <p
+            className="mt-5 max-w-[42rem] text-[var(--color-text)]"
+            style={{ fontSize: "20px", lineHeight: "1.1" }}
           >
             {capability.description}
           </p>
-          <div className="flex justify-end" style={{ marginTop: "19px" }}>
-            <CapabilityActions
-              interestLink={capability.interestLink}
-              examplesLink={capability.examplesLink}
-            />
+          <CapabilityGroupsMobile groups={capability.groups} />
+          <CapabilityActions
+            interestLink={capability.interestLink}
+            examplesLink={capability.examplesLink}
+          />
+        </motion.article>
+      ) : null}
+
+      {renderDesktop ? (
+        <EditorialSubgrid
+          as={motion.article}
+          start="frame-start"
+          end="frame-end"
+          className="hidden items-start py-10 md:grid"
+          {...animation}
+        >
+          <div
+            style={{
+              gridColumn: "guide-2 / guide-3",
+              width: `${TITLE_BLOCK_WIDTH}px`,
+              justifySelf: "end",
+            }}
+          >
+            <div className="flex items-start justify-between">
+              <p
+                className="font-normal"
+                style={{
+                  fontSize: "20px",
+                  lineHeight: "1.1",
+                  color: "#FFFFFF",
+                  WebkitTextFillColor: "#FFFFFF",
+                  textShadow: "0 0 0.8px #FFFFFF",
+                }}
+              >
+                {capability.number}
+              </p>
+
+              <div className="w-[138px]">
+                <CapabilityTitle lines={capability.titleLines} />
+              </div>
+            </div>
           </div>
 
-          <CapabilityGroupsDesktop groups={capability.groups} />
-        </div>
+          <div style={{ gridColumn: "guide-4 / guide-5" }}>
+            <p
+              className="text-[var(--color-text)]"
+              style={{ fontSize: "20px", lineHeight: "1.1", maxWidth: "646px" }}
+            >
+              {capability.description}
+            </p>
+            <div className="flex justify-end" style={{ marginTop: "19px" }}>
+              <CapabilityActions
+                interestLink={capability.interestLink}
+                examplesLink={capability.examplesLink}
+              />
+            </div>
 
-        {!isLast ? (
-          <div
-            aria-hidden="true"
-            className="mt-10 h-px bg-white/70"
-            style={{
-              gridColumn: "guide-2 / frame-end",
-              marginInlineStart: `${DIVIDER_OFFSET}px`,
-            }}
-          />
-        ) : null}
-      </EditorialSubgrid>
+            <CapabilityGroupsDesktop groups={capability.groups} />
+          </div>
+
+          {!isLast ? (
+            <div
+              aria-hidden="true"
+              className="mt-10 h-[2px] bg-white/70"
+              style={{
+                gridColumn: "guide-2 / frame-end",
+                marginInlineStart: `${DIVIDER_OFFSET}px`,
+              }}
+            />
+          ) : null}
+        </EditorialSubgrid>
+      ) : null}
     </>
   );
 }
