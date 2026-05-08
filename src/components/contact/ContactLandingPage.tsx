@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Dictionary } from "@/dictionaries";
 import ContactGuidedFlow from "@/components/contact/ContactGuidedFlow";
+import CopyEmailButton from "@/components/contact/CopyEmailButton";
 import EditorialShell, {
   EditorialBlock,
   EditorialSubgrid,
@@ -26,17 +27,29 @@ const OFFICES = [
   },
 ];
 
-function ContactPhone() {
+function ContactPhone({ lang }: { lang: Locale }) {
+  const formatted = CONTACT_PHONE.replace("+34 ", "");
+  const copiedLabel = lang === "es" ? "Copiado" : "Copied";
+
   return (
-    <a
-      href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`}
-      className="contact-muted-link no-underline"
-    >
-      <span className="contact-white !text-[#ffffff]">
-        [+34]
-      </span>
-      <span>{` ${CONTACT_PHONE.replace("+34 ", "")}`}</span>
-    </a>
+    <>
+      <a
+        href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`}
+        className="contact-muted-link no-underline md:hidden"
+      >
+        <span className="contact-white !text-[#ffffff]">[+34]</span>
+        <span>{` ${formatted}`}</span>
+      </a>
+      <CopyEmailButton
+        textToCopy={CONTACT_PHONE}
+        copiedLabel={copiedLabel}
+        ariaLabel={lang === "es" ? "Copiar teléfono al portapapeles" : "Copy phone number to clipboard"}
+        className="hidden md:inline-flex"
+      >
+        <span className="contact-white !text-[#ffffff]">[+34]</span>
+        <span>{` ${formatted}`}</span>
+      </CopyEmailButton>
+    </>
   );
 }
 
@@ -46,9 +59,9 @@ function OfficeList({ className = "" }: { className?: string }) {
       {OFFICES.map((office) => (
         <address
           key={office.city}
-          className="w-[192px] not-italic text-[15px] leading-[19.5px] tracking-[-0.05em] md:text-lg md:leading-none"
+          className="w-[192px] not-italic text-[15px] leading-[19.5px] tracking-[-0.05em] md:text-[18px] md:leading-none"
         >
-          <p className="mb-[30px] text-lg leading-none md:mb-[45px]">{office.city}</p>
+          <p className="mb-[30px] text-[18px] leading-none md:mb-[45px]">{office.city}</p>
           {office.address.map((line) => (
             <p key={line}>{line}</p>
           ))}
@@ -95,7 +108,7 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         aria-label={lang === "es" ? "Migas de pan" : "Breadcrumb"}
         start="frame-start"
         end="frame-end"
-        className="hidden text-sm leading-[18px] tracking-[-0.05em] md:grid"
+        className="hidden text-[14px] leading-[18px] tracking-[-0.05em] md:grid"
         style={{ gridRow: "1" }}
       >
         <Link
@@ -117,15 +130,13 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         <section aria-labelledby="contact-details-heading-mobile" className="flex flex-col gap-8">
           <h2
             id="contact-details-heading-mobile"
-            className="text-xl leading-none tracking-[-0.05em]"
+            className="text-[20px] leading-none tracking-[-0.05em]"
           >
             {copy.contact}
           </h2>
-          <div className="flex flex-col gap-6 text-2xl leading-none tracking-[-0.05em]">
-            <a href={`mailto:${CONTACT_EMAIL}`} className="contact-muted-link no-underline">
-              {CONTACT_EMAIL}
-            </a>
-            <ContactPhone />
+          <div className="flex flex-col gap-6 text-[24px] leading-none tracking-[-0.05em]">
+            <CopyEmailButton email={CONTACT_EMAIL} copiedLabel={lang === "es" ? "Copiado" : "Copied"} />
+            <ContactPhone lang={lang} />
           </div>
         </section>
 
@@ -139,7 +150,7 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         <section aria-labelledby="contact-offices-heading-mobile" className="flex flex-col gap-12">
           <h2
             id="contact-offices-heading-mobile"
-            className="text-xl leading-none tracking-[-0.05em]"
+            className="text-[20px] leading-none tracking-[-0.05em]"
           >
             {copy.offices}
           </h2>
@@ -155,14 +166,12 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         className="hidden flex-col gap-8 md:flex"
         style={{ gridRow: "1", marginTop: "397px" }}
       >
-        <h2 id="contact-details-heading" className="text-xl leading-none tracking-[-0.05em]">
+        <h2 id="contact-details-heading" className="text-[20px] leading-none tracking-[-0.05em]">
           {copy.contact}
         </h2>
-        <div className="flex items-center justify-between gap-10 text-2xl leading-none tracking-[-0.05em]">
-          <a href={`mailto:${CONTACT_EMAIL}`} className="contact-muted-link no-underline">
-            {CONTACT_EMAIL}
-          </a>
-          <ContactPhone />
+        <div className="flex items-center justify-between gap-10 text-[24px] leading-none tracking-[-0.05em]">
+          <CopyEmailButton email={CONTACT_EMAIL} copiedLabel={lang === "es" ? "Copiado" : "Copied"} />
+          <ContactPhone lang={lang} />
         </div>
       </EditorialBlock>
 
@@ -188,7 +197,7 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         className="hidden flex-col gap-8 md:flex"
         style={{ gridRow: "1", marginTop: "612px" }}
       >
-        <h2 id="contact-offices-heading" className="text-xl leading-none tracking-[-0.05em]">
+        <h2 id="contact-offices-heading" className="text-[20px] leading-none tracking-[-0.05em]">
           {copy.offices}
         </h2>
         <OfficeList />

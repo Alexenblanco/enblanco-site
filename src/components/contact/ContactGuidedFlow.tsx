@@ -306,14 +306,14 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 setFieldErrors({});
                 setEmailTouched(false);
               }}
-              className="relative isolate h-9 cursor-pointer rounded-full bg-transparent px-0 text-center text-base tracking-[-0.05em] !text-[#8a8a8a] transition hover:!text-[#5d5d5d] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:h-[53px] md:text-xl before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-white before:blur-[3.4px] before:transition before:content-[''] hover:before:bg-[#f8f8f8] md:before:blur-[5px]"
+              className="relative isolate h-9 cursor-pointer rounded-full bg-transparent px-0 text-center text-[16px] tracking-[-0.05em] !text-[#8a8a8a] transition hover:!text-[#5d5d5d] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:h-[53px] md:text-[20px] before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-white before:blur-[3.4px] before:transition before:content-[''] hover:before:bg-[#f8f8f8] md:before:blur-[5px]"
               aria-label={`${dict.options[type].title}. ${dict.options[type].subtitle}`}
             >
               {dict.options[type].title}
             </button>
           ))}
         </div>
-        <p className="max-w-[332px] text-center text-base leading-none tracking-[-0.05em] !text-[#8a8a8a] md:max-w-[394px] md:text-sm">
+        <p className="max-w-[332px] text-center text-[16px] leading-none tracking-[-0.05em] !text-[#8a8a8a] md:max-w-[394px] md:text-[14px]">
           {dict.heroSubtitle}
         </p>
       </section>

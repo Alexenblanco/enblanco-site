@@ -5,13 +5,15 @@ import { join } from "path";
 
 import { CONTACT_EMAIL } from "@/lib/site-config";
 import { isValidEmail, normalizeEmail } from "@/lib/email-validation";
+import { getSiteUrl } from "@/lib/seo";
 
 /**
  * Required env vars:
  * - RESEND_API_KEY: API key used to send emails via Resend.
  */
-const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 min
+const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_WINDOW_MS = 20 * 60 * 1000; // 20 min
+const MAX_BODY_BYTES = 64 * 1024;
 const NAME_MIN = 2;
 const MESSAGE_MIN = 10;
 
@@ -33,6 +35,30 @@ function isRateLimited(ip: string): boolean {
   timestamps.push(now);
   rateLimitMap.set(ip, timestamps);
   return false;
+}
+
+function isAllowedOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+
+  // In production, browser POSTs should include Origin. Tests/dev tooling may omit it.
+  if (!origin) return process.env.NODE_ENV !== "production";
+
+  try {
+    const allowedOrigins = new Set([
+      new URL(getSiteUrl()).origin,
+      request.nextUrl.origin,
+    ]);
+    return allowedOrigins.has(new URL(origin).origin);
+  } catch {
+    return false;
+  }
+}
+
+function hasAcceptableBodySize(request: NextRequest): boolean {
+  const contentLength = request.headers.get("content-length");
+  if (!contentLength) return true;
+  const bytes = Number(contentLength);
+  return Number.isFinite(bytes) && bytes <= MAX_BODY_BYTES;
 }
 
 function escapePlain(s: string): string {
@@ -165,11 +191,19 @@ async function persistFailedLead(data: LeadPayload): Promise<void> {
   } catch {
     // En serverless (Vercel) el filesystem puede no ser persistente o ser de solo lectura.
     // Considerar Vercel KV/Blob para producción. Aquí solo registramos y no bloqueamos.
-    console.error("[lead] Failed to persist failed lead (fallback store)", data);
+    console.error("[lead] Failed to persist failed lead (fallback store)");
   }
 }
 
 export async function POST(request: NextRequest) {
+  if (!isAllowedOrigin(request)) {
+    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+  }
+
+  if (!hasAcceptableBodySize(request)) {
+    return NextResponse.json({ ok: false, error: "payload_too_large" }, { status: 413 });
+  }
+
   const ip = getClientIp(request);
   if (isRateLimited(ip)) {
     return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
