@@ -46,6 +46,8 @@ const initialForm: FormData = {
   acceptPrivacy: false,
 };
 
+const OPTION_ORDER = ["contact", "project", "talent"] as const;
+
 function getTotalSteps(type: LeadType): number {
   if (type === "project") return 5;
   if (type === "talent") return 3;
@@ -285,10 +287,16 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
 
   if (leadType === null) {
     return (
-      <section className="border-t border-zinc-200 pt-8" aria-label="Tipo de consulta">
-        <p className="text-sm text-zinc-700">{dict.heroSubtitle}</p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {(["project", "contact", "talent"] as const).map((type) => (
+      <section className="flex w-full flex-col items-center gap-8 text-center" aria-labelledby="contact-flow-heading">
+        <h1
+          id="contact-flow-heading"
+          className="contact-hero-heading !text-[#ffffff] w-full max-w-full whitespace-nowrap text-center text-[min(70.22px,19vw)] leading-none tracking-[-0.05em] md:text-[clamp(104px,8vw,119.899px)]"
+        >
+          <span className="sr-only">{dict.heroTitle}</span>
+          <span aria-hidden>{lang === "es" ? "¿habl\u00A0\u00A0mos?" : "let’s talk?"}</span>
+        </h1>
+        <div className="grid w-full max-w-[370px] grid-cols-3 gap-[13.5px] md:max-w-[543px] md:gap-5">
+          {OPTION_ORDER.map((type) => (
             <button
               key={type}
               type="button"
@@ -298,14 +306,16 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 setFieldErrors({});
                 setEmailTouched(false);
               }}
-              className="cursor-pointer rounded border border-zinc-300 bg-white px-4 py-4 text-left transition hover:border-zinc-400 hover:bg-zinc-50"
-              aria-label={dict.options[type].title}
+              className="relative isolate h-9 cursor-pointer rounded-full bg-transparent px-0 text-center text-base tracking-[-0.05em] !text-[#8a8a8a] transition hover:!text-[#5d5d5d] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:h-[53px] md:text-xl before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-white before:blur-[3.4px] before:transition before:content-[''] hover:before:bg-[#f8f8f8] md:before:blur-[5px]"
+              aria-label={`${dict.options[type].title}. ${dict.options[type].subtitle}`}
             >
-              <span className="block text-sm font-medium text-zinc-900">{dict.options[type].title}</span>
-              <span className="mt-1 block text-xs text-zinc-600">{dict.options[type].subtitle}</span>
+              {dict.options[type].title}
             </button>
           ))}
         </div>
+        <p className="max-w-[332px] text-center text-base leading-none tracking-[-0.05em] !text-[#8a8a8a] md:max-w-[394px] md:text-sm">
+          {dict.heroSubtitle}
+        </p>
       </section>
     );
   }

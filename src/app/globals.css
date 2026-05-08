@@ -127,15 +127,6 @@ html.lenis body {
   pointer-events: none;
 }
 
-h1, h2 {
-  font-size: var(--h1);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-base);
-  font-weight: var(--font-weight-regular);
-}
-h1 { font-size: var(--h1); }
-h2 { font-size: var(--h2); }
-
 a {
   color: var(--color-link);
 }
@@ -169,6 +160,30 @@ a {
   mix-blend-mode: normal !important;
   opacity: 1 !important;
   filter: none !important;
+}
+
+.page .contact-figma-page,
+.page .contact-figma-page * {
+  color: #8A8A8A !important;
+  font-weight: var(--font-weight-regular) !important;
+}
+
+.page .contact-figma-page .contact-hero-heading,
+.page .contact-figma-page .contact-hero-heading *,
+.page .contact-figma-page .contact-white {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.page .contact-figma-page a.contact-muted-link,
+.page .contact-figma-page a.contact-muted-link:link,
+.page .contact-figma-page a.contact-muted-link:visited,
+.page .contact-figma-page a.contact-muted-link:hover,
+.page .contact-figma-page a.contact-muted-link:focus-visible,
+.page .contact-figma-page a.contact-muted-link:active {
+  color: #8A8A8A !important;
+  -webkit-text-fill-color: #8A8A8A !important;
+  text-decoration: none !important;
 }
 
 .page a.home-industries-link,

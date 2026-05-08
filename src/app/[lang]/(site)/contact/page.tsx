@@ -1,25 +1,15 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { withLang, isValidLang } from "@/lib/i18n/path";
 import { getDictionary } from "@/dictionaries";
-import ContactGuidedFlow from "@/components/contact/ContactGuidedFlow";
+import ContactLandingPage from "@/components/contact/ContactLandingPage";
 import { getSiteUrl } from "@/lib/seo";
-import {
-  CONTACT_EMAIL,
-  CONTACT_PHONE,
-  LEGAL_ENTITY_ADDRESS,
-} from "@/lib/site-config";
 
 type Props = { params: Promise<{ lang: string }> };
 
 const siteUrl = getSiteUrl();
 
 /** Literal paths for Link hrefs to avoid Next 15 client router resolution errors (is-dynamic). */
-const EN_HOME = "/en";
-const EN_PROJECTS = "/en/projects";
-const EN_SERVICES = "/en/services";
-const EN_NOTES = "/en/notes";
 const EN_PRIVACY = "/en/privacy";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -44,42 +34,11 @@ export default async function ContactPage({ params }: Props) {
   const dict = getDictionary("en");
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <section aria-labelledby="contact-heading" className="mb-10">
-        <h1 id="contact-heading" className="text-2xl font-semibold tracking-tight">
-          {dict.contact.heroTitle}
-        </h1>
-        <p className="mt-3 text-sm text-zinc-700">
-          To tell us about a project, propose a collaboration, or just say hello.
-        </p>
-      </section>
-      <section id="contact-details" aria-labelledby="details-heading" className="mb-10">
-        <h2 id="details-heading" className="text-base font-semibold tracking-tight">Contact details</h2>
-        <p className="mt-2 text-sm text-zinc-700">
-          <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>
-          {" · "}
-          <a href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`} className="underline">{CONTACT_PHONE}</a>
-        </p>
-      </section>
-      <section id="offices" aria-labelledby="offices-heading" className="mb-10">
-        <h2 id="offices-heading" className="text-base font-semibold tracking-tight">Address</h2>
-        <address className="mt-3 not-italic text-sm text-zinc-700">{LEGAL_ENTITY_ADDRESS}</address>
-      </section>
-      <ContactGuidedFlow
-        dict={dict.contact}
-        lang="en"
-        privacyHref={EN_PRIVACY}
-        pageUrl={`${siteUrl}/en/contact`}
-      />
-      <p className="mt-8 text-sm text-zinc-600">
-        <Link href={EN_HOME} className="underline">home</Link>
-        {" · "}
-        <Link href={EN_PROJECTS} className="underline">projects</Link>
-        {" · "}
-        <Link href={EN_SERVICES} className="underline">services</Link>
-        {" · "}
-        <Link href={EN_NOTES} className="underline">notes</Link>
-      </p>
-    </main>
+    <ContactLandingPage
+      dict={dict.contact}
+      lang="en"
+      privacyHref={EN_PRIVACY}
+      pageUrl={`${siteUrl}/en/contact`}
+    />
   );
 }

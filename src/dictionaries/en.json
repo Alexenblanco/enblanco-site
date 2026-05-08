@@ -9,8 +9,8 @@
     "contact": "contact"
   },
   "contact": {
-    "heroTitle": "Let's talk",
-    "heroSubtitle": "Select the type of enquiry and we'll guide you in a few steps.",
+    "heroTitle": "let’s talk?",
+    "heroSubtitle": "Whether you want to tell us about a project, suggest a collaboration, or simply say hello, write to us.",
     "stepOf": "Step {{current}} of {{total}}",
     "changeType": "Change enquiry type",
     "back": "Back",
@@ -22,7 +22,7 @@
         "subtitle": "For new brands, redesigns, web or specific creative needs."
       },
       "contact": {
-        "title": "Contact",
+        "title": "Chat",
         "subtitle": "For general enquiries, collaborations or other conversations."
       },
       "talent": {

@@ -9,8 +9,8 @@
     "contact": "contacto"
   },
   "contact": {
-    "heroTitle": "Hablemos",
-    "heroSubtitle": "Selecciona el tipo de consulta y te guiaremos en unos pocos pasos.",
+    "heroTitle": "¿hablamos?",
+    "heroSubtitle": "Ya sea para contarnos un proyecto, proponer una colaboración o simplemente saludar, escríbenos.",
     "stepOf": "Paso {{current}} de {{total}}",
     "changeType": "Cambiar tipo de consulta",
     "back": "Atrás",
@@ -18,7 +18,7 @@
     "send": "Enviar",
     "options": {
       "project": { "title": "Proyecto", "subtitle": "Para nuevas marcas, rediseños, web o necesidades creativas concretas." },
-      "contact": { "title": "Contacto", "subtitle": "Para consultas generales, colaboraciones u otras conversaciones." },
+      "contact": { "title": "Charlar", "subtitle": "Para consultas generales, colaboraciones u otras conversaciones." },
       "talent": { "title": "Talento", "subtitle": "Para perfiles que quieran colaborar con enblanco." }
     },
     "labels": { "name": "Nombre", "email": "Email", "phone": "Teléfono (opcional)", "services": "Servicios de interés", "message": "Mensaje" },
