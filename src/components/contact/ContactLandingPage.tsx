@@ -108,7 +108,7 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         aria-label={lang === "es" ? "Migas de pan" : "Breadcrumb"}
         start="frame-start"
         end="frame-end"
-        className="hidden text-[14px] leading-[18px] tracking-[-0.05em] md:grid"
+        className="!hidden text-[14px] leading-[18px] tracking-[-0.05em] md:!grid"
         style={{ gridRow: "1" }}
       >
         <Link
@@ -118,10 +118,10 @@ export default function ContactLandingPage({ dict, lang, privacyHref, pageUrl }:
         >
           home
         </Link>
-        <span className="justify-self-center" style={{ gridColumn: "guide-3 / guide-4" }}>
+        <span className="!text-[var(--color-text)]" style={{ gridColumn: "guide-4 / guide-5" }}>
           {copy.breadcrumb}
         </span>
-        <span className="justify-self-end" style={{ gridColumn: "guide-5 / guide-6" }}>
+        <span className="justify-self-end !text-[var(--color-text)]" style={{ gridColumn: "guide-5 / guide-6" }}>
           enblanco
         </span>
       </EditorialSubgrid>

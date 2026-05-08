@@ -8,7 +8,7 @@ import {
   useTransform,
 } from "framer-motion";
 import type { CSSProperties, RefObject } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import EditorialShell, { EditorialBlock, EditorialSubgrid } from "@/components/layout/EditorialShell";
 import type { Locale } from "@/lib/i18n/path";
 import HomeBrandUniverseLines from "./HomeBrandUniverseLines";
@@ -116,7 +116,7 @@ function useMeasuredHeights(refs: Array<RefObject<HTMLDivElement | null>>) {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [refs]);
 
   return heights;
 }
@@ -128,7 +128,8 @@ export default function HomeApproachSection({ lang }: Props) {
   const card1Ref = useRef<HTMLDivElement | null>(null);
   const card2Ref = useRef<HTMLDivElement | null>(null);
   const card3Ref = useRef<HTMLDivElement | null>(null);
-  const heights = useMeasuredHeights([card1Ref, card2Ref, card3Ref]);
+  const cardRefs = useMemo(() => [card1Ref, card2Ref, card3Ref], []);
+  const heights = useMeasuredHeights(cardRefs);
 
   const stackHeight = heights[0] + heights[1] + heights[2] + BLOCK_GAP * 2;
   const card2Top = heights[0] + BLOCK_GAP;

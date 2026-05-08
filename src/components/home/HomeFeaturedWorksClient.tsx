@@ -466,10 +466,6 @@ export default function HomeFeaturedWorksClient({ lang, projects }: Props) {
   const [activeBatchIndex, setActiveBatchIndex] = useState(0);
 
   useEffect(() => {
-    setActiveBatchIndex(0);
-  }, [projects]);
-
-  useEffect(() => {
     if (reduceMotion || desktopProjectBatches.length < 2) return;
 
     const intervalId = window.setInterval(() => {
@@ -479,7 +475,10 @@ export default function HomeFeaturedWorksClient({ lang, projects }: Props) {
     return () => window.clearInterval(intervalId);
   }, [desktopProjectBatches.length, reduceMotion]);
 
-  const activeDesktopBatch = desktopProjectBatches[activeBatchIndex] ?? projects.slice(0, FEATURED_BATCH_SIZE);
+  const normalizedActiveBatchIndex =
+    desktopProjectBatches.length > 0 ? activeBatchIndex % desktopProjectBatches.length : 0;
+  const activeDesktopBatch =
+    desktopProjectBatches[normalizedActiveBatchIndex] ?? projects.slice(0, FEATURED_BATCH_SIZE);
   const selectedProject = pickSingleFeaturedProject(activeDesktopBatch);
   const secondaryProject = pickSecondaryFeaturedProject(activeDesktopBatch);
   const tertiaryProject = pickTertiaryFeaturedProject(activeDesktopBatch);
@@ -585,7 +584,7 @@ export default function HomeFeaturedWorksClient({ lang, projects }: Props) {
                       <FeaturedProjectCard
                         card={currentCard}
                         lang={lang}
-                        imagePriority={activeBatchIndex === 0}
+                        imagePriority={normalizedActiveBatchIndex === 0}
                         reduceMotion={!!reduceMotion}
                       />
                     )}
