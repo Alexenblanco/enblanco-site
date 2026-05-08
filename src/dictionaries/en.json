@@ -52,6 +52,7 @@
       "nameMin": "Name must be at least 2 characters.",
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email.",
+      "phoneInvalid": "Please enter a valid phone number.",
       "messageRequired": "Message is required.",
       "messageMin": "Message must be at least 10 characters.",
       "servicesRequired": "Select at least one service.",
@@ -63,7 +64,9 @@
       "art-direction": "Art direction",
       "marketing-creativo": "Marketing with a creative focus",
       "web-design": "Web design",
-      "packaging": "Packaging"
+      "editorial-design": "Editorial design",
+      "packaging": "Packaging",
+      "other": "Other"
     }
   }
 }

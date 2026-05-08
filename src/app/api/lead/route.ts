@@ -5,6 +5,7 @@ import { join } from "path";
 
 import { CONTACT_EMAIL } from "@/lib/site-config";
 import { isValidEmail, normalizeEmail } from "@/lib/email-validation";
+import { isValidPhone, normalizePhone } from "@/lib/phone-validation";
 import { getSiteUrl } from "@/lib/seo";
 
 /**
@@ -126,7 +127,8 @@ function validate(body: unknown): { ok: true; data: LeadPayload } | { ok: false;
   const honeypot = typeof b.company === "string" ? b.company.trim() : "";
   if (honeypot.length > 0) return { ok: false, error: "validation" };
 
-  const phone = typeof b.phone === "string" ? b.phone.trim() || undefined : undefined;
+  const phone = typeof b.phone === "string" ? normalizePhone(b.phone) || undefined : undefined;
+  if (phone && !isValidPhone(phone)) return { ok: false, error: "validation" };
   const servicesInterested =
     type === "project" && Array.isArray(b.servicesInterested)
       ? (b.servicesInterested as string[]).filter((s) => typeof s === "string")

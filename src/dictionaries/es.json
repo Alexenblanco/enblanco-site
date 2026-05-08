@@ -21,7 +21,7 @@
       "contact": { "title": "Charlar", "subtitle": "Para consultas generales, colaboraciones u otras conversaciones." },
       "talent": { "title": "Talento", "subtitle": "Para perfiles que quieran colaborar con enblanco." }
     },
-    "labels": { "name": "Nombre", "email": "Email", "phone": "Teléfono (opcional)", "services": "Servicios de interés", "message": "Mensaje" },
+    "labels": { "name": "Nombre", "email": "Email", "phone": "Teléfono (opcional)", "services": "¿Qué necesitas?", "message": "Mensaje" },
     "placeholders": { "name": "Tu nombre", "email": "tu@email.com", "phone": "+34 600 000 000", "message": "Cuéntanos en qué podemos ayudarte..." },
     "legal": "He leído y acepto la <privacyLink>Política de privacidad</privacyLink>.",
     "success": "Gracias. Hemos recibido tu mensaje y te responderemos lo antes posible.",
@@ -32,6 +32,7 @@
       "nameMin": "El nombre debe tener al menos 2 caracteres.",
       "emailRequired": "El email es obligatorio.",
       "emailInvalid": "Introduce un email válido.",
+      "phoneInvalid": "Introduce un teléfono válido.",
       "messageRequired": "El mensaje es obligatorio.",
       "messageMin": "El mensaje debe tener al menos 10 caracteres.",
       "servicesRequired": "Selecciona al menos un servicio.",
@@ -43,7 +44,9 @@
       "art-direction": "Dirección de arte",
       "marketing-creativo": "Marketing con enfoque creativo",
       "web-design": "Diseño web",
-      "packaging": "Packaging"
+      "editorial-design": "Diseño Editorial",
+      "packaging": "Packaging",
+      "other": "Otro"
     }
   }
 }

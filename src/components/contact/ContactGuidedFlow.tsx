@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useLayoutEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import Link from "next/link";
 import type { Dictionary } from "@/dictionaries";
 import { LEAD_SERVICE_IDS } from "@/lib/lead-form-services";
 import type { LeadType } from "@/app/api/lead/route";
 import { isValidEmail } from "@/lib/email-validation";
+import { isValidPhone, sanitizePhoneInput } from "@/lib/phone-validation";
 
 const NAME_MIN = 2;
 const MESSAGE_MIN = 10;
@@ -16,6 +17,8 @@ const MIN_FONT_SIZE_PX = 12;
 /** Transición suave al cambiar font-size */
 const FONT_SIZE_TRANSITION_MS = 120;
 const MESSAGE_MAX_HEIGHT_PX = 176;
+const MESSAGE_SCROLLBAR_PADDING_PX = 4;
+const MESSAGE_SCROLLBAR_MIN_THUMB_PX = 22;
 
 type ContactDict = Dictionary["contact"];
 
@@ -76,24 +79,22 @@ function AnimatedFeedback({
   const toneClass = tone === "warning" ? "text-amber-800" : "text-red-700";
 
   return (
-    <div className="min-h-6">
-      <AnimatePresence initial={false} mode="wait">
-        {message ? (
-          <motion.p
-            key={message}
-            id={id}
-            role="alert"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className={`text-sm ${toneClass} ${centered ? "text-center" : "text-left"}`}
-          >
-            {message}
-          </motion.p>
-        ) : null}
-      </AnimatePresence>
-    </div>
+    <AnimatePresence initial={false} mode="wait">
+      {message ? (
+        <motion.p
+          key={message}
+          id={id}
+          role="alert"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className={`text-sm ${toneClass} ${centered ? "text-center" : "text-left"}`}
+        >
+          {message}
+        </motion.p>
+      ) : null}
+    </AnimatePresence>
   );
 }
 
@@ -111,9 +112,59 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
   const inputWrapperRef = useRef<HTMLDivElement | null>(null);
   const measureSpanRef = useRef<HTMLSpanElement | null>(null);
   const [dynamicFontSizePx, setDynamicFontSizePx] = useState<number | null>(null);
+  const nameShakeControls = useAnimationControls();
+  const emailShakeControls = useAnimationControls();
+  const phoneShakeControls = useAnimationControls();
+  const messageShakeControls = useAnimationControls();
   const prevStepRef = useRef(step);
   const baseFontSizeRef = useRef<number | null>(null);
   const [resizeDeps, setResizeDeps] = useState(0);
+  const [isInputEngaged, setIsInputEngaged] = useState(false);
+  const [messageScrollbar, setMessageScrollbar] = useState({
+    canScroll: false,
+    thumbTop: 0,
+    thumbHeight: 0,
+  });
+
+  const triggerShake = useCallback(
+    (controls: ReturnType<typeof useAnimationControls>) => {
+      void controls.start({
+        x: [0, -6, 6, -4, 4, 0],
+        transition: { duration: 0.26, ease: "easeOut" },
+      });
+    },
+    []
+  );
+
+  const updateMessageScrollbar = useCallback(() => {
+    const textarea = stepInputRef.current;
+    if (!(textarea instanceof HTMLTextAreaElement)) return;
+
+    const { clientHeight, scrollHeight, scrollTop } = textarea;
+    const canScroll = scrollHeight > clientHeight + 1;
+    if (!canScroll) {
+      setMessageScrollbar({ canScroll: false, thumbTop: 0, thumbHeight: 0 });
+      return;
+    }
+
+    const trackHeight = Math.max(
+      MESSAGE_SCROLLBAR_MIN_THUMB_PX,
+      clientHeight - MESSAGE_SCROLLBAR_PADDING_PX * 2
+    );
+    const thumbHeight = Math.min(
+      trackHeight,
+      Math.max(
+        MESSAGE_SCROLLBAR_MIN_THUMB_PX,
+        (clientHeight / scrollHeight) * trackHeight
+      )
+    );
+    const maxThumbTop = trackHeight - thumbHeight;
+    const thumbTop =
+      MESSAGE_SCROLLBAR_PADDING_PX +
+      (scrollTop / Math.max(1, scrollHeight - clientHeight)) * maxThumbTop;
+
+    setMessageScrollbar({ canScroll: true, thumbTop, thumbHeight });
+  }, []);
 
   useEffect(() => {
     if (!leadType) return;
@@ -122,8 +173,63 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
       step === 2 ||
       (leadType !== "talent" && step === 3) ||
       step === getMessageStep(leadType);
-    if (hasInput) stepInputRef.current?.focus();
+    setIsInputEngaged(false);
+
+    if (!hasInput) return;
+
+    // Focus can be lost while Framer unmounts/mounts step content (mode="wait").
+    // Retry briefly across the transition window so typing works immediately.
+    let cancelled = false;
+    const timers: number[] = [];
+    const focusDelays = [0, 80, 180, 260];
+
+    focusDelays.forEach((delay) => {
+      const timer = window.setTimeout(() => {
+        if (cancelled) return;
+        stepInputRef.current?.focus();
+      }, delay);
+      timers.push(timer);
+    });
+
+    return () => {
+      cancelled = true;
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
   }, [leadType, step]);
+
+  useEffect(() => {
+    if (!leadType) return;
+
+    const scrollY = window.scrollY;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousWidth = document.body.style.width;
+
+    document.body.dataset.contactFlowActive = "1";
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+
+    return () => {
+      delete document.body.dataset.contactFlowActive;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = previousHtmlOverscroll;
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.width = previousWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [leadType]);
 
   useEffect(() => {
     const wrapper = inputWrapperRef.current;
@@ -189,7 +295,8 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
     textarea.style.height = `${Math.max(nextHeight, 56)}px`;
     textarea.style.overflowY =
       textarea.scrollHeight > MESSAGE_MAX_HEIGHT_PX ? "auto" : "hidden";
-  }, [leadType, step, form.message]);
+    updateMessageScrollbar();
+  }, [leadType, step, form.message, updateMessageScrollbar]);
 
   const setField = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -207,6 +314,10 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
         if (!form.email.trim()) err.email = dict.errors.emailRequired;
         else if (!isValidEmail(form.email)) err.email = dict.errors.emailInvalid;
       }
+      if (currentStep === 3 && leadType !== "talent") {
+        const phoneValue = form.phone.trim();
+        if (phoneValue && !isValidPhone(phoneValue)) err.phone = dict.errors.phoneInvalid;
+      }
       if (leadType === "project" && currentStep === getServicesStep()) {
         if (!form.services.length) err.services = dict.errors.servicesRequired;
       }
@@ -219,9 +330,17 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
         if (!form.acceptPrivacy) err.acceptPrivacy = dict.errors.privacyRequired;
       }
       setFieldErrors(err);
+
+      // Disparar vibración solo en intentos de avanzar/enviar con error.
+      // Así evitamos vibraciones al volver atrás y repetimos animación en cada nuevo intento fallido.
+      if (currentStep === 1 && err.name) triggerShake(nameShakeControls);
+      if (currentStep === 2 && err.email) triggerShake(emailShakeControls);
+      if (currentStep === 3 && err.phone) triggerShake(phoneShakeControls);
+      if (currentStep === msgStep && err.message) triggerShake(messageShakeControls);
+
       return Object.keys(err).length === 0;
     },
-    [form, leadType, dict.errors]
+    [form, leadType, dict.errors, triggerShake, nameShakeControls, emailShakeControls, phoneShakeControls, messageShakeControls]
   );
 
   const goNext = useCallback(() => {
@@ -270,6 +389,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
 
   const isLastStep = leadType ? step === getTotalSteps(leadType) : false;
   const optionalPrefix = lang === "es" ? "(opcional) " : "(optional) ";
+  const messageStepFeedback = fieldErrors.message ?? fieldErrors.acceptPrivacy;
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -322,10 +442,11 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex min-h-screen flex-col overflow-x-hidden backdrop-blur-2xl bg-[#e8e6e3]/75"
+      className="fixed inset-0 z-[100] flex h-[100dvh] min-h-screen flex-col overflow-hidden bg-[var(--color-bg)]"
       aria-label="Formulario de contacto"
       role="dialog"
       aria-modal="true"
+      onClick={closeOverlay}
     >
       <span
         ref={measureSpanRef}
@@ -333,20 +454,27 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
         className="pointer-events-none invisible absolute left-[-9999px]"
         style={{ position: "fixed" }}
       />
-      <div className="shrink-0 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-2 flex justify-center">
+      <div
+        className="shrink-0 flex justify-center pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-2"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           onClick={closeOverlay}
-          className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white/60 bg-white/10 text-zinc-800 transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/70 bg-white/35 text-zinc-800 transition hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-white/60"
           aria-label={lang === "es" ? "Cerrar y volver al contacto" : "Close and return to contact"}
         >
-          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden className="scale-90">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
             <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col items-center justify-center overflow-x-hidden px-6 pb-8">
+        <div
+          className="mx-auto flex w-full max-w-[980px] flex-col items-center rounded-[28px] px-4 py-6 md:px-8 md:py-8"
+          onClick={(e) => e.stopPropagation()}
+        >
         {submitStatus === "success" && (
           <div className="flex flex-col items-center gap-6">
             <p className="text-center text-lg text-zinc-800" role="status">
@@ -355,7 +483,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
             <button
               type="button"
               onClick={() => setLeadType(null)}
-              className="cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-3 text-sm font-medium text-zinc-800 transition hover:bg-white/20"
+              className="cursor-pointer rounded-full border-2 border-white/70 bg-transparent px-6 py-3 text-sm font-medium text-zinc-800 transition hover:bg-white/20"
             >
               {dict.back}
             </button>
@@ -364,12 +492,14 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
 
         {submitStatus !== "success" && (
           <>
-            <div className="mb-4 min-h-6 w-full max-w-xl">
+            {(submitStatus === "error" || submitStatus === "rate_limit") && (
+              <div className="mb-4 w-full max-w-xl">
               <AnimatedFeedback
                 message={submitStatus === "error" ? dict.errorSend : submitStatus === "rate_limit" ? dict.errorRateLimit : undefined}
                 tone={submitStatus === "rate_limit" ? "warning" : "error"}
               />
-            </div>
+              </div>
+            )}
             <div className="mb-16 w-full max-w-xl">
               <div className="flex justify-center gap-1">
                 {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
@@ -394,20 +524,27 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 className="flex w-full flex-col items-center"
               >
                 {step === 1 && (
-                  <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                    <label htmlFor="lead-name" className="sr-only col-span-3">{dict.labels.name}</label>
-                    <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                    <div ref={inputWrapperRef} className="min-w-0 w-full">
+                  <div className="relative grid w-full max-w-[760px] grid-cols-[minmax(0,1fr)_minmax(0,12rem)_minmax(0,1fr)] items-center gap-x-3 gap-y-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,20rem)_minmax(0,1fr)] sm:gap-x-6 md:grid-cols-[minmax(0,1fr)_minmax(0,32rem)_minmax(0,1fr)] md:gap-x-8">
+                    <label htmlFor="lead-name" className="sr-only">{dict.labels.name}</label>
+                    <motion.div
+                      ref={inputWrapperRef}
+                      className="col-start-2 row-start-1 min-w-0 w-full"
+                      animate={nameShakeControls}
+                    >
                       <input
                         ref={stepInputRef as React.RefObject<HTMLInputElement>}
                         id="lead-name"
                         type="text"
                         value={form.name}
                         onChange={(e) => setField("name", e.target.value)}
-                        onKeyDown={handleKeyDown}
+                        onPointerDown={() => setIsInputEngaged(true)}
+                        onKeyDown={(e) => {
+                          setIsInputEngaged(true);
+                          handleKeyDown(e);
+                        }}
                         autoComplete="name"
-                        placeholder={dict.placeholders.name}
-                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.name.trim() ? "caret-transparent" : ""}`}
+                        placeholder={!form.name.trim() && isInputEngaged ? "" : dict.placeholders.name}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.name.trim() && !isInputEngaged ? "caret-transparent" : ""}`}
                         style={{
                           outline: "none",
                           boxSizing: "border-box",
@@ -417,26 +554,28 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                         aria-invalid={!!fieldErrors.name}
                         aria-describedby={fieldErrors.name ? "lead-name-err" : undefined}
                       />
-                    </div>
-                    <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                    <div className="h-[2px] min-w-0 bg-white" />
+                    </motion.div>
+                    <button type="button" onClick={goBack} className="col-start-1 row-start-2 shrink-0 cursor-pointer justify-self-end rounded-full border-2 border-white/70 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="col-start-2 row-start-2 h-[3px] min-w-0 bg-white" />
                     {!isLastStep ? (
-                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                      <button type="button" onClick={goNext} className="col-start-3 row-start-2 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90">{dict.next}</button>
                     ) : (
-                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                      <button type="button" onClick={submit} disabled={loading} className="col-start-3 row-start-2 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
                     )}
-                    <div className="col-span-3 mt-2">
+                    <div className="pointer-events-none absolute left-1/2 top-full mt-2 w-full max-w-xl -translate-x-1/2">
                       <AnimatedFeedback id="lead-name-err" message={fieldErrors.name} />
                     </div>
                   </div>
                 )}
 
                 {step === 2 && (
-                  <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                    <label htmlFor="lead-email" className="sr-only col-span-3">{dict.labels.email}</label>
-                    <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                    <div ref={inputWrapperRef} className="min-w-0 w-full">
+                  <div className="relative grid w-full max-w-[760px] grid-cols-[minmax(0,1fr)_minmax(0,12rem)_minmax(0,1fr)] items-center gap-x-3 gap-y-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,20rem)_minmax(0,1fr)] sm:gap-x-6 md:grid-cols-[minmax(0,1fr)_minmax(0,32rem)_minmax(0,1fr)] md:gap-x-8">
+                    <label htmlFor="lead-email" className="sr-only">{dict.labels.email}</label>
+                    <motion.div
+                      ref={inputWrapperRef}
+                      className="col-start-2 row-start-1 min-w-0 w-full"
+                      animate={emailShakeControls}
+                    >
                       <input
                         ref={stepInputRef as React.RefObject<HTMLInputElement>}
                         id="lead-email"
@@ -463,10 +602,14 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                               : dict.errors.emailRequired,
                           }));
                         }}
-                        onKeyDown={handleKeyDown}
+                        onPointerDown={() => setIsInputEngaged(true)}
+                        onKeyDown={(e) => {
+                          setIsInputEngaged(true);
+                          handleKeyDown(e);
+                        }}
                         autoComplete="email"
-                        placeholder={dict.placeholders.email}
-                        className={`w-full max-w-full rounded-md bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.email.trim() ? "caret-transparent" : ""} ${fieldErrors.email ? "ring-1 ring-red-500/50" : ""}`}
+                        placeholder={!form.email.trim() && isInputEngaged ? "" : dict.placeholders.email}
+                        className={`w-full max-w-full rounded-md bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.email.trim() && !isInputEngaged ? "caret-transparent" : ""}`}
                         style={{
                           outline: "none",
                           boxSizing: "border-box",
@@ -476,53 +619,64 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                         aria-invalid={!!fieldErrors.email}
                         aria-describedby={fieldErrors.email ? "lead-email-err" : undefined}
                       />
-                    </div>
-                    <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                    <div className="h-[2px] min-w-0 bg-white" />
+                    </motion.div>
+                    <button type="button" onClick={goBack} className="col-start-1 row-start-2 shrink-0 cursor-pointer justify-self-end rounded-full border-2 border-white/70 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="col-start-2 row-start-2 h-[3px] min-w-0 bg-white" />
                     {!isLastStep ? (
-                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                      <button type="button" onClick={goNext} className="col-start-3 row-start-2 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90">{dict.next}</button>
                     ) : (
-                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                      <button type="button" onClick={submit} disabled={loading} className="col-start-3 row-start-2 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
                     )}
-                    <div className="col-span-3 mt-2">
+                    <div className="pointer-events-none absolute left-1/2 top-full mt-2 w-full max-w-xl -translate-x-1/2">
                       <AnimatedFeedback id="lead-email-err" message={fieldErrors.email} />
                     </div>
                   </div>
                 )}
 
                 {leadType !== "talent" && step === 3 && (
-                  <div className="grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-x-8 gap-y-0">
-                    <label htmlFor="lead-phone" className="sr-only col-span-3">{dict.labels.phone}</label>
-                    <span className="invisible shrink-0 rounded-full border border-white/60 px-6 py-2 text-xs font-medium" aria-hidden>{dict.back}</span>
-                    <div ref={inputWrapperRef} className="min-w-0 w-full">
+                  <div className="relative grid w-full max-w-[760px] grid-cols-[minmax(0,1fr)_minmax(0,12rem)_minmax(0,1fr)] items-center gap-x-3 gap-y-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,20rem)_minmax(0,1fr)] sm:gap-x-6 md:grid-cols-[minmax(0,1fr)_minmax(0,32rem)_minmax(0,1fr)] md:gap-x-8">
+                    <label htmlFor="lead-phone" className="sr-only">{dict.labels.phone}</label>
+                    <motion.div
+                      ref={inputWrapperRef}
+                      className="col-start-2 row-start-1 min-w-0 w-full"
+                      animate={phoneShakeControls}
+                    >
                       <input
                         ref={stepInputRef as React.RefObject<HTMLInputElement>}
                         id="lead-phone"
                         type="tel"
                         value={form.phone}
-                        onChange={(e) => setField("phone", e.target.value)}
-                        onKeyDown={handleKeyDown}
+                        onChange={(e) => setField("phone", sanitizePhoneInput(e.target.value))}
+                        onPointerDown={() => setIsInputEngaged(true)}
+                        onKeyDown={(e) => {
+                          setIsInputEngaged(true);
+                          handleKeyDown(e);
+                        }}
+                        inputMode="tel"
+                        maxLength={32}
                         autoComplete="tel"
-                        placeholder={`${optionalPrefix}${dict.placeholders.phone}`}
-                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.phone.trim() ? "caret-transparent" : ""}`}
+                        placeholder={!form.phone.trim() && isInputEngaged ? "" : `${optionalPrefix}${dict.placeholders.phone}`}
+                        className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.phone.trim() && !isInputEngaged ? "caret-transparent" : ""}`}
                         style={{
                           outline: "none",
                           boxSizing: "border-box",
                           transition: `font-size ${FONT_SIZE_TRANSITION_MS}ms ease`,
                           ...(step === 3 && dynamicFontSizePx != null ? { fontSize: `${dynamicFontSizePx}px` } : {}),
                         }}
+                        aria-invalid={!!fieldErrors.phone}
+                        aria-describedby={fieldErrors.phone ? "lead-phone-err" : undefined}
                       />
-                    </div>
-                    <span className="invisible shrink-0 rounded-full bg-white px-6 py-2 text-xs font-medium" aria-hidden>{isLastStep ? dict.send : dict.next}</span>
-                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                    <div className="h-[2px] min-w-0 bg-white" />
+                    </motion.div>
+                    <button type="button" onClick={goBack} className="col-start-1 row-start-2 shrink-0 cursor-pointer justify-self-end rounded-full border-2 border-white/70 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="col-start-2 row-start-2 h-[3px] min-w-0 bg-white" />
                     {!isLastStep ? (
-                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                      <button type="button" onClick={goNext} className="col-start-3 row-start-2 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90">{dict.next}</button>
                     ) : (
-                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                      <button type="button" onClick={submit} disabled={loading} className="col-start-3 row-start-2 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
                     )}
-                    <div className="col-span-3 mt-2 min-h-6" />
+                    <div className="pointer-events-none absolute left-1/2 top-full mt-2 w-full max-w-xl -translate-x-1/2">
+                      <AnimatedFeedback id="lead-phone-err" message={fieldErrors.phone} />
+                    </div>
                   </div>
                 )}
 
@@ -579,20 +733,29 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                 )}
 
                 {step === getMessageStep(leadType) && (
-                  <div className="w-full max-w-xl">
+                  <div className="relative w-full max-w-[760px]">
                     <label htmlFor="lead-message" className="sr-only">{dict.labels.message}</label>
-                    <div className="grid w-full grid-cols-[auto_1fr_auto] items-end gap-x-8 gap-y-0">
-                      <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                      <div ref={inputWrapperRef} className="relative min-w-0">
+                    <div className="relative grid w-full grid-cols-[minmax(0,1fr)_minmax(0,12rem)_minmax(0,1fr)] items-end gap-x-3 gap-y-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,20rem)_minmax(0,1fr)] sm:gap-x-6 md:grid-cols-[minmax(0,1fr)_minmax(0,32rem)_minmax(0,1fr)] md:gap-x-8">
+                      <button type="button" onClick={goBack} className="col-start-1 shrink-0 cursor-pointer justify-self-end rounded-full border-2 border-white/70 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                      <motion.div
+                        ref={inputWrapperRef}
+                        className="relative col-start-2 min-w-0"
+                        animate={messageShakeControls}
+                      >
                         <textarea
                           ref={stepInputRef as React.RefObject<HTMLTextAreaElement>}
                           id="lead-message"
                           value={form.message}
                           onChange={(e) => setField("message", e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          placeholder={dict.placeholders.message}
+                          onPointerDown={() => setIsInputEngaged(true)}
+                          onKeyDown={(e) => {
+                            setIsInputEngaged(true);
+                            handleKeyDown(e);
+                          }}
+                          placeholder={!form.message.trim() && isInputEngaged ? "" : dict.placeholders.message}
                           rows={1}
-                          className={`relative z-[1] w-full max-w-full resize-none overflow-y-auto bg-transparent px-0 pb-3 text-center text-xl font-light leading-relaxed tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-2xl ${!form.message.trim() ? "caret-transparent" : ""}`}
+                          className={`contact-message-scrollbar relative z-[1] w-full max-w-full resize-none overflow-y-auto bg-transparent px-0 pb-3 text-center text-xl font-light leading-relaxed tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-2xl ${!form.message.trim() && !isInputEngaged ? "caret-transparent" : ""}`}
+                          onScroll={updateMessageScrollbar}
                           style={{
                             outline: "none",
                             boxSizing: "border-box",
@@ -600,17 +763,25 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                             transition: "color 180ms ease",
                           }}
                           aria-invalid={!!fieldErrors.message}
-                          aria-describedby="lead-message-err lead-privacy-err"
+                          aria-describedby={messageStepFeedback ? "lead-message-step-err" : undefined}
                         />
-                        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
-                      </div>
-                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                        {messageScrollbar.canScroll && (
+                          <div className="contact-message-scrollbar-ui" aria-hidden>
+                            <span
+                              className="contact-message-scrollbar-ui__thumb"
+                              style={{
+                                height: `${messageScrollbar.thumbHeight}px`,
+                                top: `${messageScrollbar.thumbTop}px`,
+                              }}
+                            />
+                          </div>
+                        )}
+                        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[3px] bg-white" />
+                      </motion.div>
+                      <button type="button" onClick={submit} disabled={loading} className="col-start-3 shrink-0 cursor-pointer justify-self-start rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
                     </div>
-                    <div className="mt-3">
-                      <AnimatedFeedback id="lead-message-err" message={fieldErrors.message} centered={false} />
-                    </div>
-                    <div className="mt-4">
-                      <label className="flex cursor-pointer items-start gap-3 text-left text-sm font-light leading-relaxed text-zinc-800 sm:text-base">
+                    <div className="mt-4 flex flex-col items-center">
+                      <label className="flex w-full max-w-[32rem] cursor-pointer items-start justify-center gap-3 text-center text-sm font-light leading-relaxed text-zinc-800 sm:text-base">
                         <span className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
                           <input
                             type="checkbox"
@@ -618,8 +789,9 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                             onChange={(e) => setField("acceptPrivacy", e.target.checked)}
                             className="peer sr-only"
                             aria-invalid={!!fieldErrors.acceptPrivacy}
+                            aria-describedby={messageStepFeedback ? "lead-message-step-err" : undefined}
                           />
-                          <span className="h-4 w-4 rounded-[4px] border border-white/80 bg-white/10 transition peer-checked:border-white peer-checked:bg-white" />
+                          <span className="h-4 w-4 rounded-[4px] border-2 border-white/90 bg-white/10 transition peer-checked:border-white peer-checked:bg-white" />
                           <svg
                             viewBox="0 0 16 16"
                             aria-hidden
@@ -643,8 +815,8 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                           })()}
                         </span>
                       </label>
-                      <div className="mt-2">
-                        <AnimatedFeedback id="lead-privacy-err" message={fieldErrors.acceptPrivacy} centered={false} />
+                      <div className="mt-3 w-full max-w-[32rem]">
+                        <AnimatedFeedback id="lead-message-step-err" message={messageStepFeedback} />
                       </div>
                     </div>
                   </div>
@@ -652,12 +824,12 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
 
                 {leadType === "project" && step === getServicesStep() && (
                   <div className="mt-8 flex w-full max-w-xl items-center gap-4">
-                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border border-white/60 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
-                    <div className="h-[2px] flex-1 bg-white" />
+                    <button type="button" onClick={goBack} className="shrink-0 cursor-pointer rounded-full border-2 border-white/70 bg-transparent px-6 py-2 text-xs font-medium text-zinc-800 transition hover:bg-white/20">{dict.back}</button>
+                    <div className="h-[3px] flex-1 bg-white" />
                     {!isLastStep ? (
-                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90">{dict.next}</button>
+                      <button type="button" onClick={goNext} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90">{dict.next}</button>
                     ) : (
-                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
+                      <button type="button" onClick={submit} disabled={loading} className="shrink-0 cursor-pointer rounded-full bg-white px-6 py-2 text-xs font-medium text-zinc-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "…" : dict.send}</button>
                     )}
                   </div>
                 )}
@@ -665,6 +837,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
             </AnimatePresence>
           </>
         )}
+        </div>
       </div>
     </div>
   );

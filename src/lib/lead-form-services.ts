@@ -5,7 +5,9 @@ export const LEAD_SERVICE_IDS = [
   "art-direction",
   "marketing-creativo",
   "web-design",
+  "editorial-design",
   "packaging",
+  "other",
 ] as const;
 
 export type LeadServiceId = (typeof LEAD_SERVICE_IDS)[number];

@@ -466,6 +466,10 @@ body[data-note-transition-dock-hidden="1"] .dock {
 body[data-note-transition-dock-hidden="1"] .enblanco-footer {
   display: none !important;
 }
+
+body[data-contact-flow-active="1"] .enblanco-footer {
+  display: none !important;
+}
 .dock-pill {
   position: relative;
   background: transparent;
@@ -619,6 +623,38 @@ body[data-note-transition-dock-hidden="1"] .enblanco-footer {
   .footer-link-reveal__text {
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ========== CONTACT FLOW: MESSAGE SCROLLBAR ========== */
+.contact-message-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.contact-message-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.contact-message-scrollbar-ui {
+  pointer-events: none;
+  position: absolute;
+  top: 4px;
+  right: -18px;
+  bottom: 14px;
+  width: 12px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: #E8E7E7;
+}
+
+.contact-message-scrollbar-ui__thumb {
+  position: absolute;
+  left: 2px;
+  width: 8px;
+  border-radius: 9999px;
+  background: #FFFFFF;
 }
 
 /* ========== LEGACY / ACCESSIBILITY ========== */
