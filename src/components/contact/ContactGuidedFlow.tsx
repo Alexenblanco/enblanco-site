@@ -388,7 +388,6 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
   }, [leadType, step, form, lang, pageUrl, validateStep]);
 
   const isLastStep = leadType ? step === getTotalSteps(leadType) : false;
-  const optionalPrefix = lang === "es" ? "(opcional) " : "(optional) ";
   const messageStepFeedback = fieldErrors.message ?? fieldErrors.acceptPrivacy;
 
   const handleKeyDown = useCallback(
@@ -655,7 +654,7 @@ export default function ContactGuidedFlow({ dict, lang, privacyHref, pageUrl }: 
                         inputMode="tel"
                         maxLength={32}
                         autoComplete="tel"
-                        placeholder={!form.phone.trim() && isInputEngaged ? "" : `${optionalPrefix}${dict.placeholders.phone}`}
+                        placeholder={!form.phone.trim() && isInputEngaged ? "" : dict.placeholders.phone}
                         className={`w-full max-w-full bg-transparent text-center text-2xl font-light tracking-tight text-zinc-800 placeholder:text-zinc-400/80 sm:text-3xl md:text-4xl ${!form.phone.trim() && !isInputEngaged ? "caret-transparent" : ""}`}
                         style={{
                           outline: "none",
