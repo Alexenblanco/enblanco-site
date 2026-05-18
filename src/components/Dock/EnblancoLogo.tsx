@@ -4,9 +4,15 @@ type EnblancoLogoProps = {
   className?: string;
   width?: number;
   height?: number;
+  color?: string;
 };
 
-export default function EnblancoLogo({ className = "", width = 110, height = 20 }: EnblancoLogoProps) {
+export default function EnblancoLogo({
+  className = "",
+  width = 110,
+  height = 20,
+  color = "var(--color-text)",
+}: EnblancoLogoProps) {
   return (
     <span
       aria-hidden
@@ -14,7 +20,7 @@ export default function EnblancoLogo({ className = "", width = 110, height = 20 
       style={{
         width,
         height,
-        backgroundColor: "var(--color-text)",
+        backgroundColor: color,
         maskImage: 'url("/logo-enblanco.svg")',
         maskRepeat: "no-repeat",
         maskPosition: "center",

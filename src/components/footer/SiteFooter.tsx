@@ -5,6 +5,7 @@ import EditorialShell, {
   EditorialBlock,
   EditorialSubgrid,
 } from "@/components/layout/EditorialShell";
+import CopyEmailButton from "@/components/contact/CopyEmailButton";
 import FooterRevealLink from "./FooterRevealLink";
 
 type SiteFooterProps = {
@@ -66,6 +67,9 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
     { label: "behance", href: "https://www.behance.net/enbl_nco" },
     { label: "linkedin", href: "https://www.linkedin.com/company/agenciaenblanco/" },
   ];
+  const copiedLabel = lang === "es" ? "Copiado" : "Copied";
+  const footerContactButtonClass =
+    "footer-link-pill footer-link-reveal inline-block cursor-pointer whitespace-nowrap !text-[#1A1C1F]";
 
   return (
     <EditorialShell
@@ -114,14 +118,22 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           <p className="mb-2 text-[14px] !text-[#8A8A8A]">{copy.headings.contact}</p>
           <ul className="space-y-0.5">
             <li>
-              <FooterRevealLink href={`mailto:${CONTACT_EMAIL}`} external>
-                {CONTACT_EMAIL}
-              </FooterRevealLink>
+              <CopyEmailButton
+                textToCopy={CONTACT_EMAIL}
+                copiedLabel={copiedLabel}
+                ariaLabel={lang === "es" ? "Copiar email al portapapeles" : "Copy email to clipboard"}
+                buttonClassName={footerContactButtonClass}
+              >
+                <span className="footer-link-reveal__text">{CONTACT_EMAIL}</span>
+              </CopyEmailButton>
             </li>
             <li>
-              <FooterRevealLink href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`} external>
-                {CONTACT_PHONE}
-              </FooterRevealLink>
+              <a
+                href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`}
+                className={footerContactButtonClass}
+              >
+                <span className="footer-link-reveal__text">{CONTACT_PHONE}</span>
+              </a>
             </li>
           </ul>
         </section>
@@ -194,14 +206,24 @@ export default function SiteFooter({ lang }: SiteFooterProps) {
           </p>
           <ul className="space-y-0.5">
             <li>
-              <FooterRevealLink href={`mailto:${CONTACT_EMAIL}`} external>
-                {CONTACT_EMAIL}
-              </FooterRevealLink>
+              <CopyEmailButton
+                textToCopy={CONTACT_EMAIL}
+                copiedLabel={copiedLabel}
+                ariaLabel={lang === "es" ? "Copiar email al portapapeles" : "Copy email to clipboard"}
+                buttonClassName={footerContactButtonClass}
+              >
+                <span className="footer-link-reveal__text">{CONTACT_EMAIL}</span>
+              </CopyEmailButton>
             </li>
             <li>
-              <FooterRevealLink href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`} external>
-                {CONTACT_PHONE}
-              </FooterRevealLink>
+              <CopyEmailButton
+                textToCopy={CONTACT_PHONE}
+                copiedLabel={copiedLabel}
+                ariaLabel={lang === "es" ? "Copiar teléfono al portapapeles" : "Copy phone number to clipboard"}
+                buttonClassName={footerContactButtonClass}
+              >
+                <span className="footer-link-reveal__text">{CONTACT_PHONE}</span>
+              </CopyEmailButton>
             </li>
           </ul>
         </section>

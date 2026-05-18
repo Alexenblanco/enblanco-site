@@ -11,6 +11,7 @@ type Props = {
   ariaLabel?: string;
   children?: ReactNode;
   className?: string;
+  buttonClassName?: string;
 };
 
 type BubblePosition = {
@@ -26,6 +27,7 @@ export default function CopyEmailButton({
   ariaLabel = "Copiar al portapapeles",
   children,
   className = "",
+  buttonClassName,
 }: Props) {
   const copyValue = textToCopy ?? email ?? "";
   const [copied, setCopied] = useState(false);
@@ -84,7 +86,7 @@ export default function CopyEmailButton({
         ref={buttonRef}
         type="button"
         onClick={copyEmail}
-        className="contact-muted-link cursor-pointer no-underline"
+        className={buttonClassName ?? "contact-muted-link cursor-pointer no-underline"}
         aria-label={ariaLabel}
       >
         {children ?? copyValue}

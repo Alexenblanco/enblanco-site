@@ -104,7 +104,11 @@ export default function FloatingDock() {
               ariaLabel={item.isLogo ? "enblanco, ir a inicio" : item.label}
               onClick={(e) => handleItemClick(e, item, index, desktopItems.length)}
             >
-              {item.isLogo ? <EnblancoLogo /> : item.label}
+              {item.isLogo ? (
+                <EnblancoLogo className="dock-enblanco-logo" color="#FFFFFF" />
+              ) : (
+                item.label
+              )}
             </DockItem>
           ))}
         </div>
@@ -133,7 +137,7 @@ export default function FloatingDock() {
               handleItemClick(e, { id: "logo", href: homeHref }, 1, 3);
             }}
           >
-            <EnblancoLogo />
+            <EnblancoLogo className="dock-enblanco-logo" color="#FFFFFF" />
           </DockItem>
           {contextAction.type === "link" && contextAction.href ? (
             <DockItem
