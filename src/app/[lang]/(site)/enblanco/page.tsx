@@ -305,8 +305,14 @@ export default async function EnblancoPage({ params }: Props) {
           ))}
         </EditorialBlock>
 
-        <EditorialSubgrid as="section" start="frame-start" end="frame-end" className="about-services" aria-labelledby="about-services-heading">
-          <AboutRevealItem>
+        <EditorialSubgrid
+          as="section"
+          start="frame-start"
+          end="frame-end"
+          className="about-services"
+          aria-labelledby="about-services-heading"
+        >
+          <AboutRevealItem className="about-services__intro-cell">
             <div className="about-services__intro">
               <h2 id="about-services-heading">
                 {copy.servicesIntro}
@@ -315,7 +321,7 @@ export default async function EnblancoPage({ params }: Props) {
               <Link href={copy.servicesHref}>{copy.servicesLink}</Link>
             </div>
           </AboutRevealItem>
-          <AboutRevealItem>
+          <AboutRevealItem className="about-services__lists-cell">
             <div className="about-services__lists" aria-label={isEn ? "Services" : "Servicios"}>
               {serviceColumns[lang].map((column) => (
                 <ul key={column.join("-")}>
@@ -329,10 +335,17 @@ export default async function EnblancoPage({ params }: Props) {
         </EditorialSubgrid>
 
         <EditorialSubgrid as="section" start="frame-start" end="frame-end" className="about-focus" aria-labelledby="about-focus-heading">
-          <AboutRevealItem>
-            <h2 id="about-focus-heading">{copy.focusTitle}</h2>
+          <AboutRevealItem className="about-focus__heading-cell">
+            <h2 id="about-focus-heading">
+              {copy.focusTitle.split(" ").map((word, index) => (
+                <Fragment key={word}>
+                  {index > 0 ? <br /> : null}
+                  {word}
+                </Fragment>
+              ))}
+            </h2>
           </AboutRevealItem>
-          <AboutRevealItem>
+          <AboutRevealItem className="about-focus__body-cell">
             <p>{copy.focusText}</p>
           </AboutRevealItem>
         </EditorialSubgrid>
@@ -355,7 +368,7 @@ export default async function EnblancoPage({ params }: Props) {
           </AboutRevealItem>
           <div className="about-process__items">
             {processItems[lang].map((item, index) => (
-              <AboutRevealItem key={item.title}>
+              <AboutRevealItem key={item.title} className="about-process__item">
                 <article className={`about-process-row about-process-row--${index + 1}`}>
                   <h2 id={item.title === processItems[lang][0].title ? "about-process-heading" : undefined}>
                     {item.title}

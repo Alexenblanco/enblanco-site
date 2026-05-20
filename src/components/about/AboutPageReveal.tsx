@@ -32,11 +32,13 @@ const ITEM_VARIANTS = {
 
 type AboutPageRevealProps = {
   children: ReactNode;
+  className?: string;
 };
 
-export function AboutRevealItem({ children }: AboutPageRevealProps) {
+export function AboutRevealItem({ children, className }: AboutPageRevealProps) {
   return (
     <motion.div
+      className={className}
       variants={ITEM_VARIANTS}
       style={{ willChange: "opacity, filter, transform" }}
     >
