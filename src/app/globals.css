@@ -456,23 +456,35 @@ a {
   position: relative;
   margin-top: 128px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 54px 23px;
+  box-sizing: border-box;
+  padding: 64px 23px;
   text-align: center;
 }
 
 .about-years::before {
   content: "";
   position: absolute;
+  top: 0;
+  bottom: 0;
   left: 50%;
-  top: -36px;
-  bottom: -36px;
   width: min(120vw, 1783px);
   transform: translateX(-50%);
   z-index: 0;
   border-radius: 42px;
-  background: #FFFFFF;
-  filter: blur(75px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 12%,
+    rgba(255, 255, 255, 0.88) 24%,
+    #FFFFFF 32%,
+    #FFFFFF 68%,
+    rgba(255, 255, 255, 0.88) 76%,
+    rgba(255, 255, 255, 0.45) 88%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
 }
 
 .about-years p {
@@ -828,8 +840,12 @@ a {
 
   .about-years {
     margin-top: 240px;
-    padding: 0;
+    padding-block: 64px;
     text-align: center;
+  }
+
+  .about-years::before {
+    border-radius: 42px;
   }
 
   .about-years p {
